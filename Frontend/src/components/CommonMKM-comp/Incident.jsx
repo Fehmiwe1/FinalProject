@@ -44,7 +44,7 @@ function Incident() {
         })
         .catch((error) => {
           console.error("שגיאה:", error);
-          setMsg("אירע שגיאה בעת מחיקת הדוח.");
+          setMsg("אירעה שגיאה בעת מחיקת הדוח.");
         });
     }
   };
