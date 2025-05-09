@@ -1,0 +1,51 @@
+.mainPageManager {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100vw;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  will-change: transform;
+  background-color: #2c3e50; /* Dark, tough blue for added strength */
+}
+.mainPageManager-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  padding: 40px;
+  box-sizing: border-box;
+  gap: 10%;
+}
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 20%; /* Adjust width to allow both containers side by side */
+  height: 300px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.WorkArrangement-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 75%;
+}
+
+.WA-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,349 @@
+/* Full-Screen Background */
+.LoginP {
+  background-image: url(../../img/LoginImg.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100vw;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  will-change: transform;
+  background-color: #2c3e50; /* Dark, tough blue for added strength */
+}
+
+/* Main Container */
+.mainPageContainer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+/* Login Form Container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  width: 400px;
+}
+
+/* Form Styling */
+.login-form {
+  gap: 1.5rem;
+  border-radius: 8px;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.7
+  ); /* Dark, tough semi-transparent background */
+  width: 100%;
+  padding: 30px;
+  box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.7); /* Dark shadow for depth */
+  backdrop-filter: blur(5px); /* Blur Effect */
+  border: 2px solid #34495e; /* Steel gray border for toughness */
+  margin-right: 20%;
+}
+
+/* Form Title */
+.login-form h1 {
+  text-align: center;
+  color: #ecf0f1; /* Light gray/white for contrast */
+  margin: 0 0 20px 0;
+  font-size: 3.5rem;
+  font-weight: bolder; /* Strong font weight for emphasis */
+}
+
+/* Form Group */
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* label and input Containers */
+.label-input-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.email-label-input-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.address-label-input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* space between inputs */
+}
+
+/* Labels */
+.login-label,
+.signup-label {
+  color: #ecf0f1; /* Light gray for readability */
+  font-weight: bold;
+  min-width: 100px;
+  font-size: 1.3rem;
+}
+
+/* Input Fields */
+.login-form-control,
+.password-form-control {
+  width: 200px;
+  height: 35px;
+  padding: 5px 10px;
+  border: 2px solid #7f8c8d; /* Steel gray border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  background-color: #34495e; /* Dark background for input fields */
+  color: #ecf0f1; /* Light text */
+}
+
+.login-form-control:focus,
+.password-form-control:focus {
+  outline: none;
+  border-color: #333; /* Dark orange to show focus and add intensity */
+  box-shadow: 0 0 5px rgba(201, 200, 199, 0.4); /* Orange glow for security */
+}
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #333; /* Bold orange for a strong accent */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  text-transform: uppercase; /* Adds strength to the button text */
+}
+
+.login-btn:hover {
+  background-color: #555; /* Darker orange for hover effect */
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 200, 199, 0.4); /* Glowing effect on hover */
+}
+
+.login-form-group h3 {
+  text-align: center;
+  color: #ecf0f1;
+  font-weight: bold;
+  min-width: 100px;
+}
+
+.signup-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.signup-btn {
+  width: 40%;
+  padding: 12px;
+  background-color: #333; /* Bold orange for a strong accent */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  text-transform: uppercase; /* Adds strength to the button text */
+  display: block; /* Makes button block-level */
+  margin: auto; /* This pushes the button to cinter */
+}
+.signup-btn:hover {
+  background-color: #555; /* Darker orange for hover effect */
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 200, 199, 0.4); /* Glowing effect on hover */
+}
+
+/* Sign Up Modal */
+
+.signup-form {
+  gap: 1.5rem;
+  border-radius: 8px;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.7
+  ); /* Dark, tough semi-transparent background */
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.7); /* Dark shadow for depth */
+  backdrop-filter: blur(5px); /* Blur Effect */
+  border: 2px solid #34495e; /* Steel gray border for toughness */
+}
+
+.signup-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  z-index: 999;
+}
+
+.signup-h3 {
+  font-size: 1.2rem;
+}
+.signup-modal-content {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 30px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+  backdrop-filter: blur(5px);
+  border: 2px solid #34495e;
+  margin-bottom: 6%;
+}
+
+.signup-modal-content h2 {
+  text-align: center;
+  color: #ecf0f1;
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+.signup-modal-content p {
+  text-align: center;
+  color: #ecf0f1;
+  font-size: 1.5rem;
+  margin: 0px;
+}
+.signup-modal-content .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signup-modal-content .form-group label {
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+.signup-modal-content input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 2px solid #7f8c8d;
+  background-color: #34495e;
+  color: #ecf0f1;
+}
+
+.signup-modal-content input:focus {
+  outline: none;
+  border-color: #555;
+  box-shadow: 0 0 5px rgba(201, 200, 199, 0.4);
+}
+
+.signup-modal-content button {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  text-transform: uppercase;
+  margin-top: 10%;
+}
+
+.signup-modal-content button:hover {
+  background-color: #555;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 200, 199, 0.4);
+}
+
+/* Forgot Password Button */
+.forgot-password-btn {
+  width: 60%;
+  padding: 12px;
+  background-color: #333; /* Bold orange for a strong accent */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  text-transform: uppercase; /* Adds strength to the button text */
+  display: block; /* Makes button block-level */
+  margin: auto; /* This pushes the button to cinter */
+}
+
+.forgot-password-btn:hover {
+  background-color: #555;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 200, 199, 0.4);
+}
+
+/* Close Button */
+.close-btn {
+  font-size: 2rem;
+  color: #ecf0f1;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Success Message */
+.success-message {
+  color: #2ecc71; /* Green for success */
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .LoginP {
+    padding-right: 20px;
+  }
+
+  .login-container {
+    width: 90%;
+  }
+
+  .login-form-control,
+  .password-form-control {
+    width: 100%;
+  }
+
+  .signup-modal-content {
+    width: 90%;
+  }
+}
