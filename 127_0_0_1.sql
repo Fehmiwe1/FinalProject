@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2025 at 01:25 PM
+-- Generation Time: May 14, 2025 at 06:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -494,7 +494,7 @@ CREATE TABLE `pma__recent` (
 --
 
 INSERT INTO `pma__recent` (`username`, `tables`) VALUES
-('root', '[{\"db\":\"reactnodefinalproj\",\"table\":\"users\"},{\"db\":\"reactnodefinalproj\",\"table\":\"incident\"},{\"db\":\"reactnodefinalproj\",\"table\":\"role\"},{\"db\":\"reactnodefinalproj\",\"table\":\"shift\"},{\"db\":\"reactnodefinalproj\",\"table\":\"shift_details\"},{\"db\":\"library\",\"table\":\"books\"},{\"db\":\"library\",\"table\":\"customers\"},{\"db\":\"library\",\"table\":\"borrowed\"},{\"db\":\"reports_db\",\"table\":\"incident\"},{\"db\":\"reports_db\",\"table\":\"reports\"}]');
+('root', '[{\"db\":\"reactnodefinalproj\",\"table\":\"incident\"},{\"db\":\"reactnodefinalproj\",\"table\":\"users\"},{\"db\":\"reactnodefinalproj\",\"table\":\"shift_details\"},{\"db\":\"reactnodefinalproj\",\"table\":\"shift\"},{\"db\":\"reactnodefinalproj\",\"table\":\"role\"},{\"db\":\"reactnodefinalproj\",\"table\":\"employee_requests\"},{\"db\":\"reactnodefinalproj\",\"table\":\"employee_notifications\"},{\"db\":\"reactnodefinalproj\",\"table\":\"employee_constraints\"},{\"db\":\"reactnodefinalproj\",\"table\":\"employeeconstraints\"},{\"db\":\"reactnodefinalproj\",\"table\":\"shift_constraints\"}]');
 
 -- --------------------------------------------------------
 
@@ -611,7 +611,7 @@ CREATE TABLE `pma__userconfig` (
 --
 
 INSERT INTO `pma__userconfig` (`username`, `timevalue`, `config_data`) VALUES
-('root', '2025-05-06 11:23:02', '{\"Console\\/Mode\":\"collapse\",\"DefaultConnectionCollation\":\"utf8_general_ci\"}');
+('root', '2025-05-14 16:27:01', '{\"Console\\/Mode\":\"collapse\",\"DefaultConnectionCollation\":\"utf8_general_ci\"}');
 
 -- --------------------------------------------------------
 
@@ -808,6 +808,51 @@ USE `reactnodefinalproj`;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `employee_constraints`
+--
+
+CREATE TABLE `employee_constraints` (
+  `id` int(11) NOT NULL,
+  `ID_employee` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `shift` enum('בוקר','ערב','לילה') NOT NULL,
+  `availability` enum('יכול','לא יכול','יכול חלקית') NOT NULL DEFAULT 'יכול'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_notifications`
+--
+
+CREATE TABLE `employee_notifications` (
+  `id` int(11) NOT NULL,
+  `ID_employee` int(11) NOT NULL,
+  `event_date` date NOT NULL,
+  `event_description` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_requests`
+--
+
+CREATE TABLE `employee_requests` (
+  `id` int(11) NOT NULL,
+  `ID_employee` int(11) NOT NULL,
+  `request_type` enum('חופשה','מחלה','העברת משמרת') NOT NULL,
+  `request_date` date NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `reason` text NOT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `status` enum('ממתין','מאושר','סורב') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `incident`
 --
 
@@ -884,7 +929,7 @@ CREATE TABLE `users` (
   `street` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `city` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `postalCode` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `role` enum('employee','manager') NOT NULL DEFAULT 'employee',
+  `role` enum('employee','manager','kabat','moked') NOT NULL DEFAULT 'employee',
   `status` enum('active','inactive') NOT NULL DEFAULT 'inactive'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -893,14 +938,34 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `password`, `email`, `phone`, `street`, `city`, `postalCode`, `role`, `status`) VALUES
-(1, 'Manager', '', '', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active'),
-(2, 'a', '', '', NULL, '$2b$10$zQalM0U1tdjQ0VrFcyF86ufpW5S7E3buRbDgeUspNGe77ieHY1RM6', '', '', '', '', '', 'employee', 'active'),
-(28, 'fehmi1', 'fehmi', 'wehby', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'inactive'),
-(29, 'fehmi2', 'fehmi2', 'wehby', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive');
+(1, 'Manager', 'פהמי', 'managerLastName', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active'),
+(3, 'fehmi1', 'fehmi', 'wehby', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active'),
+(4, 'fehmi2', 'fehmi2', 'wehby', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `employee_constraints`
+--
+ALTER TABLE `employee_constraints`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ID_employee` (`ID_employee`,`date`,`shift`);
+
+--
+-- Indexes for table `employee_notifications`
+--
+ALTER TABLE `employee_notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ID_employee` (`ID_employee`);
+
+--
+-- Indexes for table `employee_requests`
+--
+ALTER TABLE `employee_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ID_employee` (`ID_employee`);
 
 --
 -- Indexes for table `incident`
@@ -940,10 +1005,28 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `employee_constraints`
+--
+ALTER TABLE `employee_constraints`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `employee_notifications`
+--
+ALTER TABLE `employee_notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `employee_requests`
+--
+ALTER TABLE `employee_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `incident`
 --
 ALTER TABLE `incident`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -954,6 +1037,24 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `employee_constraints`
+--
+ALTER TABLE `employee_constraints`
+  ADD CONSTRAINT `employee_constraints_ibfk_1` FOREIGN KEY (`ID_employee`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employee_notifications`
+--
+ALTER TABLE `employee_notifications`
+  ADD CONSTRAINT `employee_notifications_ibfk_1` FOREIGN KEY (`ID_employee`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employee_requests`
+--
+ALTER TABLE `employee_requests`
+  ADD CONSTRAINT `employee_requests_ibfk_1` FOREIGN KEY (`ID_employee`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `incident`
