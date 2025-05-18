@@ -54,7 +54,7 @@ function Login() {
           navigate("/mainPageManager");
         }
         else if (role === "employee") {
-          navigate("/");
+          navigate("/mainPageGuerd");
         }
       } else if (isActive === "inactive") {
         setError("החשבון שלך אינו פעיל. אנא פנה למנהל.");

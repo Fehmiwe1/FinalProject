@@ -10,7 +10,7 @@ const db = {
         host: "localhost",
         user: "root",
         password: "",
-        database: "reactnodefinalproj",
+        database: "finalproject",
       });
 
       // Connect to the database

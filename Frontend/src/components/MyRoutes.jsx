@@ -10,7 +10,11 @@ import Incident from "./CommonMKM-comp/Incident";
 import CreateIncident from "./CommonMKM-comp/CreateIncident";
 import SinglePost from "./CommonMKM-comp/SinglePost";
 import EditIncident from "./CommonMKM-comp/EditIncident";
-
+import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
+import Report from "./Guerd-comp/Report";
+import Schedule from "./Guerd-comp/Schedule";
+import SickLeavePage from "./Guerd-comp/SickLeavePage";
+import Constraints from "./Guerd-comp/Constraints";
 function MyRoutes() {
   return (
     <>
@@ -24,6 +28,11 @@ function MyRoutes() {
         <Route path="/createIncident" element={<CreateIncident />} />
         <Route path="/post/:id" element={<SinglePost />} />
         <Route path="/editincident/:id" element={<EditIncident />} />
+        <Route path="/mainPageGuerd" element={<MainPageGuerd />} />
+        <Route path="/report" element={<Report />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/sick-leave" element={<SickLeavePage />} />
+        <Route path="/constraints" element={<Constraints />} />
       </Routes>
       <Footer />
     </>

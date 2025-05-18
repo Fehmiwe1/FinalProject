@@ -101,8 +101,17 @@ INSERT INTO `incident` (`id`, `Incident_Name`, `Incident_Date`, `Description`, `
 
 CREATE TABLE `role` (
   `ID_Role` int(11) NOT NULL,
-  `Role_Name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `Role_Name` varchar(255) NOT NULL,
+  `Create_Work_Schedul` tinyint(1) NOT NULL,
+  `Create_Incidet` tinyint(1) NOT NULL,
+  `Update_Work_Schadul` tinyint(1) NOT NULL,
+  `Watch_Incidet` tinyint(1) NOT NULL,
+  `Update_Guest_List` tinyint(1) NOT NULL,
+  `Work_Permission` tinyint(1) NOT NULL,
+  `Leave_Approval` tinyint(1) NOT NULL,
+  `Work_Change_Approval` tinyint(1) NOT NULL,
+  `Updating_Incident` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
