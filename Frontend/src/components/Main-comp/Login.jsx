@@ -52,8 +52,7 @@ function Login() {
       ) {
         if (role === "manager") {
           navigate("/mainPageManager");
-        }
-        else if (role === "employee") {
+        } else if (role === "employee") {
           navigate("/mainPageGuerd");
         }
       } else if (isActive === "inactive") {
@@ -67,9 +66,27 @@ function Login() {
   };
 
   // הרשמה
+  const isValidUsername = (username) => /^[a-zA-Z0-9]+$/.test(username);
+  const isValidPassword = (password) =>
+    /[A-Z]/.test(password) &&
+    /\d/.test(password) &&
+    /^[a-zA-Z0-9]+$/.test(password);
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (!isValidUsername(newUser.username)) {
+      setErrorSingUp("שם המשתמש חייב להיות באנגלית בלבד.");
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
 
+    if (!isValidPassword(newUser.password)) {
+      setErrorSingUp(
+        "הסיסמה חייבת לכלול אות גדולה אחת לפחות ומספר אחד לפחות, באנגלית בלבד."
+      );
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
     try {
       const response = await axios.post("users/register", {
         username: newUser.username,

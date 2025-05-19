@@ -36,7 +36,7 @@ function MainPageManager() {
         );
       })
       .catch((error) => {
-        console.error("שגיאה בעדכון סטטוס:", error);
+        console.error("שגיאה בעדכון הסטטוס:", error);
         setMsg("אירעה שגיאה בעדכון הסטטוס.");
       });
   };
