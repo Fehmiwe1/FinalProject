@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
 import "../../assets/styles/Guerd-styles/MainPage.css";
 
 function MainPage() {
-  const navigate = useNavigate();
+
   const [contractorNumber, setContractorNumber] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [result, setResult] = useState("");

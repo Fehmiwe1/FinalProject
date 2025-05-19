@@ -157,6 +157,16 @@ function Header() {
                       אירועים
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/employeeManagement"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      ניהול עובדים
+                    </NavLink>
+                  </li>
                 </>
               )}
               {!isGuestPage && role === "employee" && (

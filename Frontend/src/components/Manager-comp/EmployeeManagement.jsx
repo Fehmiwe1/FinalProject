@@ -1,0 +1,103 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "../../assets/styles/Manager-styles/EmployeeManagement.css";
+
+function MainPageManager() {
+  const [employees, setEmployees] = useState([]);
+  const [searchName, setSearchName] = useState("");
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    axios
+      .get("/employeeManagement")
+      .then((res) => {
+        setEmployees(res.data);
+      })
+      .catch((error) => {
+        console.error("שגיאה:", error);
+        setMsg("אירעה שגיאה בטעינת העובדים.");
+      });
+  };
+
+  const toggleStatus = async (id, currentStatus) => {
+    axios
+      .put(`/employeeManagement/${id}`, {
+        status: currentStatus === "active" ? "inactive" : "active",
+      })
+      .then((res) => {
+        setEmployees((prev) =>
+          prev.map((emp) =>
+            emp.id === id ? { ...emp, status: res.data.status } : emp
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("שגיאה בעדכון סטטוס:", error);
+        setMsg("אירעה שגיאה בעדכון הסטטוס.");
+      });
+  };
+
+  const filteredEmployees = employees.filter((emp) => {
+    const fullName =
+      `${emp.firstName} ${emp.lastName} ${emp.username}`.toLowerCase();
+    return fullName.includes(searchName.toLowerCase()); // כאן הסינון לפי תפקיד
+  });
+
+  return (
+    <div className="employeeManagement">
+      <h2>ניהול עובדים</h2>
+
+      <div className="search-filters">
+        <input
+          type="text"
+          placeholder="חיפוש לפי שם משתמש / פרטי / משפחה"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+        />
+      </div>
+
+      <div className="employeeManagement-container">
+        <table className="employee-table">
+          <thead>
+            <tr>
+              <th>מספר עובד</th>
+              <th>שם משתמש</th>
+              <th>שם פרטי</th>
+              <th>שם משפחה</th>
+              <th>סטטוס</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredEmployees.map((emp) => (
+              <tr key={emp.id}>
+                <td>{emp.id}</td>
+                <td>{emp.username}</td>
+                <td>{emp.firstName}</td>
+                <td>{emp.lastName}</td>
+                <td>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={emp.status === "active"}
+                      onChange={() => toggleStatus(emp.id, emp.status)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                  <span className="status-label">
+                    {emp.status === "active" ? "פעיל" : "לא פעיל"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default MainPageManager;

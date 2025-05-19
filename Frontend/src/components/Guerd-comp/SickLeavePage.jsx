@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import logo from "../../assets/img/logo.png";
 import "../../assets/styles/Guerd-styles/MainPage.css";
 import "../../assets/styles/Guerd-styles/SickLeavePage.css";
 
 function SickLeavePage() {
-  const username = "משתמש";
-
   const [form, setForm] = useState({
     name: "",
     employeeId: "",

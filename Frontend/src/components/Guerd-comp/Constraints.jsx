@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "../../assets/styles/Guerd-styles/MainPage.css";
 import "../../assets/styles/Guerd-styles/Constraints.css";
 function Constraints() {
-  const username = "משתמש";
   const [weeks, setWeeks] = useState([]);
   const [selections, setSelections] = useState({});
 
@@ -69,12 +68,16 @@ function Constraints() {
                 <th key={i}>
                   <div className="date-header">
                     <button
-                      className={`day-toggle-button ${isDayAllDisabled ? "active" : ""}`}
+                      className={`day-toggle-button ${
+                        isDayAllDisabled ? "active" : ""
+                      }`}
                       onClick={() => toggleDay(date)}
                       title="סמן את כל היום כ'לא יכול'"
+                      aria-label={`הפוך את ${date} ליום שאינו זמין`}
                     >
                       ❌
                     </button>
+
                     <div>תאריך</div>
                     <div>{date}</div>
                   </div>
@@ -90,7 +93,9 @@ function Constraints() {
               {weekDates.map((date, i) => (
                 <td key={i}>
                   <select
-                    onChange={(e) => handleSelectChange(date, shift, e.target.value)}
+                    onChange={(e) =>
+                      handleSelectChange(date, shift, e.target.value)
+                    }
                     value={selections[`${date}-${shift}`] || "3"}
                   >
                     <option value="1">לא יכול</option>
@@ -120,13 +125,17 @@ function Constraints() {
           {weeks.length > 1 && renderTable(weeks[1])}
 
           <div className="legend">
-            <p><strong>שיטת מילוי</strong></p>
+            <p>
+              <strong>שיטת מילוי</strong>
+            </p>
             <p>1 - לא יכול</p>
             <p>2 - יכול חלקית</p>
             <p>3 - יכול (ברירת מחדל)</p>
           </div>
 
-          <button className="submit-button" onClick={handleSubmit}>שליחת בקשה</button>
+          <button className="submit-button" onClick={handleSubmit}>
+            שליחת בקשה
+          </button>
         </section>
       </main>
 
