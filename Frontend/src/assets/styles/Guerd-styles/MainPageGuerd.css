@@ -48,21 +48,23 @@
   color: #ecf0f1;
 }
 
-.entry-section button {
-  margin-top: 1.5rem;
-  font-size: 1.6rem;
-  padding: 1.2rem 2rem;
-  background-color: #2a3a4b;
+.btn-search {
+  margin: 1.5rem auto 0 auto; /* מרווח עליון ומרכז אופקית */
+  font-size: 1.2rem;
+  padding: 1.2rem 20rem;
+  background-color: #1b2631;
   border: none;
   border-radius: 4px;
   color: #ddd7d2;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  display: block; /* נדרש כדי ש-margin: auto יעבוד */
+  width: fit-content;
 }
 
-.entry-section button:hover {
-  background-color: #324557;
+.btn-search:hover {
+  background-color: #293947;
 }
 
 /* Alerts Section */
@@ -105,7 +107,7 @@
 .result-box {
   margin-top: 2rem;
   background-color: #2c3e50;
-  padding: 1rem;
+  padding: 5rem;
   border-radius: 6px;
   color: #ddd7d2;
   font-size: 1.6rem;

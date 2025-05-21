@@ -79,7 +79,9 @@ function MainPageGuerd() {
             onChange={(e) => setVehicleNumber(e.target.value)}
           />
 
-          <button onClick={handleSearch}>חיפוש</button>
+          <button className="btn-search" onClick={handleSearch}>
+            חיפוש
+          </button>
 
           <div className="result-container">
             <label>תוצאה</label>

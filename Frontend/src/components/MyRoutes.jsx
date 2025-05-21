@@ -16,6 +16,7 @@ import Schedule from "./Guerd-comp/Schedule";
 import SickLeavePage from "./Guerd-comp/SickLeavePage";
 import Constraints from "./Guerd-comp/Constraints";
 import EmployeeManagement from "./Manager-comp/EmployeeManagement";
+import ManagerSchedule from "./Manager-comp/ManagerSchedule";
 function MyRoutes() {
   return (
     <>
@@ -25,6 +26,7 @@ function MyRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/mainPageManager" element={<MainPageManager />} />
+        <Route path="/managerSchedule" element={<ManagerSchedule />} />
         <Route path="/incident" element={<Incident />} />
         <Route path="/createIncident" element={<CreateIncident />} />
         <Route path="/post/:id" element={<SinglePost />} />

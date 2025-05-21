@@ -5,7 +5,6 @@ function Schedule() {
 
   return (
     <div className="main-wrapper">
-
       <main className="main-body">
         <section className="entry-section">
           <h2>סידור עבודה</h2>

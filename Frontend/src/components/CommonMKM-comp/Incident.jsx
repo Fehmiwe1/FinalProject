@@ -52,91 +52,90 @@ function Incident() {
   });
 
   return (
-    <div className="main">
-      <section>
-        <div className="container-Incident">
-          <div className="incidentPageContainer">
-            <h1 className="incident-page-title">
-              כאן תוכל לצפות בדוחות אירועים חריגים
-            </h1>
+    <div className="incidentPpage">
+      <div className="container-Incident">
+        <div className="incidentPageContainer">
+          <h1 className="incident-page-title">
+            כאן תוכל לצפות בדוחות אירועים חריגים
+          </h1>
 
-            {isManager === "manager" && (
-              <div className="create-incident">
-                <Link to="/createIncident" className="btn">
-                  דוח אירוע חדש
-                </Link>
-              </div>
-            )}
-
-            {msg && <div className="msg">{msg}</div>}
-
-            <div className="search-filters">
-              <input
-                type="text"
-                placeholder="חיפוש לפי שם אירוע"
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-              />
-              <div className="date-filter-inline">
-                <label>מתאריך- </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </div>
-              <div className="date-filter-inline">
-                <label>עד תאריך- </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </div>
+          {isManager === "manager" && (
+            <div className="create-incident">
+              <Link to="/createIncident" className="btn">
+                דוח אירוע חדש
+              </Link>
             </div>
+          )}
 
-            <div className="incident-containers">
-              {filteredIncidents.length > 0 ? (
-                filteredIncidents.map((incident) => (
-                  <div key={incident.id} className="incident-wrapper">
-                    <div className="incident-card">
-                      <h2>{incident.Incident_Name}</h2>
-                      <p>
-                        {new Date(incident.Incident_Date).toLocaleDateString(
-                          "he-IL"
-                        )}
-                      </p>
-                    </div>
-                    <div className="btns-actions">
-                      <Link to={`/post/${incident.id}`} className="view-button">
-                        צפייה
-                      </Link>
-                      {isManager === "manager" && (
-                        <>
-                          <Link
-                            to={`/editincident/${incident.id}`}
-                            className="edit-button"
-                          >
-                            עריכה
-                          </Link>
-                          <button
-                            className="delete-btn-incident"
-                            onClick={() => handleDelete(incident)}
-                          >
-                            מחיקה
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>לא נמצאו תוצאות מתאימות.</p>
-              )}
+          {msg && <div className="msg">{msg}</div>}
+
+          <div className="search-filters">
+            <input
+              type="text"
+              placeholder="חיפוש לפי שם אירוע"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+            <div className="date-filter-inline">
+              <label>מתאריך- </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="date-filter-inline">
+              <label>עד תאריך- </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
             </div>
           </div>
+
+          <div className="incident-containers">
+            {filteredIncidents.length > 0 ? (
+              filteredIncidents.map((incident) => (
+                <div key={incident.id} className="incident-wrapper">
+                  <div className="incident-card">
+                    <h2>{incident.Incident_Name}</h2>
+                    <p>
+                      {new Date(incident.Incident_Date).toLocaleDateString(
+                        "he-IL"
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="btns-actions">
+                    <Link to={`/post/${incident.id}`} className="view-button">
+                      צפייה
+                    </Link>
+                    {isManager === "manager" && (
+                      <>
+                        <Link
+                          to={`/editincident/${incident.id}`}
+                          className="edit-button"
+                        >
+                          עריכה
+                        </Link>
+                        <button
+                          className="delete-btn-incident"
+                          onClick={() => handleDelete(incident)}
+                        >
+                          מחיקה
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>לא נמצאו תוצאות מתאימות.</p>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

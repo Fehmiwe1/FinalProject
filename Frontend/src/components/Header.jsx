@@ -109,7 +109,7 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/workSchedule"
+                      to="/managerSchedule"
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"
                       }
