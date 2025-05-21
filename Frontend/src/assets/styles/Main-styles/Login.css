@@ -5,7 +5,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  height: 100vh;
+  flex-grow: 1;
   width: 100vw;
   overflow: visible;
   display: flex;
@@ -317,6 +317,7 @@
   font-weight: bold;
   margin-top: 20px;
   margin-bottom: 10px;
+  font-size: 1.2rem;
 }
 
 .error-message {

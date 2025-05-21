@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2025 at 09:07 AM
+-- Generation Time: May 21, 2025 at 07:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -47,8 +47,18 @@ CREATE TABLE `employee_notifications` (
   `id` int(11) NOT NULL,
   `ID_employee` int(11) NOT NULL,
   `event_date` date NOT NULL,
-  `event_description` text NOT NULL
+  `event_description` text NOT NULL,
+  `notification_status` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employee_notifications`
+--
+
+INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_description`, `notification_status`) VALUES
+(1, 33, '2025-05-21', 'הרשמת עובד חדש', 0),
+(2, 34, '2025-05-21', 'הרשמת עובד חדש', 0),
+(3, 35, '2025-05-21', 'הרשמת עובד חדש', 0);
 
 -- --------------------------------------------------------
 
@@ -66,6 +76,22 @@ CREATE TABLE `employee_requests` (
   `reason` text NOT NULL,
   `file_path` varchar(255) DEFAULT NULL,
   `status` enum('ממתין','מאושר','סורב') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `guests`
+--
+
+CREATE TABLE `guests` (
+  `GuestID` int(11) NOT NULL,
+  `CarNumber` varchar(20) NOT NULL,
+  `GuestName` varchar(100) NOT NULL,
+  `GuestPhone` varchar(20) NOT NULL,
+  `StartDate` date NOT NULL,
+  `EndDate` date NOT NULL,
+  `IsActive` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -111,7 +137,15 @@ CREATE TABLE `role` (
   `Leave_Approval` tinyint(1) NOT NULL,
   `Work_Change_Approval` tinyint(1) NOT NULL,
   `Updating_Incident` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role`
+--
+
+INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedul`, `Create_Incidet`, `Update_Work_Schadul`, `Watch_Incidet`, `Update_Guest_List`, `Work_Permission`, `Leave_Approval`, `Work_Change_Approval`, `Updating_Incident`) VALUES
+(1, 'manager', 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(2, 'kabat', 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -157,17 +191,23 @@ CREATE TABLE `users` (
   `city` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `postalCode` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `role` enum('employee','manager','kabat','moked') NOT NULL DEFAULT 'employee',
-  `status` enum('active','inactive') NOT NULL DEFAULT 'inactive'
+  `status` enum('active','inactive') NOT NULL DEFAULT 'inactive',
+  `registration_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `password`, `email`, `phone`, `street`, `city`, `postalCode`, `role`, `status`) VALUES
-(1, 'Manager', 'פהמי', 'managerLastName', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active'),
-(3, 'fehmi1', 'fehmi', 'wehby', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active'),
-(4, 'fehmi2', 'fehmi2', 'wehby', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive');
+INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `password`, `email`, `phone`, `street`, `city`, `postalCode`, `role`, `status`, `registration_date`) VALUES
+(1, 'Manager', 'פהמי', 'managerLastName', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active', NULL),
+(3, 'fehmi1', 'fehmi', 'wehby', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active', NULL),
+(4, 'fehmi2', 'fehmi2', 'wehby', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive', NULL),
+(31, 'Maor', 'מאור', 'דוד', '1997-11-13', '$2b$10$LYoogQBupC8IjAZSdwr4Nu8UcWS4kYmi9m4/yl8zurGh4ziY1GGqO', 'maor@gmail.com', '0522222222', 'חיפה', 'חיפה', '3224712', 'employee', 'active', NULL),
+(32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$uzdG1KKuLzapqdjbyL712O/0adHbTX/ZSSTp30MNmsDeuVS1CVe1m', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'employee', 'inactive', '2025-05-21'),
+(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$CZsW9slbd9aslRUGQoXEGuYA/qoR4g/oSxeY5dU5VRVMrx5ZVwCfi', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'inactive', '2025-05-21'),
+(34, 'eliea', 'איליה', 'כרומנשק', '1982-11-10', '$2b$10$yiNJULnIDQjLN4ZahCR3e.YpWR50FtIuemgYzQwTbFo8S7MWj4g/e', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'inactive', '2025-05-21'),
+(35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$RvrsDebDqCfeO1KDZwHeTeJV5iIaEgw8VogiOE2x3gzQ1QH73N6Y6', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'employee', 'inactive', '2025-05-21');
 
 --
 -- Indexes for dumped tables
@@ -193,6 +233,12 @@ ALTER TABLE `employee_notifications`
 ALTER TABLE `employee_requests`
   ADD PRIMARY KEY (`id`),
   ADD KEY `ID_employee` (`ID_employee`);
+
+--
+-- Indexes for table `guests`
+--
+ALTER TABLE `guests`
+  ADD PRIMARY KEY (`GuestID`);
 
 --
 -- Indexes for table `incident`
@@ -241,13 +287,19 @@ ALTER TABLE `employee_constraints`
 -- AUTO_INCREMENT for table `employee_notifications`
 --
 ALTER TABLE `employee_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `employee_requests`
 --
 ALTER TABLE `employee_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `guests`
+--
+ALTER TABLE `guests`
+  MODIFY `GuestID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `incident`
@@ -259,7 +311,7 @@ ALTER TABLE `incident`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- Constraints for dumped tables

@@ -84,7 +84,7 @@ function Login() {
       setErrorSingUp(
         "הסיסמה חייבת לכלול אות גדולה אחת לפחות ומספר אחד לפחות, באנגלית בלבד."
       );
-      setTimeout(() => setErrorSingUp(null), 2000);
+      setTimeout(() => setErrorSingUp(null), 3500);
       return;
     }
     try {
@@ -101,8 +101,8 @@ function Login() {
         postalCode: newUser.postalCode,
       });
 
-      if (response.data.message === "User added!") {
-        setSuccessMessage("ההרשמה הצליחה! כעת תוכל להתחבר.");
+      if (response.data.message === "User added and notification created!") {
+        setSuccessMessage("ההרשמה הצליחה!");
 
         setNewUser({
           username: "",

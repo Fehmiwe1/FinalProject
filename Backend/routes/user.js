@@ -22,7 +22,6 @@ router.post("/register", async (req, res) => {
     postalCode,
   } = req.body;
 
-  // Check if username already exists
   const checkQuery = "SELECT COUNT(*) AS count FROM users WHERE username = ?";
   db.query(checkQuery, [username], async (error, results) => {
     if (error) {
@@ -35,12 +34,12 @@ router.post("/register", async (req, res) => {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert new user with all fields
       const insertQuery = `
         INSERT INTO users
-          (username, firstName, lastName, birthDate, password, email, phone, street, city, postalCode)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (username, firstName, lastName, birthDate, password, email, phone, street, city, postalCode, registration_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE)
       `;
+
       const params = [
         username,
         firstName,
@@ -58,13 +57,31 @@ router.post("/register", async (req, res) => {
         if (insertErr) {
           return res.status(500).json({ error: insertErr });
         }
-        res.json({ message: "User added!" });
+
+        // הוספת התראה בטבלת employee_notifications
+        const notificationQuery = `
+          INSERT INTO employee_notifications (ID_employee, event_date, event_description)
+          VALUES (?, CURRENT_DATE, ?)
+        `;
+        const notificationParams = [
+          insertRes.insertId, // ID של המשתמש שנוסף
+          "הרשמת עובד חדש"
+        ];
+
+        db.query(notificationQuery, notificationParams, (notifyErr) => {
+          if (notifyErr) {
+            return res.status(500).json({ error: notifyErr });
+          }
+
+          res.json({ message: "User added and notification created!" });
+        });
       });
     } catch (hashErr) {
       res.status(500).json({ error: "Server error" });
     }
   });
 });
+
 
 // התחברות משתמש
 router.post("/login", async (req, res) => {
