@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-import "../../assets/styles/Guerd-styles/MainPage.css";
+import "../../assets/styles/Guerd-styles/MainPageGuerd.css";
 
-function MainPage() {
-
+function MainPageGuerd() {
   const [contractorNumber, setContractorNumber] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [result, setResult] = useState("");
@@ -41,11 +40,8 @@ function MainPage() {
   }, []);
 
   return (
-    <div className="main-wrapper">
-    
-
-      <main className="main-body">
-
+    <div className="mainPageGuerd-wrapper">
+      <main className="mainPageGuerd-body">
         <section className="alerts-section">
           <h3>התראות</h3>
           <table>
@@ -86,19 +82,15 @@ function MainPage() {
           <button onClick={handleSearch}>חיפוש</button>
 
           <div className="result-container">
-            <h3 className="result-title">תוצאה</h3>
+            <label>תוצאה</label>
             <div className="result-box">
               <p>{result}</p>
             </div>
           </div>
         </section>
       </main>
-
-      <footer className="main-footer">
-        כל הזכויות שמורות - מערכת ניהול שערים © {new Date().getFullYear()}
-      </footer>
     </div>
   );
 }
 
-export default MainPage;
+export default MainPageGuerd;

@@ -42,7 +42,7 @@ function Header() {
                 {isGuestPage ? (
                   <span>מערכת ניהול שערים</span>
                 ) : firstName ? (
-                  <span>ברוכים הבאים {firstName}</span>
+                  <span>ברוך הבא {firstName}</span>
                 ) : null}
               </span>
             </Link>
@@ -171,6 +171,17 @@ function Header() {
               )}
               {!isGuestPage && role === "employee" && (
                 <>
+                  <li>
+                    <NavLink
+                      to="/mainPageGuerd"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      ראשי
+                    </NavLink>
+                  </li>
                   <li>
                     <NavLink
                       to="/report"

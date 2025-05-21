@@ -10,7 +10,6 @@ function Incident() {
   const [searchName, setSearchName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
   const isManager = Cookies.get("userRole");
 
   useEffect(() => {
@@ -20,13 +19,8 @@ function Incident() {
   const fetchData = () => {
     axios
       .get("/post")
-      .then((res) => {
-        setIncident(res.data);
-      })
-      .catch((error) => {
-        console.error("שגיאה:", error);
-        setMsg("אירעה שגיאה בטעינת הדוחות.");
-      });
+      .then((res) => setIncident(res.data))
+      .catch(() => setMsg("אירעה שגיאה בטעינת הדוחות."));
   };
 
   const handleDelete = (post) => {
@@ -42,10 +36,7 @@ function Incident() {
           setMsg("הדוח נמחק בהצלחה.");
           setTimeout(() => setMsg(""), 2000);
         })
-        .catch((error) => {
-          console.error("שגיאה:", error);
-          setMsg("אירע שגיאה בעת מחיקת הדוח.");
-        });
+        .catch(() => setMsg("אירעה שגיאה בעת מחיקת הדוח."));
     }
   };
 
@@ -78,6 +69,7 @@ function Incident() {
             )}
 
             {msg && <div className="msg">{msg}</div>}
+
             <div className="search-filters">
               <input
                 type="text"
@@ -85,7 +77,6 @@ function Incident() {
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
               />
-
               <div className="date-filter-inline">
                 <label>מתאריך- </label>
                 <input
@@ -94,7 +85,6 @@ function Incident() {
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
-
               <div className="date-filter-inline">
                 <label>עד תאריך- </label>
                 <input
@@ -104,22 +94,23 @@ function Incident() {
                 />
               </div>
             </div>
+
             <div className="incident-containers">
               {filteredIncidents.length > 0 ? (
                 filteredIncidents.map((incident) => (
-                  <div key={incident.id} className="incident-card circular">
-                    <h2>{incident.Incident_Name}</h2>
-                    <p>
-                      {new Date(incident.Incident_Date).toLocaleDateString(
-                        "he-IL"
-                      )}
-                    </p>
-
-                    <div className="incident-actions">
+                  <div key={incident.id} className="incident-wrapper">
+                    <div className="incident-card">
+                      <h2>{incident.Incident_Name}</h2>
+                      <p>
+                        {new Date(incident.Incident_Date).toLocaleDateString(
+                          "he-IL"
+                        )}
+                      </p>
+                    </div>
+                    <div className="btns-actions">
                       <Link to={`/post/${incident.id}`} className="view-button">
                         צפייה
                       </Link>
-
                       {isManager === "manager" && (
                         <>
                           <Link

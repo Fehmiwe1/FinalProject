@@ -80,23 +80,8 @@
   margin-top: 4px;
 }
 
-.incident-actions {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: scale(0);
-  transition: transform 0.4s ease;
-  transform-origin: center;
-  display: flex;
-  gap: 12px;
-}
-
-.incident-card:hover .incident-actions {
-  transform: scale(1) translate(-50%, -50%);
-}
-
-.incident-actions a,
-.incident-actions button {
+.btns-actions a,
+.btns-actions button {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -110,8 +95,8 @@
   transition: background-color 0.3s ease;
 }
 
-.incident-actions a:hover,
-.incident-actions button:hover {
+.btns-actions a:hover,
+.btns-actions button:hover {
   background-color: #2c3e50;
 }
 
@@ -139,6 +124,27 @@
   box-shadow: 0 0 10px rgba(201, 200, 199, 0.4);
 }
 
+/* View Button */
+.edit-button {
+  background-color: #ffc107;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-button:hover {
+  background-color: #ffc107;
+  transform: scale(1.1);
+  color: #d6a205;
+}
 /* Delete Button */
 .delete-btn-incident {
   background-color: #c0392b;
@@ -213,16 +219,15 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.incident-actions {
-  margin-top: 12px;
+.btns-actions {
+  margin-top: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
+  position: absolute;
 }
 
-.view-button,
-.edit-button,
-.delete-btn-incident {
+.view-button {
   padding: 5px 10px;
   border: none;
   border-radius: 10px;
@@ -232,14 +237,6 @@
   text-decoration: none;
   font-size: 14px;
   transition: background-color 0.2s;
-}
-
-.edit-button {
-  background-color: #ffc107;
-}
-
-.delete-btn-incident {
-  background-color: #dc3545;
 }
 
 .view-button:hover,

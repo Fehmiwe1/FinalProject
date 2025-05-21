@@ -1,5 +1,5 @@
 import React from "react";
-import "../../assets/styles/Guerd-styles/MainPage.css";
+
 
 function Schedule() {
 
@@ -12,10 +12,6 @@ function Schedule() {
           <p>כאן יופיעו פרטי הסידור שלך.</p>
         </section>
       </main>
-
-      <footer className="main-footer">
-        כל הזכויות שמורות - מערכת ניהול שערים &copy; 2025
-      </footer>
     </div>
   );
 }

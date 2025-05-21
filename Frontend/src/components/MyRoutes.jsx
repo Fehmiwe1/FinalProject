@@ -11,7 +11,7 @@ import CreateIncident from "./CommonMKM-comp/CreateIncident";
 import SinglePost from "./CommonMKM-comp/SinglePost";
 import EditIncident from "./CommonMKM-comp/EditIncident";
 import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
-import Report from "./Guerd-comp/Report";
+import Report from "./CommonMKM-comp/Report";
 import Schedule from "./Guerd-comp/Schedule";
 import SickLeavePage from "./Guerd-comp/SickLeavePage";
 import Constraints from "./Guerd-comp/Constraints";

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../../assets/styles/Guerd-styles/MainPage.css";
 import "../../assets/styles/Guerd-styles/SickLeavePage.css";
 
 function SickLeavePage() {
@@ -24,7 +23,6 @@ function SickLeavePage() {
     console.log("Form submitted:", form);
   };
 
-
   return (
     <div className="main-wrapper">
       <main className="main-body">
@@ -32,7 +30,12 @@ function SickLeavePage() {
           <h2>חופשת מחלה</h2>
           <div className="upload-box">
             <label htmlFor="file-upload">העלאת קובץ</label>
-            <input type="file" id="file-upload" name="file" onChange={handleChange} />
+            <input
+              type="file"
+              id="file-upload"
+              name="file"
+              onChange={handleChange}
+            />
           </div>
 
           <form className="form-section" onSubmit={handleSubmit}>
@@ -50,26 +53,42 @@ function SickLeavePage() {
 
             <div className="form-fields">
               <label>שם</label>
-              <input type="text" name="name" value={form.name} onChange={handleChange} />
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+              />
 
               <label>מספר עובד</label>
-              <input type="text" name="employeeId" value={form.employeeId} onChange={handleChange} />
+              <input
+                type="text"
+                name="employeeId"
+                value={form.employeeId}
+                onChange={handleChange}
+              />
 
               <label>סה\"כ ימי חופשה</label>
-              <input type="number" name="leaveDays" value={form.leaveDays} onChange={handleChange} />
+              <input
+                type="number"
+                name="leaveDays"
+                value={form.leaveDays}
+                onChange={handleChange}
+              />
 
               <label>ימים לתשלום</label>
-              <input type="number" name="unpaidDays" value={form.unpaidDays} onChange={handleChange} />
+              <input
+                type="number"
+                name="unpaidDays"
+                value={form.unpaidDays}
+                onChange={handleChange}
+              />
             </div>
 
             <button type="submit">שליחת בקשה</button>
           </form>
         </section>
       </main>
-
-      <footer className="main-footer">
-        כל הזכויות שמורות - מערכת ניהול שערים &copy; 2025
-      </footer>
     </div>
   );
 }
