@@ -129,12 +129,12 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/requests"
+                      to="/requestsManagement"
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"
                       }
                     >
-                      התראות
+                      בקשות
                     </NavLink>
                   </li>
                   <li>

@@ -28,6 +28,15 @@ router.get("/", (req, res) => {
         .status(500)
         .json({ error: "שגיאה בעת שליפת ההודעות", details: err });
     }
+
+    if (results.length > 0) {
+      // שמירת event_description של הראשון בעוגייה
+      res.cookie("eventDescription", results[0].event_description, {
+        maxAge: 3600000,
+        httpOnly: false,
+      });
+      console.log("eventDescription:", results[0].event_description);
+    }
     res.json(results);
   });
 });

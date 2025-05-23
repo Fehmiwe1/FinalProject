@@ -6,6 +6,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Contact from "./Main-comp/Contact";
 import MainPageManager from "./Manager-comp/MainPageManager";
+import RequestsManagement from "./Manager-comp/RequestsManagement";
 import Incident from "./CommonMKM-comp/Incident";
 import CreateIncident from "./CommonMKM-comp/CreateIncident";
 import SinglePost from "./CommonMKM-comp/SinglePost";
@@ -27,6 +28,7 @@ function MyRoutes() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/mainPageManager" element={<MainPageManager />} />
         <Route path="/managerSchedule" element={<ManagerSchedule />} />
+        <Route path="/requestsManagement" element={<RequestsManagement />} />
         <Route path="/incident" element={<Incident />} />
         <Route path="/createIncident" element={<CreateIncident />} />
         <Route path="/post/:id" element={<SinglePost />} />

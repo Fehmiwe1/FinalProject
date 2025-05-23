@@ -22,36 +22,6 @@ function MainPageManager() {
       });
   };
 
-  const handleApprove = (id, date) => {
-    axios
-      .put("/employeeNotifications/updateStatus", {
-        ID_employee: id,
-        status: "approval",
-      })
-      .then(() => {
-        console.log("אושר:", id);
-        fetchEmployees(); // טען מחדש את ההתראות
-      })
-      .catch((error) => {
-        console.error("שגיאה באישור:", error);
-      });
-  };
-
-  const handleReject = (id, date) => {
-    axios
-      .put("/employeeNotifications/updateStatus", {
-        ID_employee: id,
-        status: "rejection",
-      })
-      .then(() => {
-        console.log("נדחה:", id);
-        fetchEmployees(); // טען מחדש את ההתראות
-      })
-      .catch((error) => {
-        console.error("שגיאה בדחייה:", error);
-      });
-  };
-
   return (
     <div className="mainPageManager">
       <div className="mainPageManager-container">
@@ -63,37 +33,14 @@ function MainPageManager() {
           <table className="notifications-table">
             <thead>
               <tr>
-                <th>שם עובד</th>
                 <th>בקשה</th>
-                <th>סטטוס</th>
               </tr>
             </thead>
             <tbody>
               {employees.length > 0 ? (
                 employees.map((emp) => (
                   <tr key={`${emp.ID_employee}_${emp.event_date}`}>
-                    <td>
-                      {emp.firstName} {emp.lastName}
-                    </td>
                     <td>{emp.event_description}</td>
-                    <td>
-                      <button
-                        onClick={() =>
-                          handleApprove(emp.ID_employee, emp.event_date)
-                        }
-                        className="approve-btn"
-                      >
-                        אישור
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleReject(emp.ID_employee, emp.event_date)
-                        }
-                        className="reject-btn"
-                      >
-                        דחייה
-                      </button>
-                    </td>
                   </tr>
                 ))
               ) : (
