@@ -134,7 +134,7 @@ function Header() {
                         isActive ? "menu-item active" : "menu-item"
                       }
                     >
-                      בקשות
+                      התראות
                     </NavLink>
                   </li>
                   <li>

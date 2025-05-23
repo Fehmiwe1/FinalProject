@@ -5,6 +5,7 @@ const session = require("express-session");
 const userRoutes = require("./routes/user");
 const incidentRoutes = require("./routes/incident");
 const employeeManagementRoutes = require("./routes/employeeManagement");
+const employeeNotificationsRoutes = require("./routes/employeeNotifications");
 const port = 8801;
 
 // הגדרת session לניהול התחברויות
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use("/users", userRoutes);
 app.use("/post", incidentRoutes);
 app.use("/employeeManagement", employeeManagementRoutes);
+app.use("/employeeNotifications", employeeNotificationsRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {
