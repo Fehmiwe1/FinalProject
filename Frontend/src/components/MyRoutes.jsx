@@ -18,6 +18,9 @@ import SickLeavePage from "./Guerd-comp/SickLeavePage";
 import Constraints from "./Guerd-comp/Constraints";
 import EmployeeManagement from "./Manager-comp/EmployeeManagement";
 import ManagerSchedule from "./Manager-comp/ManagerSchedule";
+import Guests from "./CommonMKM-comp/Guests";
+import CreateGuests from "./CommonMKM-comp/CreateGuests";
+import SingleGuest from "./CommonMKM-comp/SingleGuest";
 function MyRoutes() {
   return (
     <>
@@ -39,6 +42,9 @@ function MyRoutes() {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/sick-leave" element={<SickLeavePage />} />
         <Route path="/constraints" element={<Constraints />} />
+        <Route path="/guests" element={<Guests />} />
+        <Route path="/createGuests" element={<CreateGuests />} />
+        <Route path="/guest/:id" element={<SingleGuest />} />
       </Routes>
       <Footer />
     </>

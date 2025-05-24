@@ -6,6 +6,7 @@ const userRoutes = require("./routes/user");
 const incidentRoutes = require("./routes/incident");
 const employeeManagementRoutes = require("./routes/employeeManagement");
 const employeeNotificationsRoutes = require("./routes/employeeNotifications");
+const guestsRoutes = require("./routes/guests");
 const port = 8801;
 
 // הגדרת session לניהול התחברויות
@@ -39,6 +40,7 @@ app.use("/users", userRoutes);
 app.use("/post", incidentRoutes);
 app.use("/employeeManagement", employeeManagementRoutes);
 app.use("/employeeNotifications", employeeNotificationsRoutes);
+app.use("/guests", guestsRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {

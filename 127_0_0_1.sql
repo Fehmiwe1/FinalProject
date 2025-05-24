@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 21, 2025 at 07:49 PM
+-- Generation Time: May 24, 2025 at 09:24 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -48,7 +48,7 @@ CREATE TABLE `employee_notifications` (
   `ID_employee` int(11) NOT NULL,
   `event_date` date NOT NULL,
   `event_description` text NOT NULL,
-  `notification_status` tinyint(1) DEFAULT 0
+  `notification_status` enum('approval','rejection','pending') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -56,9 +56,9 @@ CREATE TABLE `employee_notifications` (
 --
 
 INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_description`, `notification_status`) VALUES
-(1, 33, '2025-05-21', 'הרשמת עובד חדש', 0),
-(2, 34, '2025-05-21', 'הרשמת עובד חדש', 0),
-(3, 35, '2025-05-21', 'הרשמת עובד חדש', 0);
+(1, 33, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
+(2, 34, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
+(3, 35, '2025-05-21', 'הרשמת עובד חדש', 'pending');
 
 -- --------------------------------------------------------
 
@@ -86,13 +86,27 @@ CREATE TABLE `employee_requests` (
 
 CREATE TABLE `guests` (
   `GuestID` int(11) NOT NULL,
+  `GuestNumber` varchar(50) NOT NULL,
   `CarNumber` varchar(20) NOT NULL,
   `GuestName` varchar(100) NOT NULL,
   `GuestPhone` varchar(20) NOT NULL,
   `StartDate` date NOT NULL,
   `EndDate` date NOT NULL,
-  `IsActive` tinyint(1) DEFAULT 1
+  `IsActive` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `guests`
+--
+
+INSERT INTO `guests` (`GuestID`, `GuestNumber`, `CarNumber`, `GuestName`, `GuestPhone`, `StartDate`, `EndDate`, `IsActive`) VALUES
+(1, '1001', '123-45-678', 'דני לוי', '0501234567', '2025-05-20', '2025-06-01', 1),
+(2, '1001', '234-56-789', 'דני לוי', '0501234567', '2025-05-21', '2025-06-02', 1),
+(3, '1002', '345-67-890', 'מיכל כהן', '0529876543', '2025-05-22', '2025-06-03', 1),
+(4, '1002', '456-78-901', 'מיכל כהן', '0529876543', '2025-05-23', '2025-06-04', 1),
+(5, '202', '123456789', 'אאא', '0521234567', '2025-01-20', '2026-06-29', 1),
+(6, '202', '55566647', 'בבב', '0501234567', '2025-01-20', '2026-06-29', 1),
+(8, '12223', '123555c', '222', '1234567890', '2025-05-14', '2025-05-30', 1);
 
 -- --------------------------------------------------------
 
@@ -238,7 +252,8 @@ ALTER TABLE `employee_requests`
 -- Indexes for table `guests`
 --
 ALTER TABLE `guests`
-  ADD PRIMARY KEY (`GuestID`);
+  ADD PRIMARY KEY (`GuestID`),
+  ADD UNIQUE KEY `GuestNumber` (`GuestNumber`,`CarNumber`);
 
 --
 -- Indexes for table `incident`
@@ -299,7 +314,7 @@ ALTER TABLE `employee_requests`
 -- AUTO_INCREMENT for table `guests`
 --
 ALTER TABLE `guests`
-  MODIFY `GuestID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `GuestID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `incident`
