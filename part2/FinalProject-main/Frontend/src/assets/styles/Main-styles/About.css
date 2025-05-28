@@ -1,0 +1,57 @@
+/* About section containers */
+.aboutContainer1,
+.aboutContainer2 {
+  padding: 2.5rem;
+  border-radius: 8px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Softer, deeper shadow */
+  background-color: #c9c4c0; /* Light background */
+  color: #444; /* Darker text for contrast */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added transition for smoother effects */
+}
+
+.aboutContainer1:hover,
+.aboutContainer2:hover {
+  transform: translateY(-5px); /* Slight lift on hover for interactive feel */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Darker shadow on hover */
+}
+
+/* Title styling */
+.About_title {
+  text-align: center;
+  font-size: 3.2rem; /* Slightly smaller for better proportion */
+  font-weight: 700;
+  color: #2c3e50; /* Darker shade for contrast */
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  text-transform: uppercase; /* Gives the title a stronger, more impactful look */
+}
+
+/* Paragraph styling */
+.aboutContainer1 p,
+.aboutContainer2 p {
+  text-align: center;
+  margin: 1.5rem auto;
+  font-size: 1.6rem; /* Adjusted for better readability */
+  color: #555; /* Softer, lighter text color */
+  line-height: 1.8; /* Increased line height for improved legibility */
+  max-width: 800px; /* Ensures that the paragraph doesn't stretch too wide */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .About_title {
+    font-size: 2.5rem; /* Adjust title size for smaller screens */
+  }
+
+  .aboutContainer1 p,
+  .aboutContainer2 p {
+    font-size: 1.4rem; /* Adjust paragraph font size for readability */
+  }
+
+  .aboutContainer1,
+  .aboutContainer2 {
+    padding: 1.5rem; /* Adjust padding for smaller screens */
+    margin-bottom: 1.5rem; /* Less margin on smaller screens */
+  }
+}
