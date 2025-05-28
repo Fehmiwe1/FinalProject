@@ -1,0 +1,285 @@
+/* General Page Styling */
+.incidentPpage {
+  flex-grow: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 100%;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  will-change: transform;
+  background-color: #2c3e50;
+}
+
+.container-Incident{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  padding: 40px;
+  box-sizing: border-box;
+  gap: 10%;
+}
+
+/* Incident Page Container */
+.incidentPageContainer {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Page Title */
+.incident-page-title {
+  font-size: 4.5rem;
+  color: #ddd7d2;
+  text-shadow: 2px 4px 8px rgba(117, 113, 113, 0.9);
+  margin-bottom: 2rem;
+  width: 100%;
+  text-align: center;
+  display: block;
+}
+
+/* Incident Container */
+.incident-containers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  max-width: 100%;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+/* INCIDENT CARD - CREATIVE VERSION */
+.incident-card {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #3e556b, #2c3e50);
+  position: relative;
+  color: #ddd7d2;
+  overflow: hidden;
+  transition: transform 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.incident-card:hover {
+  transform: scale(1.1);
+}
+
+.incident-title {
+  font-weight: bold;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.incident-p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.btns-actions a,
+.btns-actions button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #2a3a4b;
+  color: #ddd7d2;
+  border: none;
+  font-size: 1.8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.btns-actions a:hover,
+.btns-actions button:hover {
+  background-color: #2c3e50;
+}
+
+/* Create Incident Button */
+.create-incident .btn {
+  background-color: #3e556b;
+  color: #ddd7d2;
+  padding: 12px 100px;
+  font-size: 2rem;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.create-incident .btn:hover {
+  background-color: #324557;
+  transform: translateY(-2px);
+  color: #c7c2c2;
+}
+
+.create-incident .btn:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(201, 200, 199, 0.4);
+}
+
+/* View Button */
+.edit-button {
+  background-color: #ffc107;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-button:hover {
+  background-color: #ffc107;
+  transform: scale(1.1);
+  color: #d6a205;
+}
+/* Delete Button */
+.delete-btn-incident {
+  background-color: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-btn-incident:hover {
+  background-color: #e74c3c;
+  transform: scale(1.1);
+  color: #e74c3c;
+}
+
+/* Search Filters */
+.search-filters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 20px auto;
+  flex-wrap: wrap;
+}
+
+.search-filters input[type="text"],
+.search-filters input[type="date"] {
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #777;
+  background-color: transparent;
+  color: #f1f1f1;
+}
+
+.date-filter-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date-filter-inline label {
+  color: #f1f1f1;
+  font-size: 14px;
+}
+
+.incident-card.circular {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  padding: 20px;
+  margin: 10px;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.incident-card.circular:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.incident-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* הכפתורים מוסתרים כברירת מחדל */
+.btns-actions {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(5px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  gap: 10px;
+}
+
+/* בעת ריחוף על הכרטיס, הצג את הכפתורים */
+.incident-wrapper:hover .btns-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+
+.view-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.view-button:hover,
+.edit-button:hover,
+.delete-btn-incident:hover {
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .incident-containers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .incident-containers {
+    grid-template-columns: 1fr;
+  }
+}

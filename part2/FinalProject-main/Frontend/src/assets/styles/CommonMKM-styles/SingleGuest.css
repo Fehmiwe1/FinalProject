@@ -1,0 +1,80 @@
+.single-guest {
+  position: relative;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: rgba(34, 34, 34, 0.95);
+  color: #f5f5f5;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.single-guest:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+.guest-title {
+  font-size: 2.5rem;
+  margin: 0 0 20px 0;
+  color: #ddd7d2;
+  text-align: center;
+  text-shadow: 2px 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.guest-p {
+  font-size: 1.2rem;
+  margin: 6px 0;
+  color: #ddd7d2;
+  text-align: center;
+  text-shadow: 1px 3px 5px rgba(0, 0, 0, 0.4);
+}
+
+.guest-details {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #2a2a2a;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.guest-details hr {
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid #666;
+}
+
+.guest-details p {
+  font-size: 1.1rem;
+  margin: 4px 0;
+  color: #e0e0e0;
+  text-align: right;
+}
+
+.guest-subtitle {
+  font-size: 1.6rem;
+  color: #ccc;
+  margin-top: 24px;
+  text-align: center;
+  border-bottom: 1px solid #777;
+  padding-bottom: 8px;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #f5f5f5;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.close-button:hover {
+  transform: scale(1.2);
+  color: #7e7975;
+}
