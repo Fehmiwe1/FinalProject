@@ -23,18 +23,29 @@ function Guests() {
       .catch(() => setMsg("אירוע שגיאה בטעינת הקבלנים."));
   };
 
-  const handleDelete = (guest) => {
+  const handleToggleAccess = (guest) => {
+    const newStatus = guest.IsActive === 1 ? 0 : 1;
+    const action = newStatus === 0 ? "לחסום" : "להפעיל מחדש";
+
     if (
-      window.confirm(`האם אתה בטוח שברצונך למחוק את הקבלן: ${guest.GuestName}?`)
+      window.confirm(
+        `האם אתה בטוח שברצונך ${action} את הקבלן ${guest.GuestNumber}?`
+      )
     ) {
       axios
-        .delete(`/guests/${guest.id}`)
+        .put(`/guests/${guest.GuestNumber}/status`, { IsActive: newStatus })
         .then(() => {
-          setGuests((prev) => prev.filter((item) => item.id !== guest.id));
-          setMsg("הקבלן נמחק בהצלחה.");
+          setGuests((prev) =>
+            prev.map((g) =>
+              g.GuestNumber === guest.GuestNumber
+                ? { ...g, IsActive: newStatus }
+                : g
+            )
+          );
+
           setTimeout(() => setMsg(""), 2000);
         })
-        .catch(() => setMsg("אירוע שגיאה בעת מחיקת הקבלן."));
+        .catch(() => setMsg("אירעה שגיאה בעת עדכון הגישה של הקבלן."));
     }
   };
 
@@ -108,16 +119,16 @@ function Guests() {
                     {isManager === "manager" && (
                       <>
                         <Link
-                          to={`/editGuest/${guest.id}`}
+                          to={`/editGuest/${guest.GuestNumber}`}
                           className="edit-button-guests"
                         >
                           עריכה
                         </Link>
                         <button
-                          className="delete-btn-guests"
-                          onClick={() => handleDelete(guest)}
+                          className="block-btn-guests"
+                          onClick={() => handleToggleAccess(guest)}
                         >
-                          מחיקה
+                          {guest.IsActive === 1 ? "תחסום" : "הפעל"}
                         </button>
                       </>
                     )}

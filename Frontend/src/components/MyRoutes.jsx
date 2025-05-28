@@ -21,6 +21,7 @@ import ManagerSchedule from "./Manager-comp/ManagerSchedule";
 import Guests from "./CommonMKM-comp/Guests";
 import CreateGuests from "./CommonMKM-comp/CreateGuests";
 import SingleGuest from "./CommonMKM-comp/SingleGuest";
+import EditGuest from "./CommonMKM-comp/EditGuests";
 function MyRoutes() {
   return (
     <>
@@ -45,6 +46,7 @@ function MyRoutes() {
         <Route path="/guests" element={<Guests />} />
         <Route path="/createGuests" element={<CreateGuests />} />
         <Route path="/guest/:id" element={<SingleGuest />} />
+        <Route path="/editGuest/:id" element={<EditGuest />} />
       </Routes>
       <Footer />
     </>

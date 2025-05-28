@@ -31,11 +31,6 @@ function MainPageManager() {
           </form>
           {msg && <div className="error-message">{msg}</div>}
           <table className="notifications-table">
-            <thead>
-              <tr>
-                <th>בקשה</th>
-              </tr>
-            </thead>
             <tbody>
               {employees.length > 0 ? (
                 employees.map((emp) => (

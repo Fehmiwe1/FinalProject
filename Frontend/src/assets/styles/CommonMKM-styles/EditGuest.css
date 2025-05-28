@@ -1,0 +1,105 @@
+/* עיצוב עמוד עריכת אורח */
+
+.edit-guest {
+    position: relative;
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: rgba(34, 34, 34, 0.95);
+    color: #f5f5f5;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .edit-guest:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+  }
+  
+  .edit-guest h2 {
+    font-size: 2.5rem;
+    color: #ddd7d2;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .edit-guest-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .edit-guest-div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .edit-guest-div label {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 6px;
+  }
+  
+  .edit-guest-form input,
+  .edit-guest-form textarea {
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #444;
+    color: #f5f5f5;
+  }
+  
+  .edit-guest-form input[type="date"] {
+    direction: rtl;
+  }
+  
+  .edit-guest-btn {
+    background-color: #3e556b;
+    color: #f5f5f5;
+    padding: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .edit-guest-btn:hover {
+    background-color: #324557;
+    transform: translateY(-2px);
+    color: #c7c2c2;
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: #f5f5f5;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .close-button:hover {
+    transform: scale(1.2);
+    color: #7e7975;
+  }
+  
+  .error-message {
+    color: #ff5f5f;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .success-msg {
+    color: #4caf50;
+    font-weight: bold;
+    text-align: center;
+  }
+  
