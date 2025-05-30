@@ -26,13 +26,16 @@ function Login() {
     postalCode: "",
   });
 
-  // הודעה ליצרת משתמש חדש
   const [successMessage, setSuccessMessage] = useState(null);
-
-  // הודעה לשחזור סיסמה
   const [updatedPasswordMessage, setUpdatedPasswordMessage] = useState(null);
 
-  // התחברות
+  const isValidUsername = (username) => /^[a-zA-Z0-9]+$/.test(username);
+  const isValidPassword = (password) =>
+    /[A-Z]/.test(password) &&
+    /\d/.test(password) &&
+    /^[a-zA-Z0-9]+$/.test(password);
+  const isHebrewText = (text) => /^[\u0590-\u05FF\s]+$/.test(text);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -43,14 +46,12 @@ function Login() {
           password,
         },
         {
-          withCredentials: true, // חובה כדי שה-session יישמר!
+          withCredentials: true,
         }
       );
 
       const isActive = Cookies.get("userStatus");
-      console.log(isActive);
       const role = Cookies.get("userRole");
-      console.log(role);
 
       if (
         isActive === "active" &&
@@ -71,17 +72,34 @@ function Login() {
     }
   };
 
-  // הרשמה
-  const isValidUsername = (username) => /^[a-zA-Z0-9]+$/.test(username);
-  const isValidPassword = (password) =>
-    /[A-Z]/.test(password) &&
-    /\d/.test(password) &&
-    /^[a-zA-Z0-9]+$/.test(password);
-
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (!isValidUsername(newUser.username)) {
       setErrorSingUp("שם המשתמש חייב להיות באנגלית בלבד.");
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
+
+    if (!isHebrewText(newUser.firstName)) {
+      setErrorSingUp("השם הפרטי חייב להכיל אותיות בעברית בלבד.");
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
+
+    if (!isHebrewText(newUser.lastName)) {
+      setErrorSingUp("שם המשפחה חייב להכיל אותיות בעברית בלבד.");
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
+
+    if (!isHebrewText(newUser.street)) {
+      setErrorSingUp("שם הרחוב חייב להכיל אותיות בעברית בלבד.");
+      setTimeout(() => setErrorSingUp(null), 2000);
+      return;
+    }
+
+    if (!isHebrewText(newUser.city)) {
+      setErrorSingUp("שם העיר חייב להכיל אותיות בעברית בלבד.");
       setTimeout(() => setErrorSingUp(null), 2000);
       return;
     }
@@ -93,19 +111,9 @@ function Login() {
       setTimeout(() => setErrorSingUp(null), 3500);
       return;
     }
+
     try {
-      const response = await axios.post("users/register", {
-        username: newUser.username,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        birthDate: newUser.birthDate,
-        password: newUser.password,
-        email: newUser.email,
-        phone: newUser.phone,
-        street: newUser.street,
-        city: newUser.city,
-        postalCode: newUser.postalCode,
-      });
+      const response = await axios.post("users/register", newUser);
 
       if (response.data.message === "User added and notification created!") {
         setSuccessMessage("ההרשמה הצליחה!");

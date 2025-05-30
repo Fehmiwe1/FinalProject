@@ -11,6 +11,8 @@ function EditGuest() {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const isHebrewText = (text) => /^[֐-׿\s]+$/.test(text);
+
   useEffect(() => {
     axios
       .get(`/guests/${id}`)
@@ -28,6 +30,9 @@ function EditGuest() {
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
+    if ((name === "CarNumber" || name === "GuestPhone") && Number(value) < 0)
+      return;
+
     setVehicles((prev) => {
       const updated = [...prev];
       updated[index][name] = value;
@@ -42,6 +47,7 @@ function EditGuest() {
       !vehicles[0]?.EndDate
     ) {
       setError("יש למלא מספר קבלן ותאריכים.");
+      setTimeout(() => setError(""), 3000);
       return false;
     }
 
@@ -50,8 +56,16 @@ function EditGuest() {
         setError("יש למלא את כל שדות הרכב.");
         return false;
       }
-      if (!/^\d{10}$/.test(v.GuestPhone)) {
+      if (!/^[0-9]{1,10}$/.test(v.CarNumber)) {
+        setError("מספר רכב חייב להכיל 1-10 ספרות.");
+        return false;
+      }
+      if (!/^[0-9]{10}$/.test(v.GuestPhone)) {
         setError("מספר טלפון חייב להכיל בדיוק 10 ספרות.");
+        return false;
+      }
+      if (!isHebrewText(v.GuestName)) {
+        setError("שם האורח חייב להכיל אותיות בעברית בלבד.");
         return false;
       }
     }
@@ -69,12 +83,15 @@ function EditGuest() {
     if (!validate()) return;
 
     try {
-      const promises = vehicles.map((v) => axios.put(`/guests/${v.id}`, v));
+      const promises = vehicles.map((v) =>
+        axios.put(`/guests/${v.GuestNumber}`, v)
+      );
       await Promise.all(promises);
       setMsg("פרטי האורח עודכנו בהצלחה.");
       setTimeout(() => navigate("/guests"), 2000);
     } catch {
       setError("אירעה שגיאה בעדכון הנתונים.");
+      setTimeout(() => setError(""), 3000);
     }
   };
 
@@ -98,12 +115,12 @@ function EditGuest() {
                 type="text"
                 name="GuestNumber"
                 value={vehicle.GuestNumber}
-                onChange={(e) => handleChange(index, e)}
                 readOnly
               />
               <label>מספר רכב:</label>
               <input
-                type="text"
+                type="number"
+                min="0"
                 name="CarNumber"
                 value={vehicle.CarNumber}
                 onChange={(e) => handleChange(index, e)}
