@@ -41,18 +41,22 @@
 }
 
 .submit-button {
-  padding: 1rem 2rem;
-  font-size: 1.6rem;
-  background-color: #38bdf8;
-  color: #fff;
+  margin: 1.5rem auto 0 auto; /* מרווח עליון ומרכז אופקית */
+  font-size: 1.2rem;
+  padding: 1.2rem 20rem;
+  background-color: #1b2631;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  color: #ddd7d2;
   font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block; /* נדרש כדי ש-margin: auto יעבוד */
+  width: fit-content;
 }
 
 .submit-button:hover {
-  background-color: #0ea5e9;
+  background-color: #293947;
 }
 .date-header {
   display: flex;
@@ -87,6 +91,26 @@
   background-color: #facc15;
   color: black;
   border-color: #facc15;
+}
+
+
+/* Success Message */
+.success-message {
+  color: #2ecc71; /* Green for success */
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
 }
 
 @media (max-width: 768px) {

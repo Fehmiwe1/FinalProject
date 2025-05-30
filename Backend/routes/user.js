@@ -65,7 +65,7 @@ router.post("/register", async (req, res) => {
         `;
         const notificationParams = [
           insertRes.insertId, // ID של המשתמש שנוסף
-          "הרשמת עובד חדש"
+          "הרשמת עובד חדש",
         ];
 
         db.query(notificationQuery, notificationParams, (notifyErr) => {
@@ -81,7 +81,6 @@ router.post("/register", async (req, res) => {
     }
   });
 });
-
 
 // התחברות משתמש
 router.post("/login", async (req, res) => {
@@ -128,11 +127,14 @@ router.post("/login", async (req, res) => {
       };
 
       // הדפסת המידע על המשתמש ב-session
+      console.log("User logged in, ID:", user.id); // הדפסת ה-ID ב-console
       console.log("User logged in, role:", user.role); // הדפסת ה-role ב-console
       console.log("User logged in, status:", user.status); // הדפסת ה-status ב-console
       console.log("User logged in, username:", user.username); // הדפסת ה-username ב-console
       console.log("User logged in, firstName:", user.firstName); // הדפסת ה-firstName ב-console
       console.log("User logged in, lastName:", user.lastName); // הדפסת ה-lastName ב-console
+
+      res.cookie("userId", user.id, { maxAge: 3600000, httpOnly: false }); // הגדרת ה-ID בעוגיה
       res.cookie("userFirstName", user.firstName, {
         maxAge: 3600000,
         httpOnly: false,

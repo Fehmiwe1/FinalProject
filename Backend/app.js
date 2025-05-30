@@ -6,30 +6,30 @@ const userRoutes = require("./routes/user");
 const incidentRoutes = require("./routes/incident");
 const employeeManagementRoutes = require("./routes/employeeManagement");
 const employeeNotificationsRoutes = require("./routes/employeeNotifications");
+const employeeConstraintsRoutes = require("./routes/employeeConstraints");
 const guestsRoutes = require("./routes/guests");
+
 const port = 8801;
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true, // חובה כדי להעביר session עם cookie
+  })
+);
 
 // הגדרת session לניהול התחברויות
 app.use(
   session({
-    secret: "your_secret_key", // מפתח סודי להצפנת session
+    secret: "your_secret_key",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true, // רק אם יש HTTPS
+      secure: false, // שים true רק אם אתה עובד עם HTTPS
       httpOnly: true,
-      sameSite: "none", // נדרש כאשר משתמשים ב־cookies בין דומיינים
+      sameSite: "lax", // עדיף מ-"none" בלי HTTPS
       maxAge: 3600000,
     },
-    // 1 שעה
-  })
-);
-
-// הגדרת cors
-app.use(
-  cors({
-    origin: "http://localhost:3000", // או כל דומיין של ה-Client
-    credentials: true,
   })
 );
 
@@ -41,6 +41,7 @@ app.use("/post", incidentRoutes);
 app.use("/employeeManagement", employeeManagementRoutes);
 app.use("/employeeNotifications", employeeNotificationsRoutes);
 app.use("/guests", guestsRoutes);
+app.use("/employeeConstraints", employeeConstraintsRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {

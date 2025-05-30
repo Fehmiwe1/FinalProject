@@ -36,10 +36,16 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/users/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "/users/login",
+        {
+          username,
+          password,
+        },
+        {
+          withCredentials: true, // חובה כדי שה-session יישמר!
+        }
+      );
 
       const isActive = Cookies.get("userStatus");
       console.log(isActive);

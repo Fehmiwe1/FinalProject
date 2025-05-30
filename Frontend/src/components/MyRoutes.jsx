@@ -15,7 +15,7 @@ import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
 import Report from "./CommonMKM-comp/Report";
 import Schedule from "./Guerd-comp/Schedule";
 import SickLeavePage from "./Guerd-comp/SickLeavePage";
-import Constraints from "./Guerd-comp/Constraints";
+import Constraints from "./CommonMKM-comp/Constraints";
 import EmployeeManagement from "./Manager-comp/EmployeeManagement";
 import ManagerSchedule from "./Manager-comp/ManagerSchedule";
 import Guests from "./CommonMKM-comp/Guests";

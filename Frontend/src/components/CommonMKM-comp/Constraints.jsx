@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
-import "../../assets/styles/Guerd-styles/Constraints.css";
+import axios from "axios";
+import "../../assets/styles/CommonMKM-styles/Constraints.css";
+
 function Constraints() {
   const [weeks, setWeeks] = useState([]);
   const [selections, setSelections] = useState({});
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const generateWeeks = () => {
@@ -16,7 +20,7 @@ function Constraints() {
         for (let i = 0; i < 7; i++) {
           const date = new Date(startDate);
           date.setDate(date.getDate() + i);
-          days.push(date.toLocaleDateString("he-IL"));
+          days.push(date.toISOString().split("T")[0]); // YYYY-MM-DD
         }
         return days;
       };
@@ -41,13 +45,13 @@ function Constraints() {
 
   const toggleDay = (date) => {
     const isAllOne = ["בוקר", "ערב", "לילה"].every(
-      (shift) => selections[`${date}-${shift}`] === "1"
+      (shift) => selections[date + "-" + shift] === "לא יכול"
     );
-    const newValue = isAllOne ? "3" : "1";
+    const newValue = isAllOne ? "יכול" : "לא יכול";
 
     const newSelections = { ...selections };
     ["בוקר", "ערב", "לילה"].forEach((shift) => {
-      newSelections[`${date}-${shift}`] = newValue;
+      newSelections[date + "-" + shift] = newValue;
     });
     setSelections(newSelections);
   };
@@ -60,7 +64,7 @@ function Constraints() {
             <th>יום/משמרת</th>
             {weekDates.map((date, i) => {
               const isDayAllDisabled = ["בוקר", "ערב", "לילה"].every(
-                (shift) => selections[`${date}-${shift}`] === "1"
+                (shift) => selections[date + "-" + shift] === "לא יכול"
               );
 
               return (
@@ -95,11 +99,11 @@ function Constraints() {
                     onChange={(e) =>
                       handleSelectChange(date, shift, e.target.value)
                     }
-                    value={selections[`${date}-${shift}`] || "3"}
+                    value={selections[date + "-" + shift] || "יכול"}
                   >
-                    <option value="1">לא יכול</option>
-                    <option value="2">יכול חלקית</option>
-                    <option value="3">יכול</option>
+                    <option value="לא יכול">לא יכול</option>
+                    <option value="יכול חלקית">יכול חלקית</option>
+                    <option value="יכול">יכול</option>
                   </select>
                 </td>
               ))}
@@ -110,9 +114,49 @@ function Constraints() {
     </div>
   );
 
-  const handleSubmit = () => {
-    console.log("נשלח עם הערכים:", selections);
-    alert("הבקשה נשלחה בהצלחה");
+  const createConstraints = async (constraintsToSend) => {
+    try {
+      for (const constraint of constraintsToSend) {
+        const constraintToSend = {
+          date: constraint.date,
+          shift: constraint.shift,
+          availability: constraint.availability,
+        };
+
+        await axios.post("/employeeConstraints/", constraintToSend, {
+          withCredentials: true,
+        });
+      }
+
+      setMsg("האילוצים נשמרו בהצלחה");
+      setTimeout(() => {
+        setMsg("");
+      }, 2500);
+    } catch (error) {
+      console.error("שגיאה:", error);
+      setError("שליחת האילוצים נכשלה. נסה שוב.");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const filteredConstraints = Object.entries(selections)
+      .filter(([_, availability]) => availability !== "יכול")
+      .map(([key, availability]) => {
+        const parts = key.split("-");
+        const date = parts.slice(0, 3).join("-"); // YYYY-MM-DD
+        const shift = parts.slice(3).join("-"); // "בוקר", "ערב", "לילה"
+        return { date, shift, availability };
+      });
+
+    if (filteredConstraints.length === 0) {
+      setError("לא סומנו אילוצים לשליחה.");
+      return;
+    }
+
+    setError("");
+    createConstraints(filteredConstraints);
   };
 
   return (
@@ -120,6 +164,8 @@ function Constraints() {
       <main className="main-body">
         <section className="entry-section full-width">
           <h2>אילוצים</h2>
+          <div className="success-message">{msg}</div>
+          {error && <p className="error-message">{error}</p>}
           {weeks.length > 0 && renderTable(weeks[0])}
           {weeks.length > 1 && renderTable(weeks[1])}
 
@@ -127,9 +173,9 @@ function Constraints() {
             <p>
               <strong>שיטת מילוי</strong>
             </p>
-            <p>1 - לא יכול</p>
-            <p>2 - יכול חלקית</p>
-            <p>3 - יכול (ברירת מחדל)</p>
+            <p>לא יכול - "לא יכול"</p>
+            <p>יכול חלקית - "חלקית"</p>
+            <p>יכול (ברירת מחדל) - "יכול"</p>
           </div>
 
           <button className="submit-button" onClick={handleSubmit}>
