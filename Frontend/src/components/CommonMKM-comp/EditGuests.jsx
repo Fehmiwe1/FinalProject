@@ -4,8 +4,8 @@ import axios from "axios";
 import "../../assets/styles/CommonMKM-styles/EditGuest.css";
 
 function EditGuest() {
-  const [guest, setGuest] = useState(null);
-  const { id } = useParams(); // id הוא מזהה רשומה בטבלת guests
+  const [vehicles, setVehicles] = useState([]);
+  const { id } = useParams(); // id הוא GuestNumber
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
@@ -16,7 +16,7 @@ function EditGuest() {
       .get(`/guests/${id}`)
       .then((res) => {
         if (res.data.length > 0) {
-          setGuest(res.data[0]);
+          setVehicles(res.data);
         }
         setLoading(false);
       })
@@ -26,38 +26,37 @@ function EditGuest() {
       });
   }, [id]);
 
-  const handleChange = (e) => {
+  const handleChange = (index, e) => {
     const { name, value } = e.target;
-    setGuest((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setVehicles((prev) => {
+      const updated = [...prev];
+      updated[index][name] = value;
+      return updated;
+    });
   };
 
   const validate = () => {
     if (
-      !guest.GuestNumber ||
-      !guest.CarNumber ||
-      !guest.GuestName ||
-      !guest.GuestPhone ||
-      !guest.StartDate ||
-      !guest.EndDate
+      !vehicles[0]?.GuestNumber ||
+      !vehicles[0]?.StartDate ||
+      !vehicles[0]?.EndDate
     ) {
-      setError("יש למלא את כל השדות.");
+      setError("יש למלא מספר קבלן ותאריכים.");
       return false;
     }
 
-    if (!/^\d+$/.test(guest.GuestNumber)) {
-      setError("מספר קבלן חייב להכיל רק ספרות.");
-      return false;
+    for (let v of vehicles) {
+      if (!v.CarNumber || !v.GuestName || !v.GuestPhone) {
+        setError("יש למלא את כל שדות הרכב.");
+        return false;
+      }
+      if (!/^\d{10}$/.test(v.GuestPhone)) {
+        setError("מספר טלפון חייב להכיל בדיוק 10 ספרות.");
+        return false;
+      }
     }
 
-    if (!/^\d{10}$/.test(guest.GuestPhone)) {
-      setError("מספר טלפון חייב להכיל בדיוק 10 ספרות.");
-      return false;
-    }
-
-    if (new Date(guest.EndDate) < new Date(guest.StartDate)) {
+    if (new Date(vehicles[0].EndDate) < new Date(vehicles[0].StartDate)) {
       setError("תאריך סיום חייב להיות אחרי תאריך התחלה.");
       return false;
     }
@@ -65,19 +64,18 @@ function EditGuest() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    axios
-      .put(`/guests/${id}`, guest)
-      .then(() => {
-        setMsg("פרטי האורח עודכנו בהצלחה.");
-        setTimeout(() => navigate("/guests"), 2000);
-      })
-      .catch(() => {
-        setError("אירעה שגיאה בעדכון הנתונים.");
-      });
+    try {
+      const promises = vehicles.map((v) => axios.put(`/guests/${v.id}`, v));
+      await Promise.all(promises);
+      setMsg("פרטי האורח עודכנו בהצלחה.");
+      setTimeout(() => navigate("/guests"), 2000);
+    } catch {
+      setError("אירעה שגיאה בעדכון הנתונים.");
+    }
   };
 
   if (loading) return <div>טוען נתונים...</div>;
@@ -91,67 +89,59 @@ function EditGuest() {
         <h2>עריכת פרטי אורח</h2>
         {error && <p className="error-message">{error}</p>}
         {msg && <p className="success-msg">{msg}</p>}
-        {guest && (
-          <form className="edit-guest-form" onSubmit={handleSubmit}>
-            <div className="edit-guest-div">
+        <form className="edit-guest-form" onSubmit={handleSubmit}>
+          {vehicles.map((vehicle, index) => (
+            <div className="edit-guest-div" key={vehicle.id}>
+              <h4>רכב {index + 1}</h4>
               <label>מספר קבלן:</label>
               <input
                 type="text"
                 name="GuestNumber"
-                value={guest.GuestNumber}
-                onChange={handleChange}
+                value={vehicle.GuestNumber}
+                onChange={(e) => handleChange(index, e)}
+                readOnly
               />
-            </div>
-            <div className="edit-guest-div">
               <label>מספר רכב:</label>
               <input
                 type="text"
                 name="CarNumber"
-                value={guest.CarNumber}
-                onChange={handleChange}
+                value={vehicle.CarNumber}
+                onChange={(e) => handleChange(index, e)}
               />
-            </div>
-            <div className="edit-guest-div">
               <label>שם אורח:</label>
               <input
                 type="text"
                 name="GuestName"
-                value={guest.GuestName}
-                onChange={handleChange}
+                value={vehicle.GuestName}
+                onChange={(e) => handleChange(index, e)}
               />
-            </div>
-            <div className="edit-guest-div">
               <label>טלפון:</label>
               <input
                 type="text"
                 name="GuestPhone"
-                value={guest.GuestPhone}
-                onChange={handleChange}
+                value={vehicle.GuestPhone}
+                onChange={(e) => handleChange(index, e)}
               />
-            </div>
-            <div className="edit-guest-div">
               <label>תאריך התחלה:</label>
               <input
                 type="date"
                 name="StartDate"
-                value={guest.StartDate?.split("T")[0]}
-                onChange={handleChange}
+                value={vehicle.StartDate?.split("T")[0]}
+                onChange={(e) => handleChange(index, e)}
               />
-            </div>
-            <div className="edit-guest-div">
               <label>תאריך סיום:</label>
               <input
                 type="date"
                 name="EndDate"
-                value={guest.EndDate?.split("T")[0]}
-                onChange={handleChange}
+                value={vehicle.EndDate?.split("T")[0]}
+                onChange={(e) => handleChange(index, e)}
               />
             </div>
-            <button type="submit" className="edit-guest-btn">
-              שמור
-            </button>
-          </form>
-        )}
+          ))}
+          <button type="submit" className="edit-guest-btn">
+            שמור
+          </button>
+        </form>
       </div>
     </div>
   );
