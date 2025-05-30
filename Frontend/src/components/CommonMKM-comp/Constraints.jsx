@@ -9,49 +9,71 @@ function Constraints() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const generateWeeks = () => {
-      const today = new Date();
-      const currentDay = today.getDay();
-      const nextMonday = new Date(today);
-      nextMonday.setDate(today.getDate() + ((8 - currentDay) % 7));
+    const init = async () => {
+      const generatedWeeks = generateWeeks();
+      setWeeks(generatedWeeks);
+      await fetchExistingConstraints();
+    };
+    init();
+  }, []);
 
-      const generateWeek = (startDate) => {
-        const days = [];
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + i);
-          days.push(date.toISOString().split("T")[0]); // YYYY-MM-DD
-        }
-        return days;
-      };
+  const generateWeeks = () => {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const nextMonday = new Date(today);
+    nextMonday.setDate(today.getDate() + ((8 - currentDay) % 7));
 
-      const week1 = generateWeek(nextMonday);
-      const week2Start = new Date(nextMonday);
-      week2Start.setDate(week2Start.getDate() + 7);
-      const week2 = generateWeek(week2Start);
-
-      setWeeks([week1, week2]);
+    const generateWeek = (startDate) => {
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + i);
+        days.push(date.toISOString().split("T")[0]);
+      }
+      return days;
     };
 
-    generateWeeks();
-  }, []);
+    const week1 = generateWeek(nextMonday);
+    const week2Start = new Date(nextMonday);
+    week2Start.setDate(week2Start.getDate() + 7);
+    const week2 = generateWeek(week2Start);
+
+    return [week1, week2];
+  };
+
+  const fetchExistingConstraints = async () => {
+    try {
+      const res = await axios.get("/employeeConstraints", {
+        withCredentials: true,
+      });
+
+      const updatedSelections = {};
+      res.data.forEach(({ date, shift, availability }) => {
+        updatedSelections[`${date}|${shift}`] = availability;
+      });
+
+      setSelections(updatedSelections);
+    } catch (err) {
+      console.error("שגיאה בטעינת האילוצים:", err);
+    }
+  };
 
   const handleSelectChange = (date, shift, value) => {
     setSelections((prev) => ({
       ...prev,
-      [`${date}-${shift}`]: value,
+      [`${date}|${shift}`]: value,
     }));
   };
 
   const toggleDay = (date) => {
     const isAllOne = ["בוקר", "ערב", "לילה"].every(
-      (shift) => selections[date + "-" + shift] === "לא יכול"
+      (shift) => selections[`${date}|${shift}`] === "לא יכול"
     );
     const newValue = isAllOne ? "יכול" : "לא יכול";
 
     const newSelections = { ...selections };
     ["בוקר", "ערב", "לילה"].forEach((shift) => {
-      newSelections[date + "-" + shift] = newValue;
+      newSelections[`${date}|${shift}`] = newValue;
     });
     setSelections(newSelections);
   };
@@ -64,7 +86,7 @@ function Constraints() {
             <th>יום/משמרת</th>
             {weekDates.map((date, i) => {
               const isDayAllDisabled = ["בוקר", "ערב", "לילה"].every(
-                (shift) => selections[date + "-" + shift] === "לא יכול"
+                (shift) => selections[`${date}|${shift}`] === "לא יכול"
               );
 
               return (
@@ -80,7 +102,6 @@ function Constraints() {
                     >
                       ❌
                     </button>
-
                     <div>תאריך</div>
                     <div>{date}</div>
                   </div>
@@ -90,16 +111,16 @@ function Constraints() {
           </tr>
         </thead>
         <tbody>
-          {["בוקר", "ערב", "לילה"].map((shift, shiftIndex) => (
-            <tr key={shiftIndex}>
+          {["בוקר", "ערב", "לילה"].map((shift) => (
+            <tr key={shift}>
               <td>{shift}</td>
-              {weekDates.map((date, i) => (
-                <td key={i}>
+              {weekDates.map((date) => (
+                <td key={date}>
                   <select
                     onChange={(e) =>
                       handleSelectChange(date, shift, e.target.value)
                     }
-                    value={selections[date + "-" + shift] || "יכול"}
+                    value={selections[`${date}|${shift}`] || "יכול"}
                   >
                     <option value="לא יכול">לא יכול</option>
                     <option value="יכול חלקית">יכול חלקית</option>
@@ -117,21 +138,14 @@ function Constraints() {
   const createConstraints = async (constraintsToSend) => {
     try {
       for (const constraint of constraintsToSend) {
-        const constraintToSend = {
-          date: constraint.date,
-          shift: constraint.shift,
-          availability: constraint.availability,
-        };
-
-        await axios.post("/employeeConstraints/", constraintToSend, {
+        await axios.post("/employeeConstraints", constraint, {
           withCredentials: true,
         });
       }
 
+      await fetchExistingConstraints();
       setMsg("האילוצים נשמרו בהצלחה");
-      setTimeout(() => {
-        setMsg("");
-      }, 2500);
+      setTimeout(() => setMsg(""), 2500);
     } catch (error) {
       console.error("שגיאה:", error);
       setError("שליחת האילוצים נכשלה. נסה שוב.");
@@ -141,22 +155,20 @@ function Constraints() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const filteredConstraints = Object.entries(selections)
-      .filter(([_, availability]) => availability !== "יכול")
-      .map(([key, availability]) => {
-        const parts = key.split("-");
-        const date = parts.slice(0, 3).join("-"); // YYYY-MM-DD
-        const shift = parts.slice(3).join("-"); // "בוקר", "ערב", "לילה"
+    const allConstraints = Object.entries(selections).map(
+      ([key, availability]) => {
+        const [date, shift] = key.split("|");
         return { date, shift, availability };
-      });
+      }
+    );
 
-    if (filteredConstraints.length === 0) {
-      setError("לא סומנו אילוצים לשליחה.");
+    if (allConstraints.length === 0) {
+      setError("לא נבחרו אילוצים לשליחה.");
       return;
     }
 
     setError("");
-    createConstraints(filteredConstraints);
+    createConstraints(allConstraints);
   };
 
   return (
