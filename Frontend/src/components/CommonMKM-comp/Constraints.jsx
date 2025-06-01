@@ -3,42 +3,58 @@ import axios from "axios";
 import "../../assets/styles/CommonMKM-styles/Constraints.css";
 
 function Constraints() {
-  const [weeks, setWeeks] = useState([]);
+  const [weeks, setWeeks] = useState([[], []]);
   const [selections, setSelections] = useState({});
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
+  const [canSubmit, setCanSubmit] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const generatedWeeks = generateWeeks();
-      setWeeks(generatedWeeks);
+      const [week1, week2] = generateTwoWeekRange();
+      setWeeks([week1, week2]);
+      checkSubmissionDeadline(week1);
       await fetchExistingConstraints();
     };
     init();
   }, []);
 
-  const generateWeeks = () => {
+  const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
+
+  const generateTwoWeekRange = () => {
     const today = new Date();
-    const currentDay = today.getDay();
-    const nextMonday = new Date(today);
-    nextMonday.setDate(today.getDate() + ((8 - currentDay) % 7));
+    const baseDate = new Date("2025-06-01");
+    const diffDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
+    const currentCycleStart = new Date(baseDate);
+    currentCycleStart.setDate(
+      baseDate.getDate() + Math.floor(diffDays / 14) * 14
+    );
 
-    const generateWeek = (startDate) => {
-      const days = [];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(startDate);
-        date.setDate(date.getDate() + i);
-        days.push(date.toISOString().split("T")[0]);
+    const week1 = [];
+    const week2 = [];
+
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(currentCycleStart);
+      date.setDate(currentCycleStart.getDate() + i);
+      const isoDate = date.toISOString().split("T")[0];
+      if (i < 7) {
+        week1.push(isoDate);
+      } else {
+        week2.push(isoDate);
       }
-      return days;
-    };
-
-    const week1 = generateWeek(nextMonday);
-    const week2Start = new Date(nextMonday);
-    week2Start.setDate(week2Start.getDate() + 7);
-    const week2 = generateWeek(week2Start);
+    }
 
     return [week1, week2];
+  };
+
+  const checkSubmissionDeadline = (week1) => {
+    if (week1.length < 3) return;
+    const deadline = new Date(week1[2]); // יום שלישי
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (today > deadline) {
+      setCanSubmit(false);
+    }
   };
 
   const fetchExistingConstraints = async () => {
@@ -78,15 +94,18 @@ function Constraints() {
     setSelections(newSelections);
   };
 
-  const renderTable = (weekDates) => (
+  const renderTable = (weekDates, title) => (
     <div className="week-block">
+      <h3>{title}</h3>
       <table className="constraints-table">
         <thead>
           <tr>
             <th>יום/משמרת</th>
-            {weekDates.map((date, i) => {
+            {weekDates.map((dateStr, i) => {
+              const date = new Date(dateStr);
+              const dayName = dayNames[date.getDay()];
               const isDayAllDisabled = ["בוקר", "ערב", "לילה"].every(
-                (shift) => selections[`${date}|${shift}`] === "לא יכול"
+                (shift) => selections[`${dateStr}|${shift}`] === "לא יכול"
               );
 
               return (
@@ -96,14 +115,13 @@ function Constraints() {
                       className={`day-toggle-button ${
                         isDayAllDisabled ? "active" : ""
                       }`}
-                      onClick={() => toggleDay(date)}
+                      onClick={() => toggleDay(dateStr)}
                       title="סמן את כל היום כ'לא יכול'"
-                      aria-label={`הפוך את ${date} ליום שאינו זמין`}
                     >
                       ❌
                     </button>
-                    <div>תאריך</div>
-                    <div>{date}</div>
+                    <div>{`יום ${dayName}`}</div>
+                    <div>{dateStr}</div>
                   </div>
                 </th>
               );
@@ -176,27 +194,30 @@ function Constraints() {
       <main className="main-body">
         <section className="entry-section full-width">
           <h2>אילוצים</h2>
-          <div className="success-message">{msg}</div>
+          {msg && <div className="success-message">{msg}</div>}
           {error && <p className="error-message">{error}</p>}
-          {weeks.length > 0 && renderTable(weeks[0])}
-          {weeks.length > 1 && renderTable(weeks[1])}
+          {renderTable(weeks[0], "שבוע ראשון")}
+          {renderTable(weeks[1], "שבוע שני")}
 
           <div className="legend">
             <p>
               <strong>שיטת מילוי</strong>
             </p>
-            <p>לא יכול - "לא יכול"</p>
-            <p>יכול חלקית - "חלקית"</p>
-            <p>יכול (ברירת מחדל) - "יכול"</p>
+            <p>❌ לא יכול – אי זמינות מלאה</p>
+            <p>✔️ יכול חלקית – זמינות חלקית</p>
+            <p>✅ יכול – זמינות מלאה (ברירת מחדל)</p>
           </div>
 
-          <button className="submit-button" onClick={handleSubmit}>
-            שליחת בקשה
-          </button>
+          {canSubmit ? (
+            <button className="submit-button" onClick={handleSubmit}>
+              שליחת בקשה
+            </button>
+          ) : (
+            <p className="error-message">עבר המועד – לא ניתן לשלוח אילוצים.</p>
+          )}
         </section>
       </main>
     </div>
   );
 }
-
 export default Constraints;
