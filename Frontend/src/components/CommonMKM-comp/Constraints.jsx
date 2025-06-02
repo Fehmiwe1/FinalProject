@@ -190,8 +190,8 @@ function Constraints() {
   };
 
   return (
-    <div className="main-wrapper">
-      <main className="main-body">
+    <div className="ConstraintsPage">
+      <main className="ConstraintsPage-body">
         <section className="entry-section full-width">
           <h2>אילוצים</h2>
           {msg && <div className="success-message">{msg}</div>}

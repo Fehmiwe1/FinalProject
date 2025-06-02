@@ -14,7 +14,7 @@ import EditIncident from "./CommonMKM-comp/EditIncident";
 import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
 import Report from "./CommonMKM-comp/Report";
 import Schedule from "./Guerd-comp/Schedule";
-import SickLeavePage from "./Guerd-comp/SickLeavePage";
+import SickLeavePage from "./CommonMKM-comp/SickLeavePage";
 import Constraints from "./CommonMKM-comp/Constraints";
 import EmployeeManagement from "./Manager-comp/EmployeeManagement";
 import ManagerSchedule from "./Manager-comp/ManagerSchedule";

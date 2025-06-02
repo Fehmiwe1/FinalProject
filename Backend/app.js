@@ -8,6 +8,7 @@ const employeeManagementRoutes = require("./routes/employeeManagement");
 const employeeNotificationsRoutes = require("./routes/employeeNotifications");
 const employeeConstraintsRoutes = require("./routes/employeeConstraints");
 const guestsRoutes = require("./routes/guests");
+const employeeRequestsRoutes = require("./routes/employeeRequests");
 
 const port = 8801;
 
@@ -42,6 +43,7 @@ app.use("/employeeManagement", employeeManagementRoutes);
 app.use("/employeeNotifications", employeeNotificationsRoutes);
 app.use("/guests", guestsRoutes);
 app.use("/employeeConstraints", employeeConstraintsRoutes);
+app.use("/employeeRequests", employeeRequestsRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {
