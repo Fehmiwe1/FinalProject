@@ -223,6 +223,16 @@ function Header() {
                       מחלה/חופשה
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/myRequests"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      הבקשות שלי
+                    </NavLink>
+                  </li>
                 </>
               )}
             </ul>

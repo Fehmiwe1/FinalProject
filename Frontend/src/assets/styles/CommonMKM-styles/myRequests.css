@@ -1,0 +1,50 @@
+.myRequests-wrapper {
+  flex-grow: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 100%;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  will-change: transform;
+  background-color: #2c3e50;
+}
+.myRequests-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  box-sizing: border-box;
+}
+
+.myRequests-body h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #ddd7d2;
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  direction: rtl;
+  background-color: #1e1e1e;
+  color: white;
+  border: 1px solid #444;
+}
+
+.requests-table th,
+.requests-table td {
+  padding: 25px 30px; /* יותר מרווח פנימי */
+  border: 1px solid #444;
+  text-align: center;
+  font-size: 2rem; /* טקסט טיפה גדול יותר */
+  line-height: 1.6; /* מרווח אנכי בטקסט */
+  min-height: 48px; /* גובה מינימלי של תא */
+}

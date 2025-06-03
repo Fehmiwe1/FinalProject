@@ -81,7 +81,6 @@ router.post("/vacation", (req, res) => {
   );
 });
 
-
 router.get("/pendingRequests", (req, res) => {
   const query = `
     SELECT request_type, request_date, status
@@ -91,6 +90,37 @@ router.get("/pendingRequests", (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) return res.status(500).send("Database error");
+    res.json(results);
+  });
+});
+
+// בקשות חופשה לפי המשתמש המחובר
+router.get("/vacationRequestsShow", (req, res) => {
+  const employeeId = req.session?.user?.id;
+
+  if (!employeeId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const query = `
+    SELECT 
+      request_type,
+      request_date,
+      from_date,
+      to_date,
+      vacation_days,
+      days_to_pay,
+      status
+    FROM employee_requests
+    WHERE ID_employee = ? AND request_type = 'חופשה'
+    ORDER BY request_date DESC
+  `;
+
+  db.query(query, [employeeId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
     res.json(results);
   });
 });

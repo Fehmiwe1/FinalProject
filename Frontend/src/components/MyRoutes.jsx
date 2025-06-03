@@ -22,6 +22,7 @@ import Guests from "./CommonMKM-comp/Guests";
 import CreateGuests from "./CommonMKM-comp/CreateGuests";
 import SingleGuest from "./CommonMKM-comp/SingleGuest";
 import EditGuest from "./CommonMKM-comp/EditGuests";
+import MyRequests from "./CommonMKM-comp/myRequests";
 function MyRoutes() {
   return (
     <>
@@ -47,6 +48,7 @@ function MyRoutes() {
         <Route path="/createGuests" element={<CreateGuests />} />
         <Route path="/guest/:id" element={<SingleGuest />} />
         <Route path="/editGuest/:id" element={<EditGuest />} />
+        <Route path="/myRequests" element={<MyRequests />} />
       </Routes>
       <Footer />
     </>
