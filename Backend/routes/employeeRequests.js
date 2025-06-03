@@ -81,18 +81,28 @@ router.post("/vacation", (req, res) => {
   );
 });
 
+
+// קבלת בקשות ממתינות של העובד המחובר בלבד
 router.get("/pendingRequests", (req, res) => {
+  const employeeId = req.session?.user?.id;
+
+  if (!employeeId) {
+    return res.status(401).json({ message: "לא מחובר" });
+  }
+
   const query = `
     SELECT request_type, request_date, status
     FROM employee_requests
-    WHERE status = 'ממתין'
+    WHERE status = 'ממתין' AND ID_employee = ?
+    ORDER BY request_date DESC
   `;
 
-  db.query(query, (err, results) => {
+  db.query(query, [employeeId], (err, results) => {
     if (err) return res.status(500).send("Database error");
     res.json(results);
   });
 });
+
 
 // בקשות חופשה לפי המשתמש המחובר
 router.get("/vacationRequestsShow", (req, res) => {
