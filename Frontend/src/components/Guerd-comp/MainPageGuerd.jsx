@@ -8,6 +8,20 @@ function MainPageGuerd() {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      try {
+        const response = await axios.get("/employeeRequests/pendingRequests");
+        setPendingRequests(response.data);
+      } catch (error) {
+        console.error("Error loading pending requests", error);
+      }
+    };
+
+    fetchPendingRequests();
+  }, []);
 
   const handleSearch = async () => {
     try {
@@ -49,19 +63,21 @@ function MainPageGuerd() {
     <div className="mainPageGuerd-wrapper">
       <main className="mainPageGuerd-body">
         <section className="alerts-section">
-          <h3>התראות</h3>
+          <h3>התראות/בקשות</h3>
           <table>
             <thead>
               <tr>
-                <th>תאריך</th>
-                <th>הודעה</th>
+                <th>סוג בקשה</th>
+                <th>תאריך שליחה</th>
+                <th>סטטוס</th>
               </tr>
             </thead>
             <tbody>
-              {alerts.map((alert, index) => (
+              {pendingRequests.map((req, index) => (
                 <tr key={index}>
-                  <td>{alert.date}</td>
-                  <td>{alert.message}</td>
+                  <td>{req.request_type}</td>
+                  <td>{new Date(req.request_date).toLocaleDateString()}</td>
+                  <td>{req.status}</td>
                 </tr>
               ))}
             </tbody>

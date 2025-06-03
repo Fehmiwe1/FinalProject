@@ -146,66 +146,77 @@ router.put("/:GuestNumber/status", (req, res) => {
   });
 });
 
-
-
 // בדיקת כניסה לפי מספר קבלן ורכב
 router.post("/check", (req, res) => {
   const { contractorNumber, vehicleNumber } = req.body;
 
   if (!contractorNumber || !vehicleNumber) {
-    return res
-      .status(400)
-      .json({
-        status: "missing_fields",
-        message: "Both contractor number and vehicle number are required.",
-      });
+    return res.status(400).json({
+      status: "missing_fields",
+      message: "Both contractor number and vehicle number are required.",
+    });
   }
 
-  const contractorQuery =
-    "SELECT * FROM guests WHERE GuestNumber = ? AND IsActive = 1";
+  // שלב 1: עדכון אוטומטי של אורחים שפג תוקפם
+  const deactivateExpiredQuery = `
+    UPDATE guests
+    SET IsActive = 0
+    WHERE EndDate < CURDATE() AND IsActive != 0
+  `;
 
-  db.query(contractorQuery, [contractorNumber], (err, contractors) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ status: "error", message: "Database error" });
-    }
-
-    if (contractors.length === 0) {
-      return res.json({
-        status: "contractor_not_found",
-        message: "Contractor not found.",
+  db.query(deactivateExpiredQuery, (deactivateErr) => {
+    if (deactivateErr) {
+      return res.status(500).json({
+        status: "error",
+        message: "Database error during deactivation",
+        error: deactivateErr,
       });
     }
 
-    const matchingVehicle = contractors.find(
-      (g) => g.CarNumber === vehicleNumber
-    );
-    if (!matchingVehicle) {
-      return res.json({
-        status: "vehicle_not_found",
-        message: "Vehicle not associated with contractor.",
-      });
-    }
+    // שלב 2: המשך בדיקה רגילה לאחר העדכון
+    const contractorQuery = `
+      SELECT * FROM guests
+      WHERE GuestNumber = ? AND IsActive = 1
+    `;
 
-    const now = new Date();
-    const startDate = new Date(matchingVehicle.StartDate);
-    const endDate = new Date(matchingVehicle.EndDate);
+    db.query(contractorQuery, [contractorNumber], (err, contractors) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ status: "error", message: "Database error" });
+      }
 
-    if (now < startDate || now > endDate) {
-      return res.json({
-        status: "not_in_range",
-        message: "Access period expired or not started.",
-      });
-    }
+      if (contractors.length === 0) {
+        return res.json({
+          status: "contractor_not_found",
+          message: "Contractor not found.",
+        });
+      }
 
-    return res.json({ status: "authorized", message: "Access granted." });
+      const matchingVehicle = contractors.find(
+        (g) => g.CarNumber === vehicleNumber
+      );
+      if (!matchingVehicle) {
+        return res.json({
+          status: "vehicle_not_found",
+          message: "Vehicle not associated with contractor.",
+        });
+      }
+
+      const now = new Date();
+      const startDate = new Date(matchingVehicle.StartDate);
+      const endDate = new Date(matchingVehicle.EndDate);
+
+      if (now <= startDate || now >= endDate) {
+        return res.json({
+          status: "not_in_range",
+          message: "Access period expired or not started.",
+        });
+      }
+
+      return res.json({ status: "authorized", message: "Access granted." });
+    });
   });
 });
-
-module.exports = router;
-
-
-
 
 module.exports = router;

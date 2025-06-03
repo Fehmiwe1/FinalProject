@@ -81,4 +81,18 @@ router.post("/vacation", (req, res) => {
   );
 });
 
+
+router.get("/pendingRequests", (req, res) => {
+  const query = `
+    SELECT request_type, request_date, status
+    FROM employee_requests
+    WHERE status = 'ממתין'
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).send("Database error");
+    res.json(results);
+  });
+});
+
 module.exports = router;
