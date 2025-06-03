@@ -1,0 +1,30 @@
+.WorkArrangement-wrapper {
+  flex-grow: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 100%;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  will-change: transform;
+  background-color: #2c3e50;
+}
+.WorkArrangement-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  box-sizing: border-box;
+}
+
+.WorkArrangement-body h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #ddd7d2;
+}

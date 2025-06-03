@@ -13,7 +13,7 @@ import SinglePost from "./CommonMKM-comp/SinglePost";
 import EditIncident from "./CommonMKM-comp/EditIncident";
 import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
 import Report from "./CommonMKM-comp/Report";
-import Schedule from "./Guerd-comp/Schedule";
+import WorkArrangement from "./CommonMKM-comp/WorkArrangement";
 import SickLeavePage from "./CommonMKM-comp/SickLeavePage";
 import Constraints from "./CommonMKM-comp/Constraints";
 import EmployeeManagement from "./Manager-comp/EmployeeManagement";
@@ -40,7 +40,7 @@ function MyRoutes() {
         <Route path="/employeeManagement" element={<EmployeeManagement />} />
         <Route path="/mainPageGuerd" element={<MainPageGuerd />} />
         <Route path="/report" element={<Report />} />
-        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/WorkArrangement" element={<WorkArrangement />} />
         <Route path="/sick-leave" element={<SickLeavePage />} />
         <Route path="/constraints" element={<Constraints />} />
         <Route path="/guests" element={<Guests />} />

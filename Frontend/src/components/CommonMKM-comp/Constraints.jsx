@@ -192,8 +192,8 @@ function Constraints() {
   return (
     <div className="ConstraintsPage">
       <main className="ConstraintsPage-body">
-        <section className="entry-section full-width">
-          <h2>אילוצים</h2>
+        <h2>אילוצים</h2>
+        <section>
           {msg && <div className="success-message">{msg}</div>}
           {error && <p className="error-message">{error}</p>}
           {renderTable(weeks[0], "שבוע ראשון")}

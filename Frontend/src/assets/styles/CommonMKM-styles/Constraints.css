@@ -22,6 +22,12 @@
   box-sizing: border-box;
 }
 
+.ConstraintsPage-body h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #ddd7d2;
+}
+
 .constraints-table {
   width: 100%;
   border-collapse: collapse;
