@@ -8,6 +8,7 @@ function SickLeavePage() {
     unpaidDays: "",
     fromDate: "",
     toDate: "",
+    reason: "",
   });
 
   const [sickForm, setSickForm] = useState({ file: null });
@@ -57,7 +58,7 @@ function SickLeavePage() {
 
   const handleSubmitVacation = async (e) => {
     e.preventDefault();
-    const { fromDate, toDate, leaveDays, unpaidDays } = vacationForm;
+    const { fromDate, toDate, leaveDays, unpaidDays, reason } = vacationForm;
 
     if (!fromDate || !toDate) {
       setVacationError("נא לבחור תאריכים.");
@@ -80,7 +81,13 @@ function SickLeavePage() {
     try {
       await axios.post(
         "/employeeRequests/vacation",
-        { fromDate, toDate, leaveDays, unpaidDays },
+        {
+          fromDate,
+          toDate,
+          leaveDays,
+          unpaidDays,
+          reason,
+        },
         { withCredentials: true }
       );
 
@@ -90,6 +97,7 @@ function SickLeavePage() {
         unpaidDays: "",
         fromDate: "",
         toDate: "",
+        reason: "",
       });
       setTimeout(() => setVacationMsg(""), 3000);
     } catch (err) {
@@ -196,6 +204,14 @@ function SickLeavePage() {
                 value={vacationForm.unpaidDays}
                 onChange={handleVacationChange}
                 min="0"
+              />
+              <label>סיבת החופשה</label>
+              <textarea
+                name="reason"
+                value={vacationForm.reason}
+                onChange={handleVacationChange}
+                rows={3}
+                placeholder="כתוב את סיבת החופשה"
               />
             </div>
 

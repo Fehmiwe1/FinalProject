@@ -83,14 +83,18 @@
 }
 
 .form-fields label,
-.calendar-block label {
+.calendar-block label,
+.form-fields textarea,
+.calendar-block textarea {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 1.4rem;
 }
 
 .form-fields input,
-.calendar-block input {
+.calendar-block input,
+.form-fields textarea,
+.calendar-block textarea {
   width: 100%;
   padding: 1rem;
   border-radius: 4px;

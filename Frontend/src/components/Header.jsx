@@ -119,7 +119,7 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/constraints"
+                      to="/employeeConstraints"
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"
                       }

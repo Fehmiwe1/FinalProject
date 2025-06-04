@@ -70,4 +70,46 @@ router.post("/", (req, res) => {
   );
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+// קבל שמות כל העובדים (לא כולל מנהלים)
+router.get("/admin/employees", (req, res) => {
+  const query = `
+    SELECT id, firstName, lastName
+    FROM users
+    WHERE role != 'manager'
+    ORDER BY firstName, lastName
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת עובדים:", err);
+      return res.status(500).json({ error: "שגיאה במסד הנתונים" });
+    }
+    res.json(results);
+  });
+});
+
+// קבל אילוצים לפי ID של עובד
+router.get("/admin/constraints/:employeeId", (req, res) => {
+  const employeeId = req.params.employeeId;
+
+  const query = `
+    SELECT date, shift, availability
+    FROM employee_constraints
+    WHERE ID_employee = ?
+    ORDER BY date, FIELD(shift, 'בוקר', 'ערב', 'לילה')
+  `;
+
+  db.query(query, [employeeId], (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת אילוצים:", err);
+      return res.status(500).json({ error: "שגיאה במסד הנתונים" });
+    }
+    res.json(results);
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 module.exports = router;

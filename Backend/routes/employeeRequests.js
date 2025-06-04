@@ -47,31 +47,32 @@ router.post("/sick", upload.single("file"), (req, res) => {
 // שליחת בקשת חופשה רגילה
 router.post("/vacation", (req, res) => {
   const ID_employee = req.session?.user?.id;
-  const { fromDate, toDate, leaveDays, unpaidDays } = req.body;
-  const requestDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const { fromDate, toDate, leaveDays, unpaidDays, reason } = req.body;
+  const requestDate = new Date().toISOString().slice(0, 10);
 
   if (
     !ID_employee ||
     !fromDate ||
     !toDate ||
     leaveDays === undefined ||
-    unpaidDays === undefined
+    unpaidDays === undefined ||
+    !reason
   ) {
     return res.status(400).json({ message: "כל השדות נדרשים" });
   }
 
   const query = `
     INSERT INTO employee_requests 
-    (ID_employee, request_type, request_date, from_date, to_date, vacation_days, days_to_pay, status) 
-    VALUES (?, 'חופשה', ?, ?, ?, ?, ?, 'ממתין')
+    (ID_employee, request_type, request_date, from_date, to_date, vacation_days, days_to_pay, reason, status) 
+    VALUES (?, 'חופשה', ?, ?, ?, ?, ?, ?, 'ממתין')
   `;
 
   db.query(
     query,
-    [ID_employee, requestDate, fromDate, toDate, leaveDays, unpaidDays],
+    [ID_employee, requestDate, fromDate, toDate, leaveDays, unpaidDays, reason],
     (err, result) => {
       if (err) {
-        console.error("שגיאה בבקשת חופשה:", err);
+        console.error("שגיאה בבקשת חופשה:", err);ז
         return res
           .status(500)
           .json({ message: "שגיאה בבקשת חופשה", error: err });
@@ -103,7 +104,6 @@ router.get("/pendingRequests", (req, res) => {
   });
 });
 
-
 // בקשות חופשה לפי המשתמש המחובר
 router.get("/vacationRequestsShow", (req, res) => {
   const employeeId = req.session?.user?.id;
@@ -120,6 +120,7 @@ router.get("/vacationRequestsShow", (req, res) => {
       to_date,
       vacation_days,
       days_to_pay,
+      reason,
       status
     FROM employee_requests
     WHERE ID_employee = ? AND request_type = 'חופשה'

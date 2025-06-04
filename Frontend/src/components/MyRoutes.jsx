@@ -7,6 +7,7 @@ import Footer from "./Footer";
 import Contact from "./Main-comp/Contact";
 import MainPageManager from "./Manager-comp/MainPageManager";
 import RequestsManagement from "./Manager-comp/RequestsManagement";
+import EmployeeConstraints from "./Manager-comp/EmployeeConstraints";
 import Incident from "./CommonMKM-comp/Incident";
 import CreateIncident from "./CommonMKM-comp/CreateIncident";
 import SinglePost from "./CommonMKM-comp/SinglePost";
@@ -39,6 +40,7 @@ function MyRoutes() {
         <Route path="/post/:id" element={<SinglePost />} />
         <Route path="/editincident/:id" element={<EditIncident />} />
         <Route path="/employeeManagement" element={<EmployeeManagement />} />
+        <Route path="/employeeConstraints" element={<EmployeeConstraints />} />
         <Route path="/mainPageGuerd" element={<MainPageGuerd />} />
         <Route path="/report" element={<Report />} />
         <Route path="/WorkArrangement" element={<WorkArrangement />} />

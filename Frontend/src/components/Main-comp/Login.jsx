@@ -24,6 +24,7 @@ function Login() {
     street: "",
     city: "",
     postalCode: "",
+    newPassword: "",
   });
 
   const [successMessage, setSuccessMessage] = useState(null);
@@ -129,6 +130,7 @@ function Login() {
           street: "",
           city: "",
           postalCode: "",
+          newPassword: "",
         });
 
         setTimeout(() => {
@@ -142,27 +144,16 @@ function Login() {
     }
   };
 
-  const handleCloseSignUp = () => {
-    setShowSignUp(false);
-    setNewUser({
-      username: "",
-      firstName: "",
-      lastName: "",
-      birthDate: "",
-      password: "",
-      email: "",
-      phone: "",
-      street: "",
-      city: "",
-      postalCode: "",
-    });
-    setErrorSingUp(null);
-    setSuccessMessage(null);
-  };
-
-  // שחזור סיסמה
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+
+    if (!isValidPassword(newUser.newPassword)) {
+      setErrorForgotPassword(
+        "הסיסמה חייבת לכלול אות גדולה אחת לפחות ומספר אחד לפחות, באנגלית בלבד."
+      );
+      setTimeout(() => setErrorForgotPassword(null), 3500);
+      return;
+    }
 
     try {
       const response = await axios.post("/users/forgotPassword", {
@@ -175,7 +166,7 @@ function Login() {
 
       if (response.data.message === "Password updated!") {
         setUpdatedPasswordMessage("הסיסמה עודכנה בהצלחה!");
-        //מנקה תוכן
+
         setNewUser({
           username: "",
           firstName: "",
@@ -195,6 +186,25 @@ function Login() {
     }
   };
 
+  const handleCloseSignUp = () => {
+    setShowSignUp(false);
+    setNewUser({
+      username: "",
+      firstName: "",
+      lastName: "",
+      birthDate: "",
+      password: "",
+      email: "",
+      phone: "",
+      street: "",
+      city: "",
+      postalCode: "",
+      newPassword: "",
+    });
+    setErrorSingUp(null);
+    setSuccessMessage(null);
+  };
+
   const handleCloseForgotPassword = () => {
     setShowForgotPassword(false);
     setNewUser({
@@ -207,7 +217,6 @@ function Login() {
     setErrorForgotPassword(null);
     setUpdatedPasswordMessage(null);
   };
-
   return (
     <div className="LoginP">
       <section>

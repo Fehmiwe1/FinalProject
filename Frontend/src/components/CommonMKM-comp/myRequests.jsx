@@ -37,6 +37,7 @@ function MyRequests() {
                   <th>עד תאריך</th>
                   <th>מס' ימים</th>
                   <th>ימי תשלום</th>
+                  <th>סיבה</th>
                   <th>סטטוס</th>
                 </tr>
               </thead>
@@ -49,6 +50,7 @@ function MyRequests() {
                     <td>{new Date(req.to_date).toLocaleDateString()}</td>
                     <td>{req.vacation_days}</td>
                     <td>{req.days_to_pay}</td>
+                    <td>{req.reason}</td>
                     <td>{req.status}</td>
                   </tr>
                 ))}
