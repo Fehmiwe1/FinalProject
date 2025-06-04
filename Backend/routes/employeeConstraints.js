@@ -72,36 +72,28 @@ router.post("/", (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-// קבל שמות כל העובדים (לא כולל מנהלים)
-router.get("/admin/employees", (req, res) => {
-  const query = `
-    SELECT id, firstName, lastName
-    FROM users
-    WHERE role != 'manager'
-    ORDER BY firstName, lastName
-  `;
-
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("שגיאה בשליפת עובדים:", err);
-      return res.status(500).json({ error: "שגיאה במסד הנתונים" });
-    }
-    res.json(results);
-  });
-});
-
-// קבל אילוצים לפי ID של עובד
-router.get("/admin/constraints/:employeeId", (req, res) => {
-  const employeeId = req.params.employeeId;
+// שליפת כל האילוצים לכל העובדים בטווח תאריכים (כולל שם פרטי ומשפחה)
+router.get("/allConstraints", (req, res) => {
+  const { from, to } = req.query;
 
   const query = `
-    SELECT date, shift, availability
-    FROM employee_constraints
-    WHERE ID_employee = ?
-    ORDER BY date, FIELD(shift, 'בוקר', 'ערב', 'לילה')
+    SELECT 
+      u.firstName,
+      u.lastName,
+      DATE_FORMAT(ec.date, '%Y-%m-%d') AS date,
+      ec.shift,
+      ec.availability
+    FROM 
+      employee_constraints ec
+    JOIN 
+      users u ON ec.ID_employee = u.id
+    WHERE 
+      ec.date BETWEEN ? AND ?
+    ORDER BY 
+      ec.date, FIELD(ec.shift, 'בוקר', 'ערב', 'לילה'), u.firstName;
   `;
 
-  db.query(query, [employeeId], (err, results) => {
+  db.query(query, [from, to], (err, results) => {
     if (err) {
       console.error("שגיאה בשליפת אילוצים:", err);
       return res.status(500).json({ error: "שגיאה במסד הנתונים" });

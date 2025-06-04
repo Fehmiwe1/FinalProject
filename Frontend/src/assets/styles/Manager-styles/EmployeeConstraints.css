@@ -25,8 +25,9 @@
   text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.6);
 }
 
-/* שדה חיפוש, תאריכים וכפתור - בשורה אחת */
-.search-filters-row {
+.search-filters-row,
+.search-container,
+.search-dates {
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -34,8 +35,8 @@
   margin-bottom: 30px;
 }
 
-/* קלט טקסט לחיפוש */
-.search-filters-row input[type="text"] {
+.search-filters-row input[type="text"],
+.search-name input[type="text"] {
   padding: 12px 16px;
   font-size: 1.3rem;
   width: 250px;
@@ -45,8 +46,8 @@
   color: #ecf0f1;
 }
 
-/* קלט תאריך */
-.search-filters-row input[type="date"] {
+.search-filters-row input[type="date"],
+.search-dates input[type="date"] {
   padding: 10px;
   font-size: 1.1rem;
   border-radius: 6px;
@@ -55,7 +56,6 @@
   color: #ecf0f1;
 }
 
-/* כפתור חיפוש */
 .btnSearch {
   padding: 10px 30px;
   font-size: 1.2rem;
@@ -70,46 +70,8 @@
 .btnSearch:hover {
   background-color: #2c3e50;
   color: #ecf0f1;
-  cursor: pointer;
 }
 
-/* קונטיינר חיצוני לשדה שם + תאריכים */
-.search-container {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  margin-bottom: 30px;
-  align-items: center;
-}
-
-/* עיצוב שדה חיפוש */
-.search-name input[type="text"] {
-  padding: 12px 16px;
-  font-size: 1.3rem;
-  width: 250px;
-  border-radius: 6px;
-  border: 1px solid #777;
-  background-color: #34495e;
-  color: #ecf0f1;
-}
-
-/* עיצוב תאריכים */
-.search-dates {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.search-dates input[type="date"] {
-  padding: 10px;
-  font-size: 1.1rem;
-  border-radius: 6px;
-  border: 1px solid #777;
-  background-color: #34495e;
-  color: #ecf0f1;
-}
-
-/* טבלת אילוצים */
 .EmployeeConstraints-table {
   width: 100%;
   border-collapse: collapse;
@@ -134,10 +96,8 @@
 
 .EmployeeConstraints-table tbody tr:hover {
   background-color: #2a3a4b;
-  cursor: default;
 }
 
-/* תצוגת שבוע */
 .week-block {
   margin-top: 30px;
   width: 100%;
@@ -155,8 +115,8 @@
   color: red;
 }
 
-/* קומבו בוקס בשבועיים */
-.constraints-table select {
+.constraints-table select,
+.combo-box {
   padding: 6px;
   font-size: 1.1rem;
   background-color: #1e1e1e;
@@ -164,9 +124,9 @@
   border: 1px solid #555;
   border-radius: 5px;
   width: 100%;
+  cursor: pointer;
 }
 
-/* תצוגת קופסאות זמינות */
 .availability-box {
   padding: 8px;
   border-radius: 6px;
@@ -176,15 +136,25 @@
   margin-bottom: 10px;
 }
 
-.available {
-  background-color: #2ecc71; /* ירוק */
+.constraint-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.9rem;
 }
 
-.partial {
-  background-color: #f1c40f; /* צהוב */
-  color: #2c3e50;
+.employee-list {
+  display: flex;
+  flex-direction: column;
 }
 
-.not-available {
-  background-color: #e74c3c; /* אדום */
+.red-option {
+  color: red;
+  font-weight: bold;
+}
+
+.yellow-option {
+  color: orange;
+  font-weight: bold;
 }
