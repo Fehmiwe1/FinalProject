@@ -15,9 +15,12 @@ router.get("/", (req, res) => {
       e.event_description,
       e.notification_status
     FROM 
-      employee_notifications AS e, users  as u 
-    where e.ID_employee = u.id and
-        e.notification_status = 'pending'
+      employee_notifications AS e
+    JOIN 
+      users AS u ON e.ID_employee = u.id
+    WHERE 
+      e.notification_status = 'pending'
+      AND u.status != 'active'
     ORDER BY 
       e.event_date DESC;
   `;
@@ -30,13 +33,13 @@ router.get("/", (req, res) => {
     }
 
     if (results.length > 0) {
-      // שמירת event_description של הראשון בעוגייה
       res.cookie("eventDescription", results[0].event_description, {
         maxAge: 3600000,
         httpOnly: false,
       });
       console.log("eventDescription:", results[0].event_description);
     }
+
     res.json(results);
   });
 });
@@ -78,6 +81,5 @@ router.put("/updateStatus", (req, res) => {
     }
   });
 });
-
 
 module.exports = router;
