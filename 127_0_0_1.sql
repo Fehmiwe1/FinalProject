@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2025 at 09:24 AM
+-- Generation Time: Jun 04, 2025 at 07:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -37,6 +37,62 @@ CREATE TABLE `employee_constraints` (
   `availability` enum('יכול','לא יכול','יכול חלקית') NOT NULL DEFAULT 'יכול'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `employee_constraints`
+--
+
+INSERT INTO `employee_constraints` (`id`, `ID_employee`, `date`, `shift`, `availability`) VALUES
+(89, 31, '2025-06-02', 'בוקר', 'לא יכול'),
+(90, 31, '2025-06-02', 'ערב', 'לא יכול'),
+(91, 31, '2025-06-02', 'לילה', 'לא יכול'),
+(93, 31, '2025-06-01', 'בוקר', 'לא יכול'),
+(94, 31, '2025-06-01', 'ערב', 'לא יכול'),
+(95, 31, '2025-06-01', 'לילה', 'לא יכול'),
+(100, 31, '2025-05-31', 'בוקר', 'לא יכול'),
+(101, 31, '2025-05-31', 'ערב', 'לא יכול'),
+(102, 31, '2025-05-31', 'לילה', 'לא יכול'),
+(103, 31, '2025-06-05', 'בוקר', 'לא יכול'),
+(104, 31, '2025-06-05', 'ערב', 'לא יכול'),
+(105, 31, '2025-06-05', 'לילה', 'לא יכול'),
+(118, 31, '2025-06-04', 'בוקר', 'יכול חלקית'),
+(132, 31, '2025-06-09', 'בוקר', 'לא יכול'),
+(133, 31, '2025-06-09', 'ערב', 'לא יכול'),
+(134, 31, '2025-06-09', 'לילה', 'לא יכול'),
+(135, 31, '2025-06-10', 'ערב', 'יכול חלקית'),
+(136, 31, '2025-06-11', 'ערב', 'יכול חלקית'),
+(191, 3, '2025-06-05', 'בוקר', 'לא יכול'),
+(192, 3, '2025-06-05', 'ערב', 'לא יכול'),
+(193, 3, '2025-06-05', 'לילה', 'לא יכול'),
+(194, 3, '2025-06-06', 'בוקר', 'לא יכול'),
+(195, 3, '2025-06-06', 'ערב', 'לא יכול'),
+(196, 3, '2025-06-06', 'לילה', 'לא יכול'),
+(197, 3, '2025-06-12', 'ערב', 'יכול חלקית'),
+(198, 3, '2025-06-12', 'לילה', 'יכול חלקית'),
+(199, 3, '2025-06-12', 'בוקר', 'יכול חלקית'),
+(200, 35, '2025-06-09', 'בוקר', 'לא יכול'),
+(201, 35, '2025-06-09', 'ערב', 'לא יכול'),
+(202, 35, '2025-06-09', 'לילה', 'לא יכול'),
+(203, 35, '2025-06-10', 'בוקר', 'יכול חלקית'),
+(204, 35, '2025-06-13', 'לילה', 'יכול חלקית'),
+(205, 35, '2025-06-05', 'בוקר', 'יכול חלקית'),
+(206, 35, '2025-06-02', 'ערב', 'יכול חלקית'),
+(207, 35, '2025-06-11', 'ערב', 'לא יכול'),
+(208, 33, '2025-06-14', 'בוקר', 'לא יכול'),
+(209, 33, '2025-06-14', 'ערב', 'לא יכול'),
+(210, 33, '2025-06-14', 'לילה', 'לא יכול'),
+(211, 33, '2025-06-10', 'בוקר', 'יכול חלקית'),
+(212, 33, '2025-06-09', 'ערב', 'יכול חלקית'),
+(213, 33, '2025-06-02', 'לילה', 'יכול חלקית'),
+(214, 33, '2025-06-03', 'ערב', 'יכול חלקית'),
+(215, 33, '2025-06-01', 'ערב', 'יכול חלקית'),
+(216, 33, '2025-06-05', 'ערב', 'יכול חלקית'),
+(217, 32, '2025-06-12', 'בוקר', 'לא יכול'),
+(218, 32, '2025-06-12', 'ערב', 'לא יכול'),
+(219, 32, '2025-06-12', 'לילה', 'לא יכול'),
+(220, 32, '2025-06-06', 'בוקר', 'לא יכול'),
+(221, 32, '2025-06-06', 'ערב', 'לא יכול'),
+(222, 32, '2025-06-06', 'לילה', 'לא יכול');
+
 -- --------------------------------------------------------
 
 --
@@ -57,7 +113,6 @@ CREATE TABLE `employee_notifications` (
 
 INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_description`, `notification_status`) VALUES
 (1, 33, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
-(2, 34, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
 (3, 35, '2025-05-21', 'הרשמת עובד חדש', 'pending');
 
 -- --------------------------------------------------------
@@ -73,10 +128,27 @@ CREATE TABLE `employee_requests` (
   `request_date` date NOT NULL,
   `from_date` date NOT NULL,
   `to_date` date NOT NULL,
+  `vacation_days` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `days_to_pay` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `reason` text NOT NULL,
   `file_path` varchar(255) DEFAULT NULL,
   `status` enum('ממתין','מאושר','סורב') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employee_requests`
+--
+
+INSERT INTO `employee_requests` (`id`, `ID_employee`, `request_type`, `request_date`, `from_date`, `to_date`, `vacation_days`, `days_to_pay`, `reason`, `file_path`, `status`) VALUES
+(1, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748883253305.pdf', ''),
+(2, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884079619.pdf', ''),
+(3, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884337492.pdf', NULL),
+(4, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884622065.pdf', NULL),
+(5, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-05', 3, 2, '', NULL, 'ממתין'),
+(6, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-14', 12, 13, '', NULL, 'ממתין'),
+(7, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-07', 5, 5, '', NULL, 'ממתין'),
+(8, 3, 'מחלה', '2025-06-03', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748989977037.pdf', NULL),
+(9, 3, 'חופשה', '2025-06-03', '2025-06-05', '2025-06-07', 3, 3, 'טיול', NULL, 'ממתין');
 
 -- --------------------------------------------------------
 
@@ -100,13 +172,14 @@ CREATE TABLE `guests` (
 --
 
 INSERT INTO `guests` (`GuestID`, `GuestNumber`, `CarNumber`, `GuestName`, `GuestPhone`, `StartDate`, `EndDate`, `IsActive`) VALUES
-(1, '1001', '123-45-678', 'דני לוי', '0501234567', '2025-05-20', '2025-06-01', 1),
-(2, '1001', '234-56-789', 'דני לוי', '0501234567', '2025-05-21', '2025-06-02', 1),
-(3, '1002', '345-67-890', 'מיכל כהן', '0529876543', '2025-05-22', '2025-06-03', 1),
-(4, '1002', '456-78-901', 'מיכל כהן', '0529876543', '2025-05-23', '2025-06-04', 1),
+(1, '1001', '12345678', 'דני לוי', '0501234567', '2025-05-20', '2025-06-01', 0),
+(2, '1001', '23456789', 'דני לוי', '0501234567', '2025-05-20', '2025-06-01', 0),
+(3, '1002', '34567890', 'מיכל כהן', '0529876543', '2025-05-22', '2025-08-03', 1),
+(4, '1002', '45678901', 'מיכל כהן', '0529876543', '2025-05-22', '2025-08-03', 1),
 (5, '202', '123456789', 'אאא', '0521234567', '2025-01-20', '2026-06-29', 1),
 (6, '202', '55566647', 'בבב', '0501234567', '2025-01-20', '2026-06-29', 1),
-(8, '12223', '123555c', '222', '1234567890', '2025-05-14', '2025-05-30', 1);
+(8, '12223', '123555', '222', '1234567890', '2025-05-14', '2025-05-30', 0),
+(9, '10', '01', 'אאאצל', '0501234567', '2025-05-06', '2025-05-27', 0);
 
 -- --------------------------------------------------------
 
@@ -214,14 +287,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `password`, `email`, `phone`, `street`, `city`, `postalCode`, `role`, `status`, `registration_date`) VALUES
-(1, 'Manager', 'פהמי', 'managerLastName', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active', NULL),
-(3, 'fehmi1', 'fehmi', 'wehby', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active', NULL),
-(4, 'fehmi2', 'fehmi2', 'wehby', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive', NULL),
+(1, 'Manager', 'מנהל', 'מנהל', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active', NULL),
+(3, 'fehmi1', 'פהמי1', 'והבי', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active', NULL),
+(4, 'fehmi2', 'פהמי2', 'והבי', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive', NULL),
 (31, 'Maor', 'מאור', 'דוד', '1997-11-13', '$2b$10$LYoogQBupC8IjAZSdwr4Nu8UcWS4kYmi9m4/yl8zurGh4ziY1GGqO', 'maor@gmail.com', '0522222222', 'חיפה', 'חיפה', '3224712', 'employee', 'active', NULL),
-(32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$uzdG1KKuLzapqdjbyL712O/0adHbTX/ZSSTp30MNmsDeuVS1CVe1m', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'employee', 'inactive', '2025-05-21'),
-(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$CZsW9slbd9aslRUGQoXEGuYA/qoR4g/oSxeY5dU5VRVMrx5ZVwCfi', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'inactive', '2025-05-21'),
-(34, 'eliea', 'איליה', 'כרומנשק', '1982-11-10', '$2b$10$yiNJULnIDQjLN4ZahCR3e.YpWR50FtIuemgYzQwTbFo8S7MWj4g/e', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'inactive', '2025-05-21'),
-(35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$RvrsDebDqCfeO1KDZwHeTeJV5iIaEgw8VogiOE2x3gzQ1QH73N6Y6', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'employee', 'inactive', '2025-05-21');
+(32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$vWKRtl7x0PHUFA2uWQzWF..kKkuvO0CTqeVzZo73vnaaU7utCUiOa', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'employee', 'active', '2025-05-21'),
+(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$tpdi6ExqJLPzgiXN5RccheDlpqyj9JHeXUwk/MSdsZDhvZcjlbpCS', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'active', '2025-05-21'),
+(35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$YWhI4LpVlYOqED4sW1QsRujztkHEiAZq9FbFW91mXNq3VjYL.xHCS', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'employee', 'active', '2025-05-21');
 
 --
 -- Indexes for dumped tables
@@ -232,7 +304,8 @@ INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `pa
 --
 ALTER TABLE `employee_constraints`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ID_employee` (`ID_employee`,`date`,`shift`);
+  ADD UNIQUE KEY `ID_employee` (`ID_employee`,`date`,`shift`),
+  ADD UNIQUE KEY `uniq_employee_date_shift` (`ID_employee`,`date`,`shift`);
 
 --
 -- Indexes for table `employee_notifications`
@@ -296,7 +369,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `employee_constraints`
 --
 ALTER TABLE `employee_constraints`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=223;
 
 --
 -- AUTO_INCREMENT for table `employee_notifications`
@@ -308,13 +381,13 @@ ALTER TABLE `employee_notifications`
 -- AUTO_INCREMENT for table `employee_requests`
 --
 ALTER TABLE `employee_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `guests`
 --
 ALTER TABLE `guests`
-  MODIFY `GuestID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `GuestID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `incident`
