@@ -60,8 +60,8 @@ function Login() {
       ) {
         if (role === "manager") {
           navigate("/mainPageManager");
-        } else if (role === "employee") {
-          navigate("/mainPageGuerd");
+        } else if (role === "guard") {
+          navigate("/mainPageGuard");
         }
       } else if (isActive === "inactive") {
         setError("החשבון שלך אינו פעיל. אנא פנה למנהל.");

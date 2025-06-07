@@ -7,6 +7,24 @@ const bcrypt = require("bcrypt");
 // התחברות למסד הנתונים
 const db = dbSingleton.getConnection();
 
+// שליפת כל המאבטחים
+router.get("/guards", (req, res) => {
+  const query = `
+    SELECT id, firstName, lastName
+    FROM users
+    WHERE role = 'guard'
+    ORDER BY firstName, lastName
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת מאבטחים:", err);
+      return res.status(500).json({ error: "שגיאה בשליפת מאבטחים מהמסד." });
+    }
+    res.json(results);
+  });
+});
+
 // רישום משתמש חדש
 router.post("/register", async (req, res) => {
   const {
@@ -215,10 +233,6 @@ router.get("/logout", (req, res) => {
   });
 });
 
-
 ///////////////////////////////////////////////////////////
-
-
-
 
 module.exports = router;

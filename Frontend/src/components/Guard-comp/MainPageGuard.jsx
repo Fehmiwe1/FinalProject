@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-import "../../assets/styles//Guard-styles/MainPageGuard.css";
+import "../../assets/styles/Guard-styles/MainPageGuard.css";
 
 function MainPageGuard() {
   const [contractorNumber, setContractorNumber] = useState("");

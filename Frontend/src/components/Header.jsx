@@ -173,7 +173,7 @@ function Header() {
                 <>
                   <li>
                     <NavLink
-                      to="/mainPageGuerd"
+                      to="/mainPageGuard"
                       end
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"

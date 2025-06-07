@@ -208,13 +208,16 @@ function Constraints() {
             <p>✅ יכול – זמינות מלאה (ברירת מחדל)</p>
           </div>
 
-          {canSubmit ? (
+          {/* {canSubmit ? (
             <button className="submit-button" onClick={handleSubmit}>
               שליחת בקשה
             </button>
           ) : (
             <p className="error-message">עבר המועד – לא ניתן לשלוח אילוצים.</p>
-          )}
+          )} */}
+          <button className="submit-button" onClick={handleSubmit}>
+            שליחת בקשה
+          </button>
         </section>
       </main>
     </div>
