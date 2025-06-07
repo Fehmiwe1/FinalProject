@@ -177,3 +177,34 @@
     width: 100%;
   }
 }
+.role-select {
+  font-size: 1.3rem;
+  padding: 0.6rem 1rem;
+  background-color: #1e293b;
+  color: #ecf0f1;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin: 0 1rem;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: #facc15;
+  background-color: #2c3e50;
+}
+
+.search-dates label {
+  margin: 0 0.5rem;
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+.search-dates {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}

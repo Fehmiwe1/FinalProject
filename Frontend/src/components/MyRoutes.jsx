@@ -12,7 +12,7 @@ import Incident from "./CommonMKM-comp/Incident";
 import CreateIncident from "./CommonMKM-comp/CreateIncident";
 import SinglePost from "./CommonMKM-comp/SinglePost";
 import EditIncident from "./CommonMKM-comp/EditIncident";
-import MainPageGuerd from "./Guerd-comp/MainPageGuerd";
+import MainPageGuard from "./Guard-comp/MainPageGuard";
 import Report from "./CommonMKM-comp/Report";
 import WorkArrangement from "./CommonMKM-comp/WorkArrangement";
 import SickLeavePage from "./CommonMKM-comp/SickLeavePage";
@@ -41,7 +41,7 @@ function MyRoutes() {
         <Route path="/editincident/:id" element={<EditIncident />} />
         <Route path="/employeeManagement" element={<EmployeeManagement />} />
         <Route path="/employeeConstraints" element={<EmployeeConstraints />} />
-        <Route path="/mainPageGuerd" element={<MainPageGuerd />} />
+        <Route path="/mainPageGuard" element={<MainPageGuard />} />
         <Route path="/report" element={<Report />} />
         <Route path="/WorkArrangement" element={<WorkArrangement />} />
         <Route path="/sick-leave" element={<SickLeavePage />} />

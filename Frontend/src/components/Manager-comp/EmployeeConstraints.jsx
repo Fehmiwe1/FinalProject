@@ -8,11 +8,12 @@ function EmployeeConstraints() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [showTable, setShowTable] = useState(false);
+  const [roleFilter, setRoleFilter] = useState("guard");
 
   const fetchAllConstraints = async (from, to) => {
     try {
       const res = await axios.get(
-        `/employeeConstraints/allConstraints?from=${from}&to=${to}`,
+        `/employeeConstraints/allConstraints?from=${from}&to=${to}&role=${roleFilter}`,
         { withCredentials: true }
       );
       setConstraints(res.data);
@@ -140,6 +141,17 @@ function EmployeeConstraints() {
         <h2>אילוצי עובדים</h2>
 
         <div className="search-dates">
+          <label>תפקיד:</label>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="role-select"
+          >
+            <option value="guard">מאבטח</option>
+            <option value="moked">מוקד</option>
+            <option value="kabat">קב"ט</option>
+          </select>
+
           <label>מתאריך:</label>
           <input
             type="date"

@@ -72,11 +72,10 @@ router.post("/", (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-// שליפת כל האילוצים לכל העובדים בטווח תאריכים (כולל שם פרטי ומשפחה)
 router.get("/allConstraints", (req, res) => {
-  const { from, to } = req.query;
+  const { from, to, role } = req.query;
 
-  const query = `
+  let query = `
     SELECT 
       u.firstName,
       u.lastName,
@@ -89,11 +88,21 @@ router.get("/allConstraints", (req, res) => {
       users u ON ec.ID_employee = u.id
     WHERE 
       ec.date BETWEEN ? AND ?
+  `;
+
+  const params = [from, to];
+
+  if (role) {
+    query += ` AND u.role = ?`;
+    params.push(role);
+  }
+
+  query += `
     ORDER BY 
       ec.date, FIELD(ec.shift, 'בוקר', 'ערב', 'לילה'), u.firstName;
   `;
 
-  db.query(query, [from, to], (err, results) => {
+  db.query(query, params, (err, results) => {
     if (err) {
       console.error("שגיאה בשליפת אילוצים:", err);
       return res.status(500).json({ error: "שגיאה במסד הנתונים" });

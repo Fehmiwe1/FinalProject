@@ -1,5 +1,5 @@
 /* Main Layout as Columns */
-.mainPageGuerd-body {
+.mainPageGuard-body {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 2rem;
@@ -114,7 +114,7 @@
 }
 
 @media (max-width: 768px) {
-  .mainPageGuerd-body {
+  .mainPageGuard-body {
     grid-template-columns: 1fr;
   }
 }

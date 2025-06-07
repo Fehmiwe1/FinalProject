@@ -169,7 +169,7 @@ function Header() {
                   </li>
                 </>
               )}
-              {!isGuestPage && role === "employee" && (
+              {!isGuestPage && role === "guard" && (
                 <>
                   <li>
                     <NavLink

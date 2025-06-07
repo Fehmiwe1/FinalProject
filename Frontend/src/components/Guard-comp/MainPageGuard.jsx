@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-import "../../assets/styles/Guerd-styles/MainPageGuerd.css";
+import "../../assets/styles//Guard-styles/MainPageGuard.css";
 
-function MainPageGuerd() {
+function MainPageGuard() {
   const [contractorNumber, setContractorNumber] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [result, setResult] = useState("");
@@ -60,8 +60,8 @@ function MainPageGuerd() {
   }, []);
 
   return (
-    <div className="mainPageGuerd-wrapper">
-      <main className="mainPageGuerd-body">
+    <div className="mainPageGuard-wrapper">
+      <main className="mainPageGuard-body">
         <section className="alerts-section">
           <h3>התראות/בקשות</h3>
           <table>
@@ -117,4 +117,4 @@ function MainPageGuerd() {
   );
 }
 
-export default MainPageGuerd;
+export default MainPageGuard;
