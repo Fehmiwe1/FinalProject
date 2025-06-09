@@ -7,7 +7,7 @@ const db = dbSingleton.getConnection();
 // שליפת כל העובדים חוץ ממנהלים
 router.get("/", (req, res) => {
   const query =
-    "SELECT id, username, firstName, lastName, status FROM users WHERE role != 'manager'";
+    "SELECT id, username, firstName, lastName, status, role FROM users WHERE role != 'manager'";
   db.query(query, (err, results) => {
     if (err) {
       console.error("שגיאה בשליפת עובדים:", err);
@@ -41,6 +41,29 @@ router.put("/:id", (req, res) => {
   });
 });
 
+// עדכון תפקיד עובד (role)
+router.put("/role/:id", (req, res) => {
+  const userId = req.params.id;
+  const { role } = req.body;
 
+  const allowedRoles = ["guard", "manager", "kabat", "moked"];
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+
+  const updateQuery = "UPDATE users SET role = ? WHERE id = ?";
+  db.query(updateQuery, [role, userId], (err, result) => {
+    if (err) {
+      console.error("שגיאה בעדכון תפקיד:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Role updated", id: userId, role });
+  });
+});
 
 module.exports = router;

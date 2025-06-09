@@ -41,10 +41,24 @@ function MainPageManager() {
       });
   };
 
+  const changeRole = async (id, newRole) => {
+    axios
+      .put(`/employeeManagement/role/${id}`, { role: newRole })
+      .then(() => {
+        setEmployees((prev) =>
+          prev.map((emp) => (emp.id === id ? { ...emp, role: newRole } : emp))
+        );
+      })
+      .catch((error) => {
+        console.error("שגיאה בעדכון התפקיד:", error);
+        setMsg("אירעה שגיאה בעדכון התפקיד.");
+      });
+  };
+
   const filteredEmployees = employees.filter((emp) => {
     const fullName =
       `${emp.firstName} ${emp.lastName} ${emp.username}`.toLowerCase();
-    return fullName.includes(searchName.toLowerCase()); // כאן הסינון לפי תפקיד
+    return fullName.includes(searchName.toLowerCase());
   });
 
   return (
@@ -70,6 +84,7 @@ function MainPageManager() {
                 <th>שם פרטי</th>
                 <th>שם משפחה</th>
                 <th>סטטוס</th>
+                <th>תפקיד</th>
               </tr>
             </thead>
             <tbody>
@@ -92,11 +107,23 @@ function MainPageManager() {
                       {emp.status === "active" ? "פעיל" : "לא פעיל"}
                     </span>
                   </td>
+                  <td>
+                    <select
+                      className="role-select"
+                      value={emp.role}
+                      onChange={(e) => changeRole(emp.id, e.target.value)}
+                    >
+                      <option value="guard">מאבטח</option>
+                      <option value="moked">מוקד</option>
+                      <option value="kabat">קב"ט</option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {msg && <p>{msg}</p>}
       </div>
     </div>
   );
