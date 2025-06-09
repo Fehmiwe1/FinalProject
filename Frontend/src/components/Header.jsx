@@ -235,6 +235,82 @@ function Header() {
                   </li>
                 </>
               )}
+              {!isGuestPage && role === "moked" && (
+                <>
+                  <li>
+                    <NavLink
+                      to="/MainPageMoked"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      ראשי
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/report"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      דו"ח שעות
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/constraints"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      אילוצים
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/WorkArrangement"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      סידור עבודה
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/incident"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      אירועים
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/sick-leave"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      מחלה/חופשה
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/myRequests"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      הבקשות שלי
+                    </NavLink>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </div>

@@ -62,6 +62,8 @@ function Login() {
           navigate("/mainPageManager");
         } else if (role === "guard") {
           navigate("/mainPageGuard");
+        } else if (role === "moked") {
+          navigate("/mainPageMoked");
         }
       } else if (isActive === "inactive") {
         setError("החשבון שלך אינו פעיל. אנא פנה למנהל.");
