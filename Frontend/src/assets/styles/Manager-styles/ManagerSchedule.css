@@ -150,3 +150,18 @@
 .red-option {
   color: #ff4d4d;
 }
+
+@keyframes blink {
+  0%, 100% {
+    border-color: red;
+    background-color: #ffdddd;
+  }
+  50% {
+    border-color: darkred;
+    background-color: #ffaaaa;
+  }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}

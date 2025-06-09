@@ -137,7 +137,13 @@ function ManagerSchedule() {
     }
 
     const keyBase = `${dateStr}-${shiftType}`;
-    const selectedForDay = assignments[keyBase] || [];
+    const cellKey = `${dateStr}-${shiftType}-${position}`;
+    const selectedInCell = assignments[cellKey] || [];
+
+    // שליפת כל מי שנבחר כבר במשמרת הזו (בכל העמדות)
+    const allSelectedInShift = Object.entries(assignments)
+      .filter(([key]) => key.startsWith(keyBase))
+      .flatMap(([, val]) => val);
 
     const filteredGuards = allGuards
       .map((guard) => {
@@ -169,39 +175,46 @@ function ManagerSchedule() {
       <div className="multi-select">
         <div className="shift-time-label">{label}</div>
         {[...Array(count)].map((_, idx) => {
-          const currentSelected = assignments[keyBase]?.[idx] || "";
+          const currentSelected = selectedInCell[idx] || "";
+
+          // הצגת רק מאבטחים שעדיין לא נבחרו למשמרת הזו, או שכבר נבחרו כאן
+          const availableGuards = filteredGuards.filter(
+            (g) =>
+              !allSelectedInShift.includes(g.id) ||
+              selectedInCell.includes(g.id)
+          );
+
           return (
             <select
               key={idx}
-              className="guard-select"
+              className={`guard-select ${(() => {
+                const selectedGuard = filteredGuards.find(
+                  (g) => g.id === currentSelected
+                );
+                return selectedGuard?.className === "red-option" ? "blink" : "";
+              })()}`}
               value={currentSelected}
               onChange={(e) => {
                 const selectedId = parseInt(e.target.value);
                 if (!selectedId) return;
                 setAssignments((prev) => {
                   const updated = { ...prev };
-                  updated[keyBase] = [...(updated[keyBase] || [])];
-                  updated[keyBase][idx] = selectedId;
+                  updated[cellKey] = [...(updated[cellKey] || [])];
+                  updated[cellKey][idx] = selectedId;
                   return updated;
                 });
               }}
             >
               <option value="">בחר</option>
-              {filteredGuards
-                .filter(
-                  (g) =>
-                    !assignments[keyBase]?.includes(g.id) ||
-                    g.id === currentSelected
-                )
-                .map((guard) => (
-                  <option
-                    key={`${guard.id}-${shiftType}-${position}-${dayIdx}`}
-                    value={guard.id}
-                    className={guard.className}
-                  >
-                    {guard.name}
-                  </option>
-                ))}
+              {availableGuards.map((guard) => (
+                <option
+                  key={`${guard.id}-${shiftType}-${position}-${dayIdx}`}
+                  value={guard.id}
+                  className={guard.className}
+                >
+                  {guard.name}
+                </option>
+              ))}
             </select>
           );
         })}
