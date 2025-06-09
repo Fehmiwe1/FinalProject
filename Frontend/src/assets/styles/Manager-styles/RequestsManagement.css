@@ -101,6 +101,22 @@
   .view-btn:hover {
     opacity: 0.9;
   }
+
+  .download-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .download-btn:hover {
+    background-color: #2980b9;
+  }
+  
   
   @media (max-width: 1024px) {
     .requestsManagement-container {
@@ -112,4 +128,5 @@
       width: 100%;
     }
   }
+  
   

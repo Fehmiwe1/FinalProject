@@ -4,10 +4,12 @@ import "../../assets/styles/Manager-styles/MainPageManager.css";
 
 function MainPageManager() {
   const [employees, setEmployees] = useState([]);
+  const [alerts, setAlerts] = useState([]);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
     fetchEmployees();
+    fetchAlerts();
   }, []);
 
   const fetchEmployees = async () => {
@@ -22,6 +24,17 @@ function MainPageManager() {
       });
   };
 
+  const fetchAlerts = async () => {
+    axios
+      .get("/employeeRequests/pendingAlerts")
+      .then((res) => {
+        setAlerts(res.data);
+      })
+      .catch((error) => {
+        console.error("שגיאה בטעינת בקשות:", error);
+      });
+  };
+
   return (
     <div className="mainPageManager">
       <div className="mainPageManager-container">
@@ -29,22 +42,51 @@ function MainPageManager() {
           <form className="notifications-form">
             <h1>התראות</h1>
           </form>
+
           {msg && <div className="error-message">{msg}</div>}
+
+          {!msg && employees.length === 0 && alerts.length === 0 && (
+            <div className="no-notifications-message">אין התראות להצגה.</div>
+          )}
+
+          {/* התראות רגילות */}
           <table className="notifications-table">
             <tbody>
-              {employees.length > 0 ? (
+              {employees.length > 0 &&
                 employees.map((emp) => (
                   <tr key={`${emp.ID_employee}_${emp.event_date}`}>
                     <td>{emp.event_description}</td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3">לא נמצאו התראות.</td>
-                </tr>
-              )}
+                ))}
             </tbody>
           </table>
+
+          {/* התראות בקשות חופשה/מחלה */}
+          {alerts.length > 0 && (
+            <>
+              <h2 style={{ marginTop: "20px" }}>בקשות חופשה/מחלה ממתינות</h2>
+              <table className="notifications-table">
+                <thead>
+                  <tr>
+                    <th>שם עובד</th>
+                    <th>סוג בקשה</th>
+                    <th>תאריך בקשה</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alerts.map((alert) => (
+                    <tr key={alert.id}>
+                      <td>
+                        {alert.firstName} {alert.lastName}
+                      </td>
+                      <td>{alert.type}</td>
+                      <td>{alert.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </div>
 
         <div className="WorkArrangement-container">

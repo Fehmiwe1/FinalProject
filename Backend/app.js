@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const session = require("express-session");
+const path = require("path");
+
 const userRoutes = require("./routes/user");
 const incidentRoutes = require("./routes/incident");
 const employeeManagementRoutes = require("./routes/employeeManagement");
@@ -13,23 +15,24 @@ const createScheduleRoutes = require("./routes/createSchedule");
 
 const port = 8801;
 
+// הגדרת CORS
 app.use(
   cors({
     origin: "http://localhost:3000",
-    credentials: true, // חובה כדי להעביר session עם cookie
+    credentials: true,
   })
 );
 
-// הגדרת session לניהול התחברויות
+// הגדרת session
 app.use(
   session({
     secret: "your_secret_key",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // שים true רק אם אתה עובד עם HTTPS
+      secure: false,
       httpOnly: true,
-      sameSite: "lax", // עדיף מ-"none" בלי HTTPS
+      sameSite: "lax",
       maxAge: 3600000,
     },
   })
@@ -38,6 +41,10 @@ app.use(
 // הגדרת JSON parsing
 app.use(express.json());
 
+// ✅ חשיפת תיקיית הקבצים לצפייה מהדפדפן
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// ראוטים
 app.use("/users", userRoutes);
 app.use("/post", incidentRoutes);
 app.use("/employeeManagement", employeeManagementRoutes);
@@ -49,7 +56,7 @@ app.use("/createSchedule", createScheduleRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {
-  console.error(err); // Log error
+  console.error(err);
   res.status(500).json({
     error: "Internal Server Error",
     message: err.message,

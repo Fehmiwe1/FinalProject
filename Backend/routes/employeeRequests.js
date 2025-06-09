@@ -136,4 +136,83 @@ router.get("/vacationRequestsShow", (req, res) => {
   });
 });
 
+// קבלת את כל הבקשות
+router.get("/", (req, res) => {
+  const query = `
+    SELECT 
+      er.id,
+      er.ID_employee,
+      u.firstName,
+      u.lastName,
+      er.request_type AS requestType,
+      DATE_FORMAT(er.request_date, '%Y-%m-%d') AS requestDate,
+      CASE 
+        WHEN er.from_date IS NULL OR er.from_date = '0000-00-00' THEN NULL 
+        ELSE DATE_FORMAT(er.from_date, '%Y-%m-%d') 
+      END AS fromDate,
+      CASE 
+        WHEN er.to_date IS NULL OR er.to_date = '0000-00-00' THEN NULL 
+        ELSE DATE_FORMAT(er.to_date, '%Y-%m-%d') 
+      END AS toDate,
+      er.vacation_days AS vacationDays,
+      er.days_to_pay AS daysToPay,
+      er.reason,
+      er.file_path AS filePath,
+      COALESCE(er.status, 'ממתין') AS status
+    FROM employee_requests er
+    JOIN users u ON er.ID_employee = u.ID
+    ORDER BY er.request_date DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת בקשות:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    res.json(results);
+  });
+});
+
+
+// עדכון סטטוס של בקשת חופשה
+router.put("/updateVacationStatus", (req, res) => {
+  const { id, status } = req.body;
+
+  if (!id || !["אושר", "נדחה"].includes(status)) {
+    return res.status(400).json({ message: "פרטים לא תקינים" });
+  }
+
+  const query = `UPDATE employee_requests SET status = ? WHERE id = ? AND request_type = 'חופשה'`;
+
+  db.query(query, [status, id], (err, result) => {
+    if (err) {
+      console.error("שגיאה בעדכון סטטוס:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    res.json({ message: "הסטטוס עודכן בהצלחה" });
+  });
+});
+
+
+// GET /employeeRequests/pendingAlerts
+router.get("/pendingAlerts", (req, res) => {
+  const query = `
+    SELECT 
+      er.id,
+      u.firstName,
+      u.lastName,
+      er.request_type AS type,
+      DATE_FORMAT(er.request_date, '%Y-%m-%d') AS date
+    FROM employee_requests er
+    JOIN users u ON er.ID_employee = u.ID
+    WHERE er.status = 'ממתין'
+    ORDER BY er.request_date DESC
+  `;
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: "DB error", err });
+    res.json(results);
+  });
+});
+
+
 module.exports = router;
