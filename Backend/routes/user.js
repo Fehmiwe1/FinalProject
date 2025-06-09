@@ -25,6 +25,42 @@ router.get("/guards", (req, res) => {
   });
 });
 
+// שליפת כל המוקדניות
+router.get("/moked", (req, res) => {
+  const query = `
+    SELECT id, firstName, lastName
+    FROM users
+    WHERE role = 'moked'
+    ORDER BY firstName, lastName
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת מאבטחים:", err);
+      return res.status(500).json({ error: "שגיאה בשליפת מאבטחים מהמסד." });
+    }
+    res.json(results);
+  });
+});
+
+// שליפת כל הקבטים
+router.get("/kabat", (req, res) => {
+  const query = `
+    SELECT id, firstName, lastName
+    FROM users
+    WHERE role = 'kabat'
+    ORDER BY firstName, lastName
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת קבטים:", err);
+      return res.status(500).json({ error: "שגיאה בשליפת קבטים מהמסד." });
+    }
+    res.json(results);
+  });
+});
+
 // רישום משתמש חדש
 router.post("/register", async (req, res) => {
   const {

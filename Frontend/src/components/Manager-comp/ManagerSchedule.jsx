@@ -8,6 +8,8 @@ function ManagerSchedule() {
   const [constraints, setConstraints] = useState([]);
   const [allGuards, setAllGuards] = useState([]);
 
+  const [assignments, setAssignments] = useState({});
+
   const startDate = new Date("2025-06-01");
   const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
   const positions = [
@@ -36,7 +38,7 @@ function ManagerSchedule() {
   useEffect(() => {
     if (selectedRole === "מאבטח") {
       axios
-        .get("/createSchedule/schedule", { withCredentials: true })
+        .get("/createSchedule/scheduleGuard", { withCredentials: true })
         .then((res) => {
           setConstraints(res.data);
         })
@@ -54,6 +56,28 @@ function ManagerSchedule() {
           setAllGuards(uniqueGuards);
         })
         .catch((err) => console.error("שגיאה בטעינת מאבטחים:", err));
+    }
+
+    if (selectedRole === "מוקד") {
+      axios
+        .get("/createSchedule/scheduleMoked", { withCredentials: true })
+        .then((res) => {
+          setConstraints(res.data);
+        })
+        .catch((err) => console.error("שגיאה בטעינת אילוצים:", err));
+
+      axios
+        .get("/users/moked", { withCredentials: true })
+        .then((res) => {
+          const uniqueMoked = res.data.reduce((acc, curr) => {
+            if (!acc.find((g) => g.id === curr.id)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+          setAllGuards(uniqueMoked);
+        })
+        .catch((err) => console.error("שגיאה בטעינת מוקדנים:", err));
     }
   }, [selectedRole]);
 
@@ -85,59 +109,102 @@ function ManagerSchedule() {
     return 1;
   };
 
-  const renderSelect = (shiftType, position, dayIdx, dateStr) => {
-    const count = getGuardCount(shiftType, position, dayIdx);
+  const renderSelect = (
+    shiftType,
+    position,
+    dayIdx,
+    dateStr,
+    role = "guard"
+  ) => {
+    const count =
+      role === "kabat" || role === "moked"
+        ? 1
+        : getGuardCount(shiftType, position, dayIdx);
     if (count === 0) return <div className="disabled-cell"></div>;
 
     const shiftObj = shifts.find((s) => s.type === shiftType);
-    const label = shiftObj?.positionOverrides?.[position] || shiftObj?.label;
+    let label = shiftObj?.label;
+
+    if (role === "kabat") {
+      const [start, end] = label.split(" - ");
+      const [h, m] = start.split(":").map(Number);
+      const earlyStart = new Date(0, 0, 0, h, m - 15)
+        .toTimeString()
+        .slice(0, 5);
+      label = `${earlyStart} - ${end}`;
+    } else if (shiftObj?.positionOverrides?.[position]) {
+      label = shiftObj.positionOverrides[position];
+    }
+
+    const keyBase = `${dateStr}-${shiftType}`;
+    const selectedForDay = assignments[keyBase] || [];
+
+    const filteredGuards = allGuards
+      .map((guard) => {
+        const constraint = constraints.find(
+          (c) =>
+            c.id === guard.id && c.date === dateStr && c.shift === shiftType
+        );
+        let optionColor = "green-option";
+        if (constraint?.availability === "לא יכול") optionColor = "red-option";
+        else if (constraint?.availability === "יכול חלקית")
+          optionColor = "yellow-option";
+
+        return {
+          id: guard.id,
+          name: `${guard.firstName} ${guard.lastName}`,
+          className: optionColor,
+        };
+      })
+      .sort((a, b) => {
+        const priority = {
+          "green-option": 0,
+          "yellow-option": 1,
+          "red-option": 2,
+        };
+        return priority[a.className] - priority[b.className];
+      });
 
     return (
       <div className="multi-select">
         <div className="shift-time-label">{label}</div>
-        {[...Array(count)].map((_, idx) => (
-          <select key={idx} className="guard-select">
-            <option value="">בחר מאבטח</option>
-            {allGuards
-              .map((guard) => {
-                const constraint = constraints.find(
-                  (c) =>
-                    c.id === guard.id &&
-                    c.date === dateStr &&
-                    c.shift === shiftType
-                );
-                let optionColor = "green-option";
-                if (constraint?.availability === "לא יכול")
-                  optionColor = "red-option";
-                else if (constraint?.availability === "יכול חלקית")
-                  optionColor = "yellow-option";
-
-                return {
-                  id: guard.id,
-                  firstName: guard.firstName,
-                  lastName: guard.lastName,
-                  className: optionColor,
-                };
-              })
-              .sort((a, b) => {
-                const priority = {
-                  "green-option": 0,
-                  "yellow-option": 1,
-                  "red-option": 2,
-                };
-                return priority[a.className] - priority[b.className];
-              })
-              .map((guard) => (
-                <option
-                  key={`${guard.id}-${idx}`}
-                  value={guard.id}
-                  className={guard.className}
-                >
-                  {guard.firstName} {guard.lastName}
-                </option>
-              ))}
-          </select>
-        ))}
+        {[...Array(count)].map((_, idx) => {
+          const currentSelected = assignments[keyBase]?.[idx] || "";
+          return (
+            <select
+              key={idx}
+              className="guard-select"
+              value={currentSelected}
+              onChange={(e) => {
+                const selectedId = parseInt(e.target.value);
+                if (!selectedId) return;
+                setAssignments((prev) => {
+                  const updated = { ...prev };
+                  updated[keyBase] = [...(updated[keyBase] || [])];
+                  updated[keyBase][idx] = selectedId;
+                  return updated;
+                });
+              }}
+            >
+              <option value="">בחר</option>
+              {filteredGuards
+                .filter(
+                  (g) =>
+                    !assignments[keyBase]?.includes(g.id) ||
+                    g.id === currentSelected
+                )
+                .map((guard) => (
+                  <option
+                    key={`${guard.id}-${shiftType}-${position}-${dayIdx}`}
+                    value={guard.id}
+                    className={guard.className}
+                  >
+                    {guard.name}
+                  </option>
+                ))}
+            </select>
+          );
+        })}
       </div>
     );
   };
@@ -188,14 +255,137 @@ function ManagerSchedule() {
     </div>
   );
 
+  const renderMokedScheduleTable = () => {
+    const weeks = [0, 1]; // שבוע ראשון, שבוע שני
+
+    return (
+      <div className="guard-schedule-grid">
+        <h2 className="title">סידור עבודה - מוקד</h2>
+        {weeks.map((week, wIdx) => {
+          return (
+            <div key={wIdx}>
+              <h3>שבוע {wIdx + 1}</h3>
+              <table className="schedule-table">
+                <thead>
+                  <tr>
+                    <th>יום</th>
+                    {shifts.map((shift) => (
+                      <th key={shift.type}>{shift.type}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {days.map((day, dayIdx) => {
+                    const globalDayIdx = dayIdx + week * 7;
+                    const date = new Date(startDate);
+                    date.setDate(date.getDate() + globalDayIdx);
+                    const formattedDate = date.toISOString().split("T")[0];
+                    const displayDate = date.toLocaleDateString("he-IL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
+                    });
+
+                    return (
+                      <tr key={globalDayIdx}>
+                        <td className="day-label">
+                          {day} <br />
+                          <span className="date-placeholder">
+                            {displayDate}
+                          </span>
+                        </td>
+                        {shifts.map((shift) => (
+                          <td key={shift.type}>
+                            {renderSelect(
+                              shift.type,
+                              "מוקד",
+                              globalDayIdx,
+                              formattedDate
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderKabatScheduleTable = () => {
+    const weeks = [0, 1];
+
+    return (
+      <div className="guard-schedule-grid">
+        <h2 className="title">סידור עבודה - קב"ט</h2>
+        {weeks.map((week, wIdx) => {
+          return (
+            <div key={wIdx}>
+              <h3>שבוע {wIdx + 1}</h3>
+              <table className="schedule-table">
+                <thead>
+                  <tr>
+                    <th>יום</th>
+                    {shifts.map((shift) => (
+                      <th key={shift.type}>{shift.type}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {days.map((day, dayIdx) => {
+                    const globalDayIdx = dayIdx + week * 7;
+                    const date = new Date(startDate);
+                    date.setDate(date.getDate() + globalDayIdx);
+                    const formattedDate = date.toISOString().split("T")[0];
+                    const displayDate = date.toLocaleDateString("he-IL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
+                    });
+
+                    return (
+                      <tr key={globalDayIdx}>
+                        <td className="day-label">
+                          {day} <br />
+                          <span className="date-placeholder">
+                            {displayDate}
+                          </span>
+                        </td>
+                        {shifts.map((shift) => (
+                          <td key={shift.type}>
+                            {renderSelect(
+                              shift.type,
+                              "קבט",
+                              globalDayIdx,
+                              formattedDate,
+                              "kabat"
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (selectedRole) {
       case "מאבטח":
         return renderFullScheduleTable();
       case "מוקד":
-        return <div className="role-view">תצוגת סידור עבודה למוקד</div>;
+        return renderMokedScheduleTable();
       case "קבט":
-        return <div className="role-view">תצוגת סידור עבודה לקב\"ט</div>;
+        return renderKabatScheduleTable();
       default:
         return null;
     }
