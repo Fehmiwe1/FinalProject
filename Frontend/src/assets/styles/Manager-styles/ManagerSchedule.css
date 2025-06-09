@@ -152,7 +152,8 @@
 }
 
 @keyframes blink {
-  0%, 100% {
+  0%,
+  100% {
     border-color: red;
     background-color: #ffdddd;
   }
@@ -164,4 +165,21 @@
 
 .blink {
   animation: blink 1s infinite;
+}
+.save-button {
+  display: block;
+  margin: 12px auto;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background-color: #1e293b;
+  color: #ffffff;
+  cursor: pointer;
+  width: 30%; /* הכפתור יתאים עצמו לאורך התוכן */
+}
+
+.save-button:hover {
+  background-color: #3b4a59;
 }

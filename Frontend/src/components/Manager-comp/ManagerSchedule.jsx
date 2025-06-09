@@ -404,6 +404,24 @@ function ManagerSchedule() {
     }
   };
 
+  const handleSaveSchedule = async () => {
+    try {
+      await axios.post(
+        "/createSchedule/save",
+        {
+          role: selectedRole,
+          assignments,
+        },
+        { withCredentials: true }
+      );
+      alert("הסידור נשמר בהצלחה!");
+    } catch (err) {
+      console.error("שגיאה בשמירת הסידור:", err);
+      alert("שגיאה בשמירה. נסה שוב.");
+    }
+  };
+
+
   return (
     <div className="managerSchedulePage">
       <aside className="role-selector">
@@ -417,9 +435,17 @@ function ManagerSchedule() {
           </button>
         ))}
       </aside>
-      <main className="schedule-display">{renderContent()}</main>
+
+      <main className="schedule-display">
+        {renderContent()}
+
+        <button className="save-button" onClick={handleSaveSchedule}>
+          שמור סידור עבודה
+        </button>
+      </main>
     </div>
   );
+  
 }
 
 export default ManagerSchedule;
