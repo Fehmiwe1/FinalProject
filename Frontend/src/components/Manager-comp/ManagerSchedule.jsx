@@ -79,7 +79,30 @@ function ManagerSchedule() {
         })
         .catch((err) => console.error("שגיאה בטעינת מוקדנים:", err));
     }
+
+    if (selectedRole === "קבט") {
+      axios
+        .get("/createSchedule/scheduleKabet", { withCredentials: true })
+        .then((res) => {
+          setConstraints(res.data);
+        })
+        .catch((err) => console.error("שגיאה בטעינת אילוצים:", err));
+
+      axios
+        .get("/users/kabat", { withCredentials: true })
+        .then((res) => {
+          const uniqueKabat = res.data.reduce((acc, curr) => {
+            if (!acc.find((g) => g.id === curr.id)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+          setAllGuards(uniqueKabat);
+        })
+        .catch((err) => console.error("שגיאה בטעינת קבטים:", err));
+    }
   }, [selectedRole]);
+  
 
   const getGuardCount = (shiftType, position, dayIdx) => {
     const dayName = days[dayIdx];
