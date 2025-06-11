@@ -116,7 +116,7 @@ function RequestsManagement() {
           </table>
 
           {/* טבלת בקשות חופשה ומחלה */}
-          <h2 style={{ marginTop: "40px" }}>בקשות חופשה ומחלה</h2>
+          <h2 className="titleah2">בקשות חופשה ומחלה</h2>
           <table className="requestsNotifications-table">
             <thead>
               <tr>
@@ -156,7 +156,7 @@ function RequestsManagement() {
                             <button
                               className="reject-btn"
                               onClick={() =>
-                                handleVacationStatusUpdate(req.id, "נדחה")
+                                handleVacationStatusUpdate(req.id, "סורב")
                               }
                             >
                               דחייה
@@ -165,13 +165,7 @@ function RequestsManagement() {
                         )}
 
                       {req.requestType === "מחלה" && req.filePath && (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "5px",
-                          }}
-                        >
+                        <div className="file-actions">
                           <a
                             href={`/${req.filePath.replace(/\\/g, "/")}`}
                             target="_blank"

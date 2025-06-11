@@ -178,7 +178,7 @@ router.get("/", (req, res) => {
 router.put("/updateVacationStatus", (req, res) => {
   const { id, status } = req.body;
 
-  if (!id || !["אושר", "נדחה"].includes(status)) {
+  if (!id || !["אושר", "סורב"].includes(status)) {
     return res.status(400).json({ message: "פרטים לא תקינים" });
   }
 
