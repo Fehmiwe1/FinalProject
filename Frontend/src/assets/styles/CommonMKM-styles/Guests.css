@@ -1,273 +1,177 @@
-/* General Page Styling */
+/* עיצוב כללי */
 .guestsPpage {
   flex-grow: 1;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-color: #2c3e50;
   width: 100%;
-  overflow: visible;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  will-change: transform;
-  background-color: #2c3e50;
+  align-items: flex-start;
+  padding: 2.5rem;
+  box-sizing: border-box;
 }
 
 .container-guests {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
   width: 100%;
-  padding: 40px;
-  box-sizing: border-box;
-  gap: 10%;
 }
 
-/* Incident Page Container */
 .guestsPageContainer {
+  max-width: 75rem;
   width: 100%;
-  max-width: 1200px;
-  padding: 20px;
+  margin: auto;
+  padding: 1.25rem;
   text-align: center;
 }
 
-/* Page Title */
 .guests-page-title {
-  font-size: 4.5rem;
+  font-size: 5rem;
   color: #ddd7d2;
   text-shadow: 2px 4px 8px rgba(117, 113, 113, 0.9);
   margin-bottom: 2rem;
-  width: 100%;
-  text-align: center;
-  display: block;
 }
 
-/* guests Container */
-.guests-containers {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-  justify-items: center;
-  max-width: 100%;
-  align-items: center;
-  font-size: 1.5rem;
-}
-
-/* guests CARD - CREATIVE VERSION */
-.guests-card {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, #3e556b, #2c3e50);
-  position: relative;
-  color: #ddd7d2;
-  overflow: hidden;
-  transition: transform 0.4s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.guests-card:hover {
-  transform: scale(1.1);
-}
-
-.guests-title {
-  font-weight: bold;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.guests-p {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-top: 4px;
-}
-
-.btns-actions-guests a,
-.btns-actions-guests button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #2a3a4b;
-  color: #ddd7d2;
-  border: none;
-  font-size: 1.8rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.3s ease;
-}
-
-.btns-actions-guests a:hover,
-.btns-actions-guests button:hover {
-  background-color: #2c3e50;
-}
-
-/* Create Incident Button */
+/* כפתור יצירת קבלן */
 .create-guests .btn {
   background-color: #3e556b;
   color: #ddd7d2;
-  padding: 12px 100px;
+  padding: 0.75rem 5rem;
   font-size: 2rem;
   font-weight: bold;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 0.75rem;
   display: inline-block;
+  margin-bottom: 1.25rem;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .create-guests .btn:hover {
   background-color: #324557;
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
   color: #c7c2c2;
 }
 
-.create-guests .btn:focus {
-  outline: none;
-  box-shadow: 0 0 10px rgba(201, 200, 199, 0.4);
+/* הודעת שגיאה */
+.msg {
+  color: #ffdddd;
+  background-color: #882222;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 
-/* View Button */
-.edit-button-guests {
-  background-color: #ffc107;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.edit-button-guests:hover {
-  background-color: #ffc107;
-  transform: scale(1.1);
-  color: #d6a205;
-}
-/* Block Button */
-.block-btn-guests {
-  background-color: #c0392b;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.block-btn-guests:hover {
-  background-color: #e74c3c;
-  transform: scale(1.1);
-  color: #e74c3c;
-}
-
-/* Search Filters */
+/* סינון */
 .search-filters {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin: 20px auto;
+  gap: 1rem;
+  margin: 2rem auto;
   flex-wrap: wrap;
 }
 
 .search-filters input[type="text"],
 .search-filters input[type="date"] {
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 4px;
+  padding: 1rem 1.5rem;
+  font-size: 1.5rem;
+  border-radius: 0.75rem;
   border: 1px solid #777;
-  background-color: transparent;
+  background-color: #1f2c3a;
   color: #f1f1f1;
 }
 
-.guests-card.circular {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background-color: #f8f9fa;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+/* טבלה */
+.guests-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25rem;
+  color: #f1f1f1;
+}
+
+.guests-table th,
+.guests-table td {
+  border: 1px solid #555;
+  padding: 0.75rem;
   text-align: center;
-  padding: 20px;
-  margin: 10px;
-  position: relative;
-  transition: transform 0.3s, box-shadow 0.3s;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
-.guests-card.circular:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+.guests-table th {
+  background-color: #34495e;
+  font-size: 1.5rem;
 }
 
-.guests-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  position: relative;
+.guests-table td {
+  background-color: #3e556b;
+  font-size: 2rem;
 }
 
-/* הכפתורים מוסתרים כברירת מחדל */
-.btns-actions-guests {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(5px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  display: flex;
-  gap: 10px;
-}
-
-/* בעת ריחוף על הכרטיס, הצג את הכפתורים */
-.guests-wrapper:hover .btns-actions-guests {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.view-button-guests {
-  padding: 5px 10px;
+/* כפתורים */
+.view-button,
+.edit-button,
+.block-btn {
+  padding: 0.75rem 1.5rem;
+  margin: 0.25rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 1.25rem;
   cursor: pointer;
-  background-color: #007bff;
-  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+  color: #fff;
   text-decoration: none;
-  font-size: 14px;
-  transition: background-color 0.2s;
 }
 
-.view-button-guests:hover,
-.edit-button-guests:hover,
-.block-btn-guests:hover {
-  opacity: 0.9;
+.view-button {
+  background-color: #007bff;
 }
 
-/* Responsive Design */
-@media (max-width: 992px) {
-  .guests-containers {
-    grid-template-columns: repeat(2, 1fr);
+.edit-button {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.block-btn {
+  background-color: #c0392b;
+}
+
+.view-button:hover {
+  background-color: #0069d9;
+}
+
+.edit-button:hover {
+  background-color: #e0a800;
+  color: #fff;
+}
+
+.block-btn:hover {
+  background-color: #e74c3c;
+}
+
+/* תגובה למסכים קטנים */
+@media (max-width: 768px) {
+  .guests-table th,
+  .guests-table td {
+    font-size: 1rem;
+    padding: 0.5rem;
   }
-}
 
-@media (max-width: 600px) {
-  .guests-containers {
-    grid-template-columns: 1fr;
+  .guests-page-title {
+    font-size: 3rem;
+  }
+
+  .create-guests .btn {
+    font-size: 1.5rem;
+    padding: 0.625rem 2.5rem;
+  }
+
+  .search-filters input[type="text"],
+  .search-filters input[type="date"] {
+    font-size: 1.2rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .view-button,
+  .edit-button,
+  .block-btn {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
   }
 }

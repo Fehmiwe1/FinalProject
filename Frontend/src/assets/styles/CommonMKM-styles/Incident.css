@@ -108,37 +108,50 @@
 .view-button,
 .edit-button,
 .delete-btn-incident {
-  padding: 6px 12px;
-  font-size: 1.4rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.6rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 1.25rem; /* יותר מעוגל */
   cursor: pointer;
   text-decoration: none;
-  margin: 0 4px;
+  margin: 0 0.5rem;
+  font-weight: bold;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .view-button {
-  background-color: #3498db;
-  color: #fff;
+  background-color: #007bff;
 }
 
 .edit-button {
-  background-color: #f39c12;
-  color: #fff;
+  background-color: #f0ad4e;
 }
 
 .delete-btn-incident {
-  background-color: #e74c3c;
-  color: #fff;
+  background-color: #d9534f;
+}
+
+.view-button:hover {
+  background-color: #0056b3;
+}
+
+.edit-button:hover {
+  background-color: #ec971f;
+}
+
+.delete-btn-incident:hover {
+  background-color: #c9302c;
 }
 
 .view-button:hover,
 .edit-button:hover,
 .delete-btn-incident:hover {
-  opacity: 0.9;
   transform: scale(1.05);
+  opacity: 0.92;
 }
+
 
 /* Create Incident Button */
 .create-incident .btn {

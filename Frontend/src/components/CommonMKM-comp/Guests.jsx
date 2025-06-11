@@ -8,8 +8,6 @@ function Guests() {
   const [guests, setGuests] = useState([]);
   const [msg, setMsg] = useState("");
   const [searchNumber, setSearchNumber] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const isManager = Cookies.get("userRole");
 
   useEffect(() => {
@@ -20,7 +18,7 @@ function Guests() {
     axios
       .get("/guests")
       .then((res) => setGuests(res.data))
-      .catch(() => setMsg("אירוע שגיאה בטעינת הקבלנים."));
+      .catch(() => setMsg("אירעה שגיאה בטעינת הקבלנים."));
   };
 
   const handleToggleAccess = (guest) => {
@@ -42,30 +40,18 @@ function Guests() {
                 : g
             )
           );
-
-          setTimeout(() => setMsg(""), 2000);
         })
         .catch(() => setMsg("אירעה שגיאה בעת עדכון הגישה של הקבלן."));
     }
   };
 
-  const filteredGuests = guests.filter((g) => {
-    const numberMatch = g.GuestNumber?.toLowerCase().includes(
-      searchNumber.toLowerCase()
-    );
-    const date = new Date(g.StartDate);
-    const from = startDate ? new Date(startDate) : null;
-    const to = endDate ? new Date(endDate) : null;
-    const dateMatch = (!from || date >= from) && (!to || date <= to);
-    return numberMatch && dateMatch;
-  });
+  const filteredGuests = guests.filter((g) =>
+    g.GuestNumber?.toLowerCase().includes(searchNumber.toLowerCase())
+  );
 
-  // שמירת רק מופע אחד לכל GuestNumber
-  const uniqueGuestsByNumber = Object.values(
+  const uniqueGuests = Object.values(
     filteredGuests.reduce((acc, guest) => {
-      if (!acc[guest.GuestNumber]) {
-        acc[guest.GuestNumber] = guest;
-      }
+      if (!acc[guest.GuestNumber]) acc[guest.GuestNumber] = guest;
       return acc;
     }, {})
   );
@@ -95,50 +81,61 @@ function Guests() {
             />
           </div>
 
-          <div className="guests-containers">
-            {uniqueGuestsByNumber.length > 0 ? (
-              uniqueGuestsByNumber.map((guest) => (
-                <div key={guest.id} className="guests-wrapper">
-                  <div className="guests-card">
-                    <h2>מספר קבלן</h2>
-                    <h2>{guest.GuestNumber}</h2>
-                    <p>
-                      {new Date(guest.StartDate).toLocaleDateString("he-IL")} -{" "}
+          <table className="guests-table">
+            <thead>
+              <tr>
+                <th>מספר קבלן</th>
+                <th>מתאריך</th>
+                <th>עד תאריך</th>
+                <th>סטטוס</th>
+                <th>פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uniqueGuests.length > 0 ? (
+                uniqueGuests.map((guest) => (
+                  <tr key={guest.id}>
+                    <td>{guest.GuestNumber}</td>
+                    <td>
+                      {new Date(guest.StartDate).toLocaleDateString("he-IL")}
+                    </td>
+                    <td>
                       {new Date(guest.EndDate).toLocaleDateString("he-IL")}
-                    </p>
-                  </div>
-
-                  <div className="btns-actions-guests">
-                    <Link
-                      to={`/guest/${guest.GuestNumber}`}
-                      className="view-button-guests"
-                    >
-                      צפייה
-                    </Link>
-
-                    {isManager === "manager" && (
-                      <>
-                        <Link
-                          to={`/editGuest/${guest.GuestNumber}`}
-                          className="edit-button-guests"
-                        >
-                          עריכה
-                        </Link>
-                        <button
-                          className="block-btn-guests"
-                          onClick={() => handleToggleAccess(guest)}
-                        >
-                          {guest.IsActive === 1 ? "תחסום" : "הפעל"}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>לא נמצאו קבלנים תואמים.</p>
-            )}
-          </div>
+                    </td>
+                    <td>{guest.IsActive === 1 ? "פעיל" : "חסום"}</td>
+                    <td>
+                      <Link
+                        to={`/guest/${guest.GuestNumber}`}
+                        className="view-button"
+                      >
+                        צפייה
+                      </Link>
+                      {isManager === "manager" && (
+                        <>
+                          <Link
+                            to={`/editGuest/${guest.GuestNumber}`}
+                            className="edit-button"
+                          >
+                            עריכה
+                          </Link>
+                          <button
+                            className="block-btn"
+                            onClick={() => handleToggleAccess(guest)}
+                          >
+                            {guest.IsActive === 1 ? "חסום" : "הפעל"}
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">לא נמצאו קבלנים תואמים.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
