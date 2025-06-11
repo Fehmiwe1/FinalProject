@@ -78,10 +78,16 @@ function RequestsManagement() {
     }
   };
 
-  const vacationRequests = requests.filter(
-    (req) => req.requestType === "חופשה"
-  );
-  const sickRequests = requests.filter((req) => req.requestType === "מחלה");
+  const vacationRequests = requests
+    .filter((req) => req.requestType === "חופשה")
+    .sort((a, b) => {
+      const order = { ממתין: 0, אושר: 1, סורב: 2 };
+      return order[a.status] - order[b.status];
+    });
+
+  const sickRequests = requests
+    .filter((req) => req.requestType === "מחלה")
+    .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
 
   return (
     <div className="requestsManagement">
