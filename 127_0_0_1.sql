@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 04, 2025 at 07:11 PM
+-- Generation Time: Jun 11, 2025 at 05:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -87,7 +87,7 @@ INSERT INTO `employee_constraints` (`id`, `ID_employee`, `date`, `shift`, `avail
 (215, 33, '2025-06-01', 'ערב', 'יכול חלקית'),
 (216, 33, '2025-06-05', 'ערב', 'יכול חלקית'),
 (217, 32, '2025-06-12', 'בוקר', 'לא יכול'),
-(218, 32, '2025-06-12', 'ערב', 'לא יכול'),
+(218, 32, '2025-06-12', 'ערב', 'יכול חלקית'),
 (219, 32, '2025-06-12', 'לילה', 'לא יכול'),
 (220, 32, '2025-06-06', 'בוקר', 'לא יכול'),
 (221, 32, '2025-06-06', 'ערב', 'לא יכול'),
@@ -113,7 +113,17 @@ CREATE TABLE `employee_notifications` (
 
 INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_description`, `notification_status`) VALUES
 (1, 33, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
-(3, 35, '2025-05-21', 'הרשמת עובד חדש', 'pending');
+(3, 35, '2025-05-21', 'הרשמת עובד חדש', 'pending'),
+(4, 36, '2025-06-09', 'הרשמת עובד חדש', 'approval'),
+(5, 37, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(6, 38, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(7, 39, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(8, 40, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(9, 41, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(10, 42, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(11, 43, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(12, 44, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(13, 45, '2025-06-10', 'הרשמת עובד חדש', 'approval');
 
 -- --------------------------------------------------------
 
@@ -132,7 +142,7 @@ CREATE TABLE `employee_requests` (
   `days_to_pay` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `reason` text NOT NULL,
   `file_path` varchar(255) DEFAULT NULL,
-  `status` enum('ממתין','מאושר','סורב') DEFAULT NULL
+  `status` enum('ממתין','אושר','סורב') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -140,15 +150,27 @@ CREATE TABLE `employee_requests` (
 --
 
 INSERT INTO `employee_requests` (`id`, `ID_employee`, `request_type`, `request_date`, `from_date`, `to_date`, `vacation_days`, `days_to_pay`, `reason`, `file_path`, `status`) VALUES
-(1, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748883253305.pdf', ''),
-(2, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884079619.pdf', ''),
 (3, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884337492.pdf', NULL),
 (4, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884622065.pdf', NULL),
-(5, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-05', 3, 2, '', NULL, 'ממתין'),
+(5, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-05', 3, 2, '', NULL, 'סורב'),
 (6, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-14', 12, 13, '', NULL, 'ממתין'),
 (7, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-07', 5, 5, '', NULL, 'ממתין'),
 (8, 3, 'מחלה', '2025-06-03', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748989977037.pdf', NULL),
-(9, 3, 'חופשה', '2025-06-03', '2025-06-05', '2025-06-07', 3, 3, 'טיול', NULL, 'ממתין');
+(9, 3, 'חופשה', '2025-06-03', '2025-06-05', '2025-06-07', 3, 3, 'טיול', NULL, 'אושר'),
+(10, 31, 'חופשה', '2025-06-09', '2025-06-26', '2025-06-28', 3, 2, 'טיול', NULL, 'סורב');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_shift_assignment`
+--
+
+CREATE TABLE `employee_shift_assignment` (
+  `ID` int(11) NOT NULL,
+  `Employee_ID` int(11) NOT NULL,
+  `Shift_ID` int(11) NOT NULL,
+  `Shift_Detail_ID` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -244,7 +266,8 @@ CREATE TABLE `shift` (
   `Shift_ID` int(11) NOT NULL,
   `Date` datetime NOT NULL,
   `Type_Of_Shift` enum('1','2','3') NOT NULL,
-  `Number_Of_Employee` int(11) NOT NULL
+  `Number_Of_Employee` int(11) NOT NULL,
+  `Role_In_Shift` enum('guard','kabat','moked') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -277,7 +300,7 @@ CREATE TABLE `users` (
   `street` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `city` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `postalCode` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `role` enum('employee','manager','kabat','moked') NOT NULL DEFAULT 'employee',
+  `role` enum('guard','manager','kabat','moked') NOT NULL DEFAULT 'guard',
   `status` enum('active','inactive') NOT NULL DEFAULT 'inactive',
   `registration_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -288,12 +311,22 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `password`, `email`, `phone`, `street`, `city`, `postalCode`, `role`, `status`, `registration_date`) VALUES
 (1, 'Manager', 'מנהל', 'מנהל', NULL, '$2b$10$nV8.B.9FcfYfnPeIlfbj0eQuJnCA9oK/21hq/4JJWDCD/pIYv/MZa', '', '', '', '', '', 'manager', 'active', NULL),
-(3, 'fehmi1', 'פהמי1', 'והבי', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'employee', 'active', NULL),
-(4, 'fehmi2', 'פהמי2', 'והבי', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'employee', 'inactive', NULL),
-(31, 'Maor', 'מאור', 'דוד', '1997-11-13', '$2b$10$LYoogQBupC8IjAZSdwr4Nu8UcWS4kYmi9m4/yl8zurGh4ziY1GGqO', 'maor@gmail.com', '0522222222', 'חיפה', 'חיפה', '3224712', 'employee', 'active', NULL),
-(32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$vWKRtl7x0PHUFA2uWQzWF..kKkuvO0CTqeVzZo73vnaaU7utCUiOa', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'employee', 'active', '2025-05-21'),
-(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$tpdi6ExqJLPzgiXN5RccheDlpqyj9JHeXUwk/MSdsZDhvZcjlbpCS', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'employee', 'active', '2025-05-21'),
-(35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$YWhI4LpVlYOqED4sW1QsRujztkHEiAZq9FbFW91mXNq3VjYL.xHCS', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'employee', 'active', '2025-05-21');
+(3, 'fehmi1', 'פהמי1', 'והבי', NULL, '$2b$10$FuyqWM9i.Hud9nXHyjXA7uW1GIt/teH.Fig09qkHV5nKXDfFFgZTW', 'fehmiwe1@gmail.com', '0528861847', '10', 'dalet', '3005600', 'guard', 'active', NULL),
+(4, 'fehmi2', 'פהמי2', 'והבי', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'guard', 'active', NULL),
+(31, 'Maor', 'מאור', 'דוד', '1997-11-13', '$2b$10$LYoogQBupC8IjAZSdwr4Nu8UcWS4kYmi9m4/yl8zurGh4ziY1GGqO', 'maor@gmail.com', '0522222222', 'חיפה', 'חיפה', '3224712', 'guard', 'active', NULL),
+(32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$vWKRtl7x0PHUFA2uWQzWF..kKkuvO0CTqeVzZo73vnaaU7utCUiOa', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'kabat', 'active', '2025-05-21'),
+(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$tpdi6ExqJLPzgiXN5RccheDlpqyj9JHeXUwk/MSdsZDhvZcjlbpCS', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'moked', 'active', '2025-05-21'),
+(35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$YWhI4LpVlYOqED4sW1QsRujztkHEiAZq9FbFW91mXNq3VjYL.xHCS', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'guard', 'active', '2025-05-21'),
+(36, 'armon2020', 'יונתן', 'ארמון', '2000-10-20', '$2b$10$aP/cAkKi0yR7vUIs2E86IuYyUQo1iJoTwiPENlsT1VB0syvOHdvwW', 'armon@gmail.com', '0522222224', 'הבריכה', 'נשר', '3663910', 'kabat', 'active', '2025-06-09'),
+(37, 'kabat1', 'קבט1', 'קבט1', '2008-02-11', '$2b$10$P/X4fDXxPwUR04YHHYT9guhmtQ0PKf2utAu9tlCwDZz1uTLtPvKNS', 'kabat1@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'kabat', 'active', '2025-06-10'),
+(38, 'kabat2', 'קבט2', 'קבט2', '2008-02-11', '$2b$10$VjTpjWr13M4IkNFIxj8hKeHbrxveFbrKgd1liX4xz5qEM9UYVim82', 'kabat1@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'kabat', 'active', '2025-06-10'),
+(39, 'kabat3', 'קבט3', 'קבט3', '2008-02-11', '$2b$10$G3nosFZJFl8arSkl49HOJuDqwH1UV8i3hcKtIqWKBtB5doXFym5QC', 'kabat1@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'kabat', 'active', '2025-06-10'),
+(40, 'kabat4', 'קבט4', 'קבט4', '2008-02-11', '$2b$10$KNXxjOda1icEwMa/2glQ6./ivxTfMnrt6LhbGQ/j/VMqbkSkbCHBu', 'kabat1@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'kabat', 'active', '2025-06-10'),
+(41, 'moked1', 'מוקד1', 'מוקד1', '2008-02-11', '$2b$10$oLoBUIJlMCu7U3tv7YKCbOfhnuK3ypQgkkxO7eO/xp20KjsqIm12.', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
+(42, 'moked2', 'מוקד2', 'מוקד2', '2008-02-11', '$2b$10$D.YO/VEm5be/QertNSR0Aeo1CpwBsbCwtMY84l8VThgd3CoFQOYBO', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
+(43, 'moked3', 'מוקד3', 'מוקד3', '2008-02-11', '$2b$10$DUEa5ZOjgB5osS2UVjXKauKDi9BTwGbbOmOiKdc3wAG2ulKp8iHGS', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
+(44, 'moked4', 'מוקד4', 'מוקד4', '2008-02-11', '$2b$10$MJIKkBOqm4VPPq0p/gkPeuLBsbhDGKVyDOQkjQIY/iieFE3dNFctS', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
+(45, 'moked5', 'מוקד5', 'מוקד5', '2008-02-11', '$2b$10$BeFxicWuhsWkiA11IfOHwOsHR9MEun7SRSwh1EqYvsjzYHSejdKAi', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10');
 
 --
 -- Indexes for dumped tables
@@ -320,6 +353,15 @@ ALTER TABLE `employee_notifications`
 ALTER TABLE `employee_requests`
   ADD PRIMARY KEY (`id`),
   ADD KEY `ID_employee` (`ID_employee`);
+
+--
+-- Indexes for table `employee_shift_assignment`
+--
+ALTER TABLE `employee_shift_assignment`
+  ADD PRIMARY KEY (`ID`),
+  ADD UNIQUE KEY `Employee_ID` (`Employee_ID`,`Shift_ID`),
+  ADD KEY `Shift_ID` (`Shift_ID`),
+  ADD KEY `Shift_Detail_ID` (`Shift_Detail_ID`);
 
 --
 -- Indexes for table `guests`
@@ -369,19 +411,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `employee_constraints`
 --
 ALTER TABLE `employee_constraints`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=223;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
 
 --
 -- AUTO_INCREMENT for table `employee_notifications`
 --
 ALTER TABLE `employee_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `employee_requests`
 --
 ALTER TABLE `employee_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `employee_shift_assignment`
+--
+ALTER TABLE `employee_shift_assignment`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `guests`
@@ -399,7 +447,7 @@ ALTER TABLE `incident`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- Constraints for dumped tables
@@ -422,6 +470,14 @@ ALTER TABLE `employee_notifications`
 --
 ALTER TABLE `employee_requests`
   ADD CONSTRAINT `employee_requests_ibfk_1` FOREIGN KEY (`ID_employee`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employee_shift_assignment`
+--
+ALTER TABLE `employee_shift_assignment`
+  ADD CONSTRAINT `employee_shift_assignment_ibfk_1` FOREIGN KEY (`Employee_ID`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `employee_shift_assignment_ibfk_2` FOREIGN KEY (`Shift_ID`) REFERENCES `shift` (`Shift_ID`),
+  ADD CONSTRAINT `employee_shift_assignment_ibfk_3` FOREIGN KEY (`Shift_Detail_ID`) REFERENCES `shift_details` (`ID`);
 
 --
 -- Constraints for table `incident`
