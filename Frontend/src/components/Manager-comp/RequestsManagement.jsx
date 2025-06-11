@@ -60,6 +60,29 @@ function RequestsManagement() {
       .catch((error) => console.error("שגיאה בעדכון סטטוס חופשה:", error));
   };
 
+  const downloadPDFFile = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("שגיאה בהורדת הקובץ:", error);
+    }
+  };
+
+  const vacationRequests = requests.filter(
+    (req) => req.requestType === "חופשה"
+  );
+  const sickRequests = requests.filter((req) => req.requestType === "מחלה");
+
   return (
     <div className="requestsManagement">
       <div className="requestsManagement-container">
@@ -68,6 +91,110 @@ function RequestsManagement() {
             <h1>התראות</h1>
           </form>
           {msg && <div className="error-message">{msg}</div>}
+
+          <h2 className="titleah2">בקשות חופשה</h2>
+          <table className="requestsNotifications-table">
+            <thead>
+              <tr>
+                <th>שם עובד</th>
+                <th>תאריך בקשה</th>
+                <th>מתאריך</th>
+                <th>עד תאריך</th>
+                <th>סטטוס</th>
+                <th>פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vacationRequests.length > 0 ? (
+                vacationRequests.map((req) => (
+                  <tr key={`${req.id}`}>
+                    <td>
+                      {req.firstName} {req.lastName}
+                    </td>
+                    <td>{req.requestDate}</td>
+                    <td>{req.fromDate || "-"}</td>
+                    <td>{req.toDate || "-"}</td>
+                    <td>{req.status}</td>
+                    <td>
+                      {req.status === "ממתין" && (
+                        <>
+                          <button
+                            className="approve-btn"
+                            onClick={() =>
+                              handleVacationStatusUpdate(req.id, "אושר")
+                            }
+                          >
+                            אישור
+                          </button>
+                          <button
+                            className="reject-btn"
+                            onClick={() =>
+                              handleVacationStatusUpdate(req.id, "סורב")
+                            }
+                          >
+                            דחייה
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6">לא נמצאו בקשות חופשה.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          <h2 className="titleah2">בקשות מחלה</h2>
+          <table className="requestsNotifications-table">
+            <thead>
+              <tr>
+                <th>שם עובד</th>
+                <th>תאריך בקשה</th>
+                <th>קובץ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sickRequests.length > 0 ? (
+                sickRequests.map((req) => (
+                  <tr key={`${req.id}`}>
+                    <td>
+                      {req.firstName} {req.lastName}
+                    </td>
+                    <td>{req.requestDate}</td>
+                    <td>
+                      {req.filePath && (
+                        <div className="file-actions">
+                          <button
+                            className="download-btn"
+                            onClick={() =>
+                              downloadPDFFile(
+                                `/uploads/${req.filePath
+                                  .replace(/\\/g, "/")
+                                  .split("uploads/")
+                                  .pop()}`,
+                                `אישור_מחלה_${req.firstName}_${req.lastName}.pdf`
+                              )
+                            }
+                          >
+                            הורדה
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">לא נמצאו בקשות מחלה.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          <h2 className="titleH2">עובדים חדשים</h2>
           <table className="requestsNotifications-table">
             <thead>
               <tr>
@@ -110,85 +237,6 @@ function RequestsManagement() {
               ) : (
                 <tr>
                   <td colSpan="3">לא נמצאו התראות.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          {/* טבלת בקשות חופשה ומחלה */}
-          <h2 className="titleah2">בקשות חופשה ומחלה</h2>
-          <table className="requestsNotifications-table">
-            <thead>
-              <tr>
-                <th>שם עובד</th>
-                <th>סוג בקשה</th>
-                <th>תאריך בקשה</th>
-                <th>מתאריך</th>
-                <th>עד תאריך</th>
-                <th>סטטוס</th>
-                <th>פעולות</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.length > 0 ? (
-                requests.map((req) => (
-                  <tr key={`${req.id}`}>
-                    <td>
-                      {req.firstName} {req.lastName}
-                    </td>
-                    <td>{req.requestType}</td>
-                    <td>{req.requestDate}</td>
-                    <td>{req.fromDate || "-"}</td>
-                    <td>{req.toDate || "-"}</td>
-                    <td>{req.requestType === "חופשה" ? req.status : ""}</td>
-                    <td>
-                      {req.requestType === "חופשה" &&
-                        req.status === "ממתין" && (
-                          <>
-                            <button
-                              className="approve-btn"
-                              onClick={() =>
-                                handleVacationStatusUpdate(req.id, "אושר")
-                              }
-                            >
-                              אישור
-                            </button>
-                            <button
-                              className="reject-btn"
-                              onClick={() =>
-                                handleVacationStatusUpdate(req.id, "סורב")
-                              }
-                            >
-                              דחייה
-                            </button>
-                          </>
-                        )}
-
-                      {req.requestType === "מחלה" && req.filePath && (
-                        <div className="file-actions">
-                          <a
-                            href={`/${req.filePath.replace(/\\/g, "/")}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="view-btn"
-                          >
-                            צפייה בקובץ
-                          </a>
-                          <a
-                            href={`/${req.filePath.replace(/\\/g, "/")}`}
-                            download
-                            className="download-btn"
-                          >
-                            הורדה
-                          </a>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7">לא נמצאו בקשות.</td>
                 </tr>
               )}
             </tbody>

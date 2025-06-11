@@ -157,9 +157,9 @@ function SickLeavePage() {
             </button>
           </div>
         </section>
-        {/* טופס חופשה רגילה */}
+        {/* טופס חופשה */}
         <section className="entry-section">
-          <h2>בקשת חופשה רגילה</h2>
+          <h2>בקשת חופשה</h2>
 
           {vacationError && (
             <div className="error-message">{vacationError}</div>
