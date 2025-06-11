@@ -429,11 +429,28 @@ function ManagerSchedule() {
 
   const handleSaveSchedule = async () => {
     try {
+      const updatedAssignments = {};
+
+      Object.entries(assignments).forEach(([key, employeeIds]) => {
+        const [date, shiftType, position] = key.split("-");
+        let location;
+
+        if (selectedRole === "קבט") location = "אחר";
+        else if (selectedRole === "מוקד") location = "אחר";
+        else location = position;
+
+        const newKey = `${date}-${shiftType}-${location}`;
+        updatedAssignments[newKey] = [
+          ...(updatedAssignments[newKey] || []),
+          ...employeeIds,
+        ];
+      });
+
       await axios.post(
         "/createSchedule/save",
         {
           role: selectedRole,
-          assignments,
+          assignments: updatedAssignments,
         },
         { withCredentials: true }
       );
@@ -443,6 +460,7 @@ function ManagerSchedule() {
       alert("שגיאה בשמירה. נסה שוב.");
     }
   };
+  
 
 
   return (
