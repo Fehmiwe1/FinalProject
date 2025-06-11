@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 11, 2025 at 05:12 PM
+-- Generation Time: Jun 11, 2025 at 08:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -169,7 +169,7 @@ CREATE TABLE `employee_shift_assignment` (
   `ID` int(11) NOT NULL,
   `Employee_ID` int(11) NOT NULL,
   `Shift_ID` int(11) NOT NULL,
-  `Shift_Detail_ID` int(11) DEFAULT NULL
+  `Role` enum('מאבטח','מוקד','קבט') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -263,23 +263,13 @@ INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedul`, `Create_Incid
 --
 
 CREATE TABLE `shift` (
-  `Shift_ID` int(11) NOT NULL,
-  `Date` datetime NOT NULL,
-  `Type_Of_Shift` enum('1','2','3') NOT NULL,
-  `Number_Of_Employee` int(11) NOT NULL,
-  `Role_In_Shift` enum('guard','kabat','moked') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `shift_details`
---
-
-CREATE TABLE `shift_details` (
   `ID` int(11) NOT NULL,
-  `Shift_ID` int(11) NOT NULL,
-  `Type_Of_Role` int(11) NOT NULL
+  `Date` date NOT NULL,
+  `Location` enum('נשר','ראשי','אחר') NOT NULL,
+  `ShiftType` enum('בוקר','ערב','לילה') NOT NULL,
+  `Num_Guards` int(11) DEFAULT 0,
+  `Num_Moked` int(11) DEFAULT 0,
+  `Num_Kabat` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -359,9 +349,8 @@ ALTER TABLE `employee_requests`
 --
 ALTER TABLE `employee_shift_assignment`
   ADD PRIMARY KEY (`ID`),
-  ADD UNIQUE KEY `Employee_ID` (`Employee_ID`,`Shift_ID`),
-  ADD KEY `Shift_ID` (`Shift_ID`),
-  ADD KEY `Shift_Detail_ID` (`Shift_Detail_ID`);
+  ADD KEY `Employee_ID` (`Employee_ID`),
+  ADD KEY `Shift_ID` (`Shift_ID`);
 
 --
 -- Indexes for table `guests`
@@ -387,15 +376,7 @@ ALTER TABLE `role`
 -- Indexes for table `shift`
 --
 ALTER TABLE `shift`
-  ADD PRIMARY KEY (`Shift_ID`);
-
---
--- Indexes for table `shift_details`
---
-ALTER TABLE `shift_details`
-  ADD KEY `ID` (`ID`),
-  ADD KEY `Shift_ID` (`Shift_ID`),
-  ADD KEY `Type_Of_Role` (`Type_Of_Role`);
+  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indexes for table `users`
@@ -444,6 +425,12 @@ ALTER TABLE `incident`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
+-- AUTO_INCREMENT for table `shift`
+--
+ALTER TABLE `shift`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -476,22 +463,13 @@ ALTER TABLE `employee_requests`
 --
 ALTER TABLE `employee_shift_assignment`
   ADD CONSTRAINT `employee_shift_assignment_ibfk_1` FOREIGN KEY (`Employee_ID`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `employee_shift_assignment_ibfk_2` FOREIGN KEY (`Shift_ID`) REFERENCES `shift` (`Shift_ID`),
-  ADD CONSTRAINT `employee_shift_assignment_ibfk_3` FOREIGN KEY (`Shift_Detail_ID`) REFERENCES `shift_details` (`ID`);
+  ADD CONSTRAINT `employee_shift_assignment_ibfk_2` FOREIGN KEY (`Shift_ID`) REFERENCES `shift` (`ID`);
 
 --
 -- Constraints for table `incident`
 --
 ALTER TABLE `incident`
   ADD CONSTRAINT `incident_ibfk_1` FOREIGN KEY (`ID_Employee`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `shift_details`
---
-ALTER TABLE `shift_details`
-  ADD CONSTRAINT `shift_details_ibfk_1` FOREIGN KEY (`Type_Of_Role`) REFERENCES `role` (`ID_Role`),
-  ADD CONSTRAINT `shift_details_ibfk_2` FOREIGN KEY (`ID`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `shift_details_ibfk_3` FOREIGN KEY (`Shift_ID`) REFERENCES `shift` (`Shift_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
