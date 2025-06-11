@@ -94,46 +94,54 @@ function Incident() {
             </div>
           </div>
 
-          <div className="incident-containers">
-            {filteredIncidents.length > 0 ? (
-              filteredIncidents.map((incident) => (
-                <div key={incident.id} className="incident-wrapper">
-                  <div className="incident-card">
-                    <h2>{incident.Incident_Name}</h2>
-                    <p>
+          <table className="requestsNotifications-table">
+            <thead>
+              <tr>
+                <th>שם אירוע</th>
+                <th>תאריך אירוע</th>
+                <th>פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredIncidents.length > 0 ? (
+                filteredIncidents.map((incident) => (
+                  <tr key={incident.id}>
+                    <td>{incident.Incident_Name}</td>
+                    <td>
                       {new Date(incident.Incident_Date).toLocaleDateString(
                         "he-IL"
                       )}
-                    </p>
-                  </div>
-
-                  <div className="btns-actions">
-                    <Link to={`/post/${incident.id}`} className="view-button">
-                      צפייה
-                    </Link>
-                    {isManager === "manager" && (
-                      <>
-                        <Link
-                          to={`/editincident/${incident.id}`}
-                          className="edit-button"
-                        >
-                          עריכה
-                        </Link>
-                        <button
-                          className="delete-btn-incident"
-                          onClick={() => handleDelete(incident)}
-                        >
-                          מחיקה
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>לא נמצאו תוצאות מתאימות.</p>
-            )}
-          </div>
+                    </td>
+                    <td>
+                      <Link to={`/post/${incident.id}`} className="view-button">
+                        צפייה
+                      </Link>
+                      {isManager === "manager" && (
+                        <>
+                          <Link
+                            to={`/editincident/${incident.id}`}
+                            className="edit-button"
+                          >
+                            עריכה
+                          </Link>
+                          <button
+                            className="delete-btn-incident"
+                            onClick={() => handleDelete(incident)}
+                          >
+                            מחיקה
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">לא נמצאו תוצאות מתאימות.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
