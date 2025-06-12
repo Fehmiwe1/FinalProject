@@ -64,19 +64,26 @@ router.get("/scheduleKabet", (req, res) => {
       u.id AS id,
       u.firstName,
       u.lastName,
-      DATE_FORMAT(ec.date, '%Y-%m-%d') AS date,
-      ec.shift,
-      ec.availability
+      DATE_FORMAT(COALESCE(ec.date, s.Date), '%Y-%m-%d') AS date,
+      COALESCE(ec.shift, s.ShiftType) AS shift,
+      ec.availability,
+      esa.Employee_ID AS assignment
     FROM users u
     LEFT JOIN employee_constraints ec 
       ON u.id = ec.ID_employee
+    LEFT JOIN shift s 
+      ON (ec.date = s.Date OR ec.date IS NULL)
+     AND (ec.shift = s.ShiftType OR ec.shift IS NULL)
+     AND s.Location = 'אחר'
+    LEFT JOIN employee_shift_assignment esa 
+      ON esa.Shift_ID = s.ID AND esa.Role = 'קבט' AND esa.Employee_ID = u.id
     WHERE u.role = 'kabat'
-    ORDER BY u.id, ec.date, ec.shift;
+    ORDER BY date, shift, u.id;
   `;
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error("שגיאה בשליפת האילוצים:", err);
+      console.error("❌ שגיאה בשליפת האילוצים והשיבוצים:", err);
       return res.status(500).json({ error: "שגיאה במסד הנתונים" });
     }
 
@@ -84,148 +91,138 @@ router.get("/scheduleKabet", (req, res) => {
   });
 });
 
+// שמירת סידור עבודה שנוצר
+router.post("/saveShiftsKabat", (req, res) => {
+  const assignments = req.body;
 
+  const shiftCounts = {};
+  const shiftInserts = [];
 
-router.post("/save", (req, res) => {
-  const { role, assignments } = req.body;
-
-  if (!role || !assignments) {
-    return res.status(400).json({ message: "Missing role or assignments" });
-  }
-
-  const valuesToInsert = [];
-  const shiftsToEnsure = new Set();
-  const roleCountPerShift = {}; // נוסיף כאן ספירת עובדים לפי משמרת
-
-  for (const [key, employeeIds] of Object.entries(assignments)) {
-    const [date, shiftType, location] = key.split("-");
-    const shiftKey = `${date}|${location}|${shiftType}`;
-    shiftsToEnsure.add(shiftKey);
-
-    // שמירה לספירה לפי תפקיד
-    if (!roleCountPerShift[shiftKey]) {
-      roleCountPerShift[shiftKey] = 0;
-    }
-    roleCountPerShift[shiftKey] += employeeIds.length;
-
-    for (const employeeId of employeeIds) {
-      valuesToInsert.push([employeeId, date, shiftType, location, role]);
-    }
-  }
-
-  const ensureShifts = Array.from(shiftsToEnsure).map((s) => {
-    const [date, location, shiftType] = s.split("|");
-    return new Promise((resolve, reject) => {
-      const insertShift = `
-        INSERT INTO shift (Date, Location, ShiftType)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE ID = ID
-      `;
-      db.query(insertShift, [date, location, shiftType], (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+  assignments.forEach(({ date, shift, location, userId }) => {
+    const key = `${date}|${shift}|${location}`;
+    shiftCounts[key] = (shiftCounts[key] || 0) + 1;
+    shiftInserts.push({ date, shift, location, userId });
   });
 
-  Promise.all(ensureShifts)
-    .then(() => {
-      const selectShiftIds = `
-        SELECT ID, Date, Location, ShiftType FROM shift
-        WHERE (${Array.from(shiftsToEnsure)
-          .map(() => `(Date=? AND Location=? AND ShiftType=?)`)
-          .join(" OR ")})
-      `;
-      const shiftParams = Array.from(shiftsToEnsure).flatMap((s) =>
-        s.split("|")
-      );
+  const insertAndAssignPromises = Object.entries(shiftCounts).map(
+    ([key, numKabat]) => {
+      const [date, shiftType, location] = key.split("|");
 
-      db.query(selectShiftIds, shiftParams, (err, shiftRows) => {
-        if (err) return res.status(500).json({ error: "DB read error" });
-
-        const shiftMap = {};
-        for (const row of shiftRows) {
-          const key = `${row.Date}-${row.ShiftType}-${row.Location}`;
-          shiftMap[key] = row.ID;
-        }
-
-        const finalInserts = valuesToInsert.map(
-          ([employeeId, date, shiftType, location, role]) => {
-            const shiftKey = `${date}-${shiftType}-${location}`;
-            const shiftId = shiftMap[shiftKey];
-            return [employeeId, shiftId, role];
-          }
-        );
-
-        const affectedShiftIds = [
-          ...new Set(finalInserts.map((row) => row[1])),
-        ];
-        const deleteOld = `
-          DELETE FROM employee_shift_assignment
-          WHERE Shift_ID IN (${affectedShiftIds.map(() => "?").join(",")})
+      return new Promise((resolve, reject) => {
+        const insertShiftQuery = `
+          INSERT INTO shift (Date, Location, ShiftType, Num_Guards, Num_Moked, Num_Kabat)
+          VALUES (?, ?, ?, 0, 0, ?)
+          ON DUPLICATE KEY UPDATE Num_Kabat = VALUES(Num_Kabat)
         `;
 
-        db.query(deleteOld, affectedShiftIds, (err2) => {
-          if (err2) {
-            console.error("Error deleting old assignments:", err2);
-            return res.status(500).json({ error: "Delete failed" });
-          }
-
-          const insertAssignments = `
-            INSERT INTO employee_shift_assignment (Employee_ID, Shift_ID, Role)
-            VALUES ?
-          `;
-          db.query(insertAssignments, [finalInserts], (err3) => {
-            if (err3) {
-              console.error("Error inserting assignments:", err3);
-              return res.status(500).json({ error: "Insert failed" });
+        db.query(
+          insertShiftQuery,
+          [date, location, shiftType, numKabat],
+          (err) => {
+            if (err) {
+              console.error("❌ שגיאה בשמירת shift:", err);
+              return reject(err);
             }
 
-            // שלב אחרון: עדכון ספירת עובדים לפי תפקיד
-            const updates = Object.entries(roleCountPerShift).map(
-              ([key, count]) => {
-                const [date, location, shiftType] = key.split("|");
-                let col =
-                  role === "מאבטח"
-                    ? "Num_Guards"
-                    : role === "מוקד"
-                    ? "Num_Moked"
-                    : "Num_Kabat";
-                return new Promise((resolve, reject) => {
-                  const update = `UPDATE shift SET ${col} = ? WHERE Date = ? AND Location = ? AND ShiftType = ?`;
-                  db.query(
-                    update,
-                    [count, date, location, shiftType],
-                    (err4) => {
-                      if (err4) reject(err4);
-                      else resolve();
-                    }
+            const selectShiftIdQuery = `
+            SELECT ID FROM shift WHERE Date = ? AND Location = ? AND ShiftType = ?
+          `;
+
+            db.query(
+              selectShiftIdQuery,
+              [date, location, shiftType],
+              (err2, rows) => {
+                if (err2 || !rows.length) {
+                  console.error(
+                    `❌ לא נמצא Shift_ID עבור: ${date} ${shiftType} ${location}`
                   );
+                  return reject(err2 || new Error("Shift ID not found"));
+                }
+
+                const shiftId = rows[0].ID;
+
+                const insertsForThisShift = shiftInserts.filter(
+                  (a) =>
+                    a.date === date &&
+                    a.shift === shiftType &&
+                    a.location === location
+                );
+
+                const insertPromises = insertsForThisShift.map((a) => {
+                  return new Promise((resInner, rejInner) => {
+                    const checkExistingAssignment = `
+                  SELECT * FROM employee_shift_assignment
+                  WHERE Shift_ID = ? AND Role = ?
+                `;
+
+                    db.query(
+                      checkExistingAssignment,
+                      [shiftId, "קבט"],
+                      (errCheck, results) => {
+                        if (errCheck) return rejInner(errCheck);
+
+                        if (results.length > 0) {
+                          const existing = results[0];
+
+                          // אם אותו עובד כבר משובץ, לא נדרש עדכון
+                          if (existing.Employee_ID === parseInt(a.userId)) {
+                            return resInner();
+                          }
+
+                          // עדכון מזהה העובד במשמרת קיימת
+                          const updateQuery = `
+                      UPDATE employee_shift_assignment
+                      SET Employee_ID = ?
+                      WHERE Shift_ID = ? AND Role = ?
+                    `;
+
+                          db.query(
+                            updateQuery,
+                            [a.userId, shiftId, "קבט"],
+                            (errUpdate) => {
+                              if (errUpdate) return rejInner(errUpdate);
+                              resInner();
+                            }
+                          );
+                        } else {
+                          // אין כלל שיבוץ למשמרת הזו – הכנס חדש
+                          const insertAssign = `
+                      INSERT INTO employee_shift_assignment (Employee_ID, Shift_ID, Role)
+                      VALUES (?, ?, ?)
+                    `;
+
+                          db.query(
+                            insertAssign,
+                            [a.userId, shiftId, "קבט"],
+                            (errInsert) => {
+                              if (errInsert) return rejInner(errInsert);
+                              resInner();
+                            }
+                          );
+                        }
+                      }
+                    );
+                  });
                 });
+
+                Promise.all(insertPromises).then(resolve).catch(reject);
               }
             );
-
-            Promise.all(updates)
-              .then(() => {
-                res.json({
-                  message: "Schedule saved and updated successfully",
-                });
-              })
-              .catch((err5) => {
-                console.error("Error updating shift counts:", err5);
-                res.status(500).json({ error: "Update shift count failed" });
-              });
-          });
-        });
+          }
+        );
       });
+    }
+  );
+
+  Promise.all(insertAndAssignPromises)
+    .then(() => {
+      console.log("✅ כל השיבוצים נשמרו או עודכנו בהצלחה");
+      res.status(200).send("השיבוצים נשמרו בהצלחה");
     })
-    .catch((e) => {
-      console.error("Error ensuring shifts:", e);
-      res.status(500).json({ error: "Shift insert failed" });
+    .catch((err) => {
+      console.error("❌ שגיאה כללית:", err);
+      res.status(500).send("שגיאה בשמירה למסד הנתונים");
     });
 });
-
-
-
 
 module.exports = router;
