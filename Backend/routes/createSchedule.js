@@ -225,4 +225,30 @@ router.post("/saveShiftsKabat", (req, res) => {
     });
 });
 
+// שליפת סידור עבודה של העובד המחובר
+router.get("/allKabatAssignments", (req, res) => {
+  const query = `
+    SELECT 
+      DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+      s.ShiftType AS shift,
+      u.firstName,
+      u.lastName,
+      esa.Role
+    FROM employee_shift_assignment esa
+    JOIN shift s ON esa.Shift_ID = s.ID
+    JOIN users u ON esa.Employee_ID = u.id
+    WHERE esa.Role = 'קבט'
+    ORDER BY s.Date, s.ShiftType, u.lastName;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ שגיאה בשליפת שיבוצים:", err);
+      return res.status(500).json({ error: "שגיאה במסד הנתונים" });
+    }
+    res.json(results);
+  });
+});
+
+
 module.exports = router;

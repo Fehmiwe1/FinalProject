@@ -8,15 +8,17 @@
   overflow: visible;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  will-change: transform;
+  align-items: flex-start;
   background-color: #2c3e50;
+  direction: rtl;
 }
+
 .WorkArrangement-body {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem;
+  width: 100%;
   min-height: 100vh;
   background-color: #2c3e50;
   color: #ecf0f1;
@@ -25,6 +27,54 @@
 
 .WorkArrangement-body h2 {
   font-size: 3rem;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
   color: #ddd7d2;
+  text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+.WorkArrangement-body p {
+  color: #ecf0f1;
+  font-size: 1.4rem;
+}
+
+/* טבלת סידור עבודה */
+.assignment-table-wrapper {
+  margin-bottom: 3rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.assignment-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1e293b;
+  color: #ecf0f1;
+  font-size: 1.2rem;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.assignment-table th,
+.assignment-table td {
+  padding: 0.8rem;
+  border: 1px solid #3e556b;
+}
+
+.assignment-table th {
+  background-color: #3b4a59;
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+.assignment-table td {
+  height: 50px;
+  background-color: #22303c;
+}
+
+/* תצוגה של תו ✔ */
+.assignment-table td::after {
+  content: attr(data-value);
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #2ecc71;
 }
