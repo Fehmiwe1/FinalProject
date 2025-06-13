@@ -37,19 +37,26 @@ router.get("/scheduleMoked", (req, res) => {
       u.id AS id,
       u.firstName,
       u.lastName,
-      DATE_FORMAT(ec.date, '%Y-%m-%d') AS date,
-      ec.shift,
-      ec.availability
+      DATE_FORMAT(COALESCE(ec.date, s.Date), '%Y-%m-%d') AS date,
+      COALESCE(ec.shift, s.ShiftType) AS shift,
+      ec.availability,
+      esa.Employee_ID AS assignment
     FROM users u
     LEFT JOIN employee_constraints ec 
       ON u.id = ec.ID_employee
+    LEFT JOIN shift s 
+      ON (ec.date = s.Date OR ec.date IS NULL)
+     AND (ec.shift = s.ShiftType OR ec.shift IS NULL)
+     AND s.Location = 'אחר'
+    LEFT JOIN employee_shift_assignment esa 
+      ON esa.Shift_ID = s.ID AND esa.Role = 'מוקד' AND esa.Employee_ID = u.id
     WHERE u.role = 'moked'
-    ORDER BY u.id, ec.date, ec.shift;
+    ORDER BY date, shift, u.id;
   `;
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error("שגיאה בשליפת האילוצים:", err);
+      console.error("❌ שגיאה בשליפת האילוצים והשיבוצים:", err);
       return res.status(500).json({ error: "שגיאה במסד הנתונים" });
     }
 
@@ -381,7 +388,6 @@ router.post("/saveShiftsMoked", (req, res) => {
       res.status(500).send("שגיאה בשמירה למסד הנתונים");
     });
 });
-
 
 // שליפת סידור עבודה של העובד מוקד
 router.get("/allMokedAssignments", (req, res) => {
