@@ -26,9 +26,19 @@ function ManagerSchedule() {
 
     const fetchData = async () => {
       try {
-        const res = await axios.get("/createSchedule/scheduleKabet", {
-          withCredentials: true,
-        });
+        let res;
+        if (selectedRole === "קבט") {
+          res = await axios.get("/createSchedule/scheduleKabet", {
+            withCredentials: true,
+          });
+        } else if (selectedRole === "מוקד") {
+          res = await axios.get("/createSchedule/scheduleMoked", {
+            withCredentials: true,
+          });
+        } else {
+          return;
+        }
+
         setKabatConstraints(res.data);
 
         const newAssignments = {};
@@ -40,13 +50,16 @@ function ManagerSchedule() {
         });
         setAssignments(newAssignments);
       } catch (err) {
-        console.error("שגיאה בטעינת קבטים:", err);
+        console.error("שגיאה בטעינת נתונים:", err);
       }
     };
 
     generateWeeks();
-    if (selectedRole === "קבט") fetchData();
+    if (selectedRole === "קבט" || selectedRole === "מוקד") {
+      fetchData();
+    }
   }, [selectedRole]);
+  
 
   const handleChange = (date, shift, e) => {
     const value = e.target.value;
@@ -64,14 +77,23 @@ function ManagerSchedule() {
           date,
           shift,
           userId,
-          role: "קבט",
+          role: selectedRole, // קבט או מוקד לפי הבחירה
           location: "אחר",
         };
       }
     );
 
+    const endpoint =
+      selectedRole === "קבט"
+        ? "/createSchedule/saveShiftsKabat"
+        : selectedRole === "מוקד"
+        ? "/createSchedule/saveShiftsMoked"
+        : null;
+
+    if (!endpoint) return;
+
     try {
-      await axios.post("/createSchedule/saveShiftsKabat", assignmentsToSend, {
+      await axios.post(endpoint, assignmentsToSend, {
         withCredentials: true,
       });
       alert("סידור העבודה נשמר בהצלחה");
@@ -80,6 +102,7 @@ function ManagerSchedule() {
       alert("אירעה שגיאה בשמירה");
     }
   };
+  
 
   const renderWeekTable = (week, title) => {
     const uniqueUsers = [];
@@ -190,7 +213,7 @@ function ManagerSchedule() {
       </aside>
 
       <main className="schedule-display">
-        {selectedRole === "קבט" && (
+        {(selectedRole === "קבט" || selectedRole === "מוקד") && (
           <>
             {renderWeekTable(weeks[0], "שבוע ראשון")}
             {renderWeekTable(weeks[1], "שבוע שני")}

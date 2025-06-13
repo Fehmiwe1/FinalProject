@@ -11,33 +11,36 @@ function WorkArrangement() {
   const shifts = ["בוקר", "ערב", "לילה"];
 
   useEffect(() => {
-    if (userRole === "kabat") {
-      const generateWeeks = () => {
-        const base = new Date("2025-06-01");
-        const dates = [[], []];
-        for (let i = 0; i < 14; i++) {
-          const d = new Date(base);
-          d.setDate(base.getDate() + i);
-          dates[i < 7 ? 0 : 1].push(d.toISOString().split("T")[0]);
-        }
-        setWeeks(dates);
-      };
+    const generateWeeks = () => {
+      const base = new Date("2025-06-01");
+      const dates = [[], []];
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(base);
+        d.setDate(base.getDate() + i);
+        dates[i < 7 ? 0 : 1].push(d.toISOString().split("T")[0]);
+      }
+      setWeeks(dates);
+    };
 
-      const fetchAssignments = async () => {
-        try {
-          const res = await axios.get("/createSchedule/allKabatAssignments", {
-            withCredentials: true,
-          });
-          setAssignments(res.data);
-        } catch (err) {
-          console.error("שגיאה בטעינת הסידור:", err);
-        }
-      };
+    const fetchAssignments = async (role) => {
+      try {
+        const url =
+          role === "kabat"
+            ? "/createSchedule/allKabatAssignments"
+            : "/createSchedule/allMokedAssignments";
+        const res = await axios.get(url, { withCredentials: true });
+        setAssignments(res.data);
+      } catch (err) {
+        console.error("שגיאה בטעינת הסידור:", err);
+      }
+    };
 
+    if (userRole === "kabat" || userRole === "moked") {
       generateWeeks();
-      fetchAssignments();
+      fetchAssignments(userRole);
     }
   }, [userRole]);
+  
 
   const renderTable = (week, title) => {
     return (
@@ -89,7 +92,7 @@ function WorkArrangement() {
     <div className="WorkArrangement-wrapper">
       <main className="WorkArrangement-body">
         <h2>סידור עבודה</h2>
-        {userRole === "kabat" ? (
+        {userRole === "kabat" || userRole === "moked" ? (
           <>
             {renderTable(weeks[0], "שבוע ראשון")}
             {renderTable(weeks[1], "שבוע שני")}
