@@ -25,6 +25,7 @@ import SingleGuest from "./CommonMKM-comp/SingleGuest";
 import EditGuest from "./CommonMKM-comp/EditGuests";
 import MyRequests from "./CommonMKM-comp/myRequests";
 import MainPageMoked from "./Moked-comp/MainPageMoked";
+import MainPageKabat from "./Kabat-comp/MainPageKabat";
 function MyRoutes() {
   return (
     <>
@@ -53,6 +54,7 @@ function MyRoutes() {
         <Route path="/editGuest/:id" element={<EditGuest />} />
         <Route path="/myRequests" element={<MyRequests />} />
         <Route path="/mainPageMoked" element={<MainPageMoked />} />
+        <Route path="/mainPageKabat" element={<MainPageKabat />} />
       </Routes>
       <Footer />
     </>

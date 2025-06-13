@@ -56,7 +56,11 @@ function RequestsManagement() {
   const handleVacationStatusUpdate = (id, status) => {
     axios
       .put("/employeeRequests/updateVacationStatus", { id, status })
-      .then(() => fetchRequests())
+      .then(() => {
+        setRequests((prev) =>
+          prev.filter((req) => !(req.id === id && req.requestType === "חופשה"))
+        );
+      })
       .catch((error) => console.error("שגיאה בעדכון סטטוס חופשה:", error));
   };
 
@@ -79,11 +83,8 @@ function RequestsManagement() {
   };
 
   const vacationRequests = requests
-    .filter((req) => req.requestType === "חופשה")
-    .sort((a, b) => {
-      const order = { ממתין: 0, אושר: 1, סורב: 2 };
-      return order[a.status] - order[b.status];
-    });
+    .filter((req) => req.requestType === "חופשה" && req.status === "ממתין")
+    .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
 
   const sickRequests = requests
     .filter((req) => req.requestType === "מחלה")

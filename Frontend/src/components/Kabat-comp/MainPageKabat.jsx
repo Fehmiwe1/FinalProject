@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../../assets/styles/CommonMKM-styles/Incident.css";
+import "../../assets/styles/Kabat-styles/MainPageKabat.css";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
-function Incident() {
+function MainPageKabat() {
   const [incident, setIncident] = useState([]);
   const [msg, setMsg] = useState("");
   const [searchName, setSearchName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const isManager = Cookies.get("userRole");
+  const isManager = Cookies.get("userRole") === "kabat";
 
   useEffect(() => {
     fetchData();
@@ -21,23 +21,6 @@ function Incident() {
       .get("/post")
       .then((res) => setIncident(res.data))
       .catch(() => setMsg("אירעה שגיאה בטעינת הדוחות."));
-  };
-
-  const handleDelete = (post) => {
-    if (
-      window.confirm(
-        `האם אתה בטוח שברצונך למחוק את הדוח: ${post.Incident_Name}?`
-      )
-    ) {
-      axios
-        .delete(`/post/${post.id}`)
-        .then(() => {
-          setIncident((prev) => prev.filter((item) => item.id !== post.id));
-          setMsg("הדוח נמחק בהצלחה.");
-          setTimeout(() => setMsg(""), 2000);
-        })
-        .catch(() => setMsg("אירעה שגיאה בעת מחיקת הדוח."));
-    }
   };
 
   const filteredIncidents = incident.filter((i) => {
@@ -52,14 +35,14 @@ function Incident() {
   });
 
   return (
-    <div className="incidentPpage">
-      <div className="container-Incident">
-        <div className="incidentPageContainer">
-          <h1 className="incident-page-title">
+    <div className="kabatPpage">
+      <div className="container-kabat">
+        <div className="kabatPageContainer">
+          <h1 className="kabat-page-title">
             כאן תוכל לצפות בדוחות אירועים חריגים
           </h1>
 
-          {isManager === "manager" && (
+          {isManager && (
             <div className="create-incident">
               <Link to="/createIncident" className="btn">
                 דוח אירוע חדש
@@ -121,7 +104,7 @@ function Incident() {
                       <Link to={`/post/${incident.id}`} className="view-button">
                         צפייה
                       </Link>
-                      {isManager === "manager" && (
+                      {isManager && (
                         <>
                           <Link
                             to={`/editincident/${incident.id}`}
@@ -131,7 +114,28 @@ function Incident() {
                           </Link>
                           <button
                             className="delete-btn-incident"
-                            onClick={() => handleDelete(incident)}
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `האם אתה בטוח שברצונך למחוק את הדוח: ${incident.Incident_Name}?`
+                                )
+                              ) {
+                                axios
+                                  .delete(`/post/${incident.id}`)
+                                  .then(() => {
+                                    setIncident((prev) =>
+                                      prev.filter(
+                                        (item) => item.id !== incident.id
+                                      )
+                                    );
+                                    setMsg("הדוח נמחק בהצלחה.");
+                                    setTimeout(() => setMsg(""), 2000);
+                                  })
+                                  .catch(() =>
+                                    setMsg("אירעה שגיאה בעת מחיקת הדוח.")
+                                  );
+                              }
+                            }}
                           >
                             מחיקה
                           </button>
@@ -153,4 +157,4 @@ function Incident() {
   );
 }
 
-export default Incident;
+export default MainPageKabat;
