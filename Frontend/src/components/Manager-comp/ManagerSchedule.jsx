@@ -8,6 +8,8 @@ function ManagerSchedule() {
   const [kabatConstraints, setKabatConstraints] = useState([]);
   const [assignments, setAssignments] = useState({});
   const [weeks, setWeeks] = useState([[], []]);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" או "error"
 
   const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
   const shifts = ["בוקר", "ערב", "לילה"];
@@ -26,27 +28,32 @@ function ManagerSchedule() {
 
     const fetchData = async () => {
       try {
-        let res;
+        let constraintsRes, assignmentsRes;
         if (selectedRole === "קבט") {
-          res = await axios.get("/createSchedule/scheduleKabet", {
+          constraintsRes = await axios.get("/createSchedule/scheduleKabet", {
             withCredentials: true,
           });
+          assignmentsRes = await axios.get(
+            "/createSchedule/allKabatAssignments",
+            { withCredentials: true }
+          );
         } else if (selectedRole === "מוקד") {
-          res = await axios.get("/createSchedule/scheduleMoked", {
+          constraintsRes = await axios.get("/createSchedule/scheduleMoked", {
             withCredentials: true,
           });
+          assignmentsRes = await axios.get(
+            "/createSchedule/allMokedAssignments",
+            { withCredentials: true }
+          );
         } else {
           return;
         }
 
-        setKabatConstraints(res.data);
+        setKabatConstraints(constraintsRes.data);
 
         const newAssignments = {};
-        res.data.forEach((row) => {
-          if (row.assignment && row.assignment === row.id) {
-            newAssignments[`${row.date}|${row.shift}`] =
-              row.assignment.toString();
-          }
+        assignmentsRes.data.forEach((row) => {
+          newAssignments[`${row.date}|${row.shift}`] = row.id?.toString();
         });
         setAssignments(newAssignments);
       } catch (err) {
@@ -59,7 +66,6 @@ function ManagerSchedule() {
       fetchData();
     }
   }, [selectedRole]);
-  
 
   const handleChange = (date, shift, e) => {
     const value = e.target.value;
@@ -96,13 +102,18 @@ function ManagerSchedule() {
       await axios.post(endpoint, assignmentsToSend, {
         withCredentials: true,
       });
-      alert("סידור העבודה נשמר בהצלחה");
+      setMessage("סידור העבודה נשמר בהצלחה");
+      setMessageType("success");
     } catch (err) {
       console.error("שגיאה בשליחת הסידור:", err);
-      alert("אירעה שגיאה בשמירה");
+      setMessage("אירעה שגיאה בשמירת הסידור");
+      setMessageType("error");
     }
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
   };
-  
 
   const renderWeekTable = (week, title) => {
     const uniqueUsers = [];
@@ -213,6 +224,8 @@ function ManagerSchedule() {
       </aside>
 
       <main className="schedule-display">
+        <h1 className="titleH1">סידור עבדוה</h1>
+        {message && <div className={`message ${messageType}`}>{message}</div>}
         {(selectedRole === "קבט" || selectedRole === "מוקד") && (
           <>
             {renderWeekTable(weeks[0], "שבוע ראשון")}

@@ -33,11 +33,10 @@
 
 /* Title Styling */
 .incident-page-title {
-  font-size: 4rem;
-  color: #fff;
-  text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
+  font-size: 5rem;
+  color: #ddd7d2;
+  text-shadow: 2px 4px 8px rgba(117, 113, 113, 0.9);
   margin-bottom: 2rem;
-  font-weight: bold;
 }
 
 /* Incident Table */

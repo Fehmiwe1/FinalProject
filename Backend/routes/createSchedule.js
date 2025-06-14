@@ -71,28 +71,29 @@ router.get("/scheduleKabet", (req, res) => {
       u.id AS id,
       u.firstName,
       u.lastName,
-      DATE_FORMAT(COALESCE(ec.date, s.Date), '%Y-%m-%d') AS date,
-      COALESCE(ec.shift, s.ShiftType) AS shift,
-      ec.availability,
-      esa.Employee_ID AS assignment
+      COALESCE(DATE_FORMAT(ec.date, '%Y-%m-%d'), NULL) AS date,
+      ec.shift,
+      ec.availability
     FROM users u
-    LEFT JOIN employee_constraints ec 
-      ON u.id = ec.ID_employee
-    LEFT JOIN shift s 
-      ON (ec.date = s.Date OR ec.date IS NULL)
-     AND (ec.shift = s.ShiftType OR ec.shift IS NULL)
-     AND s.Location = 'אחר'
-    LEFT JOIN employee_shift_assignment esa 
-      ON esa.Shift_ID = s.ID AND esa.Role = 'קבט' AND esa.Employee_ID = u.id
+    LEFT JOIN employee_constraints ec ON u.id = ec.ID_employee
     WHERE u.role = 'kabat'
-    ORDER BY date, shift, u.id;
+    ORDER BY u.id, ec.date, ec.shift;
   `;
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error("❌ שגיאה בשליפת האילוצים והשיבוצים:", err);
+      console.error("❌ שגיאה בשליפת קבטים:", err);
       return res.status(500).json({ error: "שגיאה במסד הנתונים" });
     }
+
+    // הדפסת כל שמות הקב"טים במסוף
+    const uniqueIds = new Set();
+    results.forEach((row) => {
+      if (!uniqueIds.has(row.id)) {
+        console.log(`👤 קב"ט: ${row.firstName} ${row.lastName}`);
+        uniqueIds.add(row.id);
+      }
+    });
 
     res.json(results);
   });
@@ -236,11 +237,12 @@ router.post("/saveShiftsKabat", (req, res) => {
 router.get("/allKabatAssignments", (req, res) => {
   const query = `
     SELECT 
-      DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
-      s.ShiftType AS shift,
-      u.firstName,
-      u.lastName,
-      esa.Role
+    DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+    s.ShiftType AS shift,
+    u.id,
+    u.firstName,
+    u.lastName,
+    esa.Role
     FROM employee_shift_assignment esa
     JOIN shift s ON esa.Shift_ID = s.ID
     JOIN users u ON esa.Employee_ID = u.id
@@ -393,11 +395,12 @@ router.post("/saveShiftsMoked", (req, res) => {
 router.get("/allMokedAssignments", (req, res) => {
   const query = `
     SELECT 
-      DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
-      s.ShiftType AS shift,
-      u.firstName,
-      u.lastName,
-      esa.Role
+    DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+    s.ShiftType AS shift,
+    u.id,
+    u.firstName,
+    u.lastName,
+    esa.Role
     FROM employee_shift_assignment esa
     JOIN shift s ON esa.Shift_ID = s.ID
     JOIN users u ON esa.Employee_ID = u.id

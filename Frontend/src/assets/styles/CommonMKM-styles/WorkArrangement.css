@@ -78,3 +78,32 @@
   font-weight: bold;
   color: #2ecc71;
 }
+
+.titleH1{
+  font-size: 5rem;
+  color: #ddd7d2;
+  text-shadow: 2px 4px 8px rgba(117, 113, 113, 0.9);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.message {
+  margin-top: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 2rem;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+}
+
+.message.success {
+  color: #27ae60;
+  font-size: 2rem;
+ 
+}
+
+.message.error {
+  color: #c0392b;
+  font-size: 2rem;
+}

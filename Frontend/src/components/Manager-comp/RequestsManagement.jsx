@@ -95,11 +95,11 @@ function RequestsManagement() {
       <div className="requestsManagement-container">
         <div className="requestsNotifications-container">
           <form className="requestsNotifications-form">
-            <h1>התראות</h1>
+            <h1 className="titleH1">התראות</h1>
           </form>
           {msg && <div className="error-message">{msg}</div>}
 
-          <h2 className="titleah2">בקשות חופשה</h2>
+          <h2 className="titleH2">בקשות חופשה</h2>
           <table className="requestsNotifications-table">
             <thead>
               <tr>
@@ -154,7 +154,7 @@ function RequestsManagement() {
             </tbody>
           </table>
 
-          <h2 className="titleah2">בקשות מחלה</h2>
+          <h2 className="titleH2">בקשות מחלה</h2>
           <table className="requestsNotifications-table">
             <thead>
               <tr>
