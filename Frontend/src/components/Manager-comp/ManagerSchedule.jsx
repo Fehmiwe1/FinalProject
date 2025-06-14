@@ -224,7 +224,7 @@ function ManagerSchedule() {
       </aside>
 
       <main className="schedule-display">
-        <h1 className="titleH1">סידור עבדוה</h1>
+        <h1 className="titleH1">סידור עבודה</h1>
         {message && <div className={`message ${messageType}`}>{message}</div>}
         {(selectedRole === "קבט" || selectedRole === "מוקד") && (
           <>
