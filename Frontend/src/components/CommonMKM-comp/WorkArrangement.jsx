@@ -13,10 +13,17 @@ function WorkArrangement() {
   useEffect(() => {
     const generateWeeks = () => {
       const base = new Date("2025-06-01");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const diffDays = Math.floor((today - base) / (1000 * 60 * 60 * 24));
+      const periodIndex = Math.floor(diffDays / 14);
+      const startOfPeriod = new Date(base);
+      startOfPeriod.setDate(base.getDate() + periodIndex * 14);
+
       const dates = [[], []];
       for (let i = 0; i < 14; i++) {
-        const d = new Date(base);
-        d.setDate(base.getDate() + i);
+        const d = new Date(startOfPeriod);
+        d.setDate(startOfPeriod.getDate() + i);
         dates[i < 7 ? 0 : 1].push(d.toISOString().split("T")[0]);
       }
       setWeeks(dates);
@@ -40,9 +47,13 @@ function WorkArrangement() {
       fetchAssignments(userRole);
     }
   }, [userRole]);
-  
 
   const renderTable = (week, title) => {
+    // מיון לפי סדר ימי השבוע (ראשון=0 עד שבת=6)
+    const sortedWeek = [...week].sort(
+      (a, b) => new Date(a).getDay() - new Date(b).getDay()
+    );
+
     return (
       <div className="assignment-table-wrapper">
         <h3>{title}</h3>
@@ -50,7 +61,7 @@ function WorkArrangement() {
           <thead>
             <tr>
               <th>משמרת / תאריך</th>
-              {week.map((date, i) => {
+              {sortedWeek.map((date, i) => {
                 const d = new Date(date);
                 return (
                   <th key={i}>
@@ -66,7 +77,7 @@ function WorkArrangement() {
             {shifts.map((shift) => (
               <tr key={shift}>
                 <td>{shift}</td>
-                {week.map((date) => {
+                {sortedWeek.map((date) => {
                   const assigned = assignments.filter(
                     (a) => a.date === date && a.shift === shift
                   );
