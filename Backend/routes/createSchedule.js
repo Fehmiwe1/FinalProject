@@ -57,7 +57,6 @@ const getGuardCount = (shiftType, position, dayNameRaw) => {
   return 0;
 };
 
-
 router.post("/saveShiftsGuard", async (req, res) => {
   const assignments = req.body;
 
@@ -72,18 +71,30 @@ router.post("/saveShiftsGuard", async (req, res) => {
 
   try {
     for (const [key, shiftAssignments] of Object.entries(shiftGroups)) {
-      let [date, shiftType, location] = key.split("|");
+      let [date, shiftType, originalLocation] = key.split("|");
 
-      // ניקוי מחרוזות
+      let location = originalLocation.trim();
       shiftType = shiftType.trim();
-      location = location.trim();
 
       const dayName = new Date(date)
         .toLocaleDateString("he-IL", { weekday: "long" })
         .replace(/\u200E/g, "")
         .trim();
 
-      const Num_Guards = getGuardCount(shiftType, location, dayName);
+      let Num_Guards = getGuardCount(shiftType, location, dayName);
+
+      // הגדרה ידנית לעמדות מיוחדות שתמיד צריכות לפחות שומר אחד
+      const specialPositions = [
+        "סייר רכוב",
+        "סייר א",
+        "סייר ב",
+        "סייר ג",
+        "הפסקות",
+      ];
+      if (specialPositions.includes(location)) {
+        Num_Guards = 1;
+        location = "ראשי";
+      }
 
       // ✅ לצורכי בדיקה – אפשר להסיר אחרי
       console.log("🔍 משמרת:", {
@@ -132,6 +143,9 @@ router.post("/saveShiftsGuard", async (req, res) => {
             `INSERT INTO employee_shift_assignment (Employee_ID, Shift_ID, Role) VALUES (?, ?, ?)`,
             [userId, shiftId, role]
           );
+        console.log(
+          `✅ שיבוץ ${role} (ID: ${userId}) למשמרת ${date} ${shiftType} בעמדה ${location}`
+        );
       }
     }
 
@@ -145,19 +159,24 @@ router.post("/saveShiftsGuard", async (req, res) => {
 
 router.get("/allGuardAssignments", (req, res) => {
   const query = `
-    SELECT 
-      DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
-      s.ShiftType AS shift,
-      s.Location AS location,
-      u.id,
-      u.firstName,
-      u.lastName,
-      esa.Role
-    FROM employee_shift_assignment esa
-    JOIN shift s ON esa.Shift_ID = s.ID
-    JOIN users u ON esa.Employee_ID = u.id
-    WHERE esa.Role IN ('מאבטח', 'סייר רכוב', 'סיור א', 'סיור ב', 'סיור ג', 'הפסקות')
-    ORDER BY s.Date, s.ShiftType, s.Location, u.lastName;
+ SELECT 
+  DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+  s.ShiftType AS shift,
+  u.id,
+  u.firstName,
+  u.lastName,
+  -- הצגה: אם Role הוא תפקיד מיוחד – תציג אותו כעמדה (Location)
+  CASE
+    WHEN esa.Role IN ('סייר רכוב', 'סייר א', 'סייר ב', 'סייר ג', 'הפסקות') THEN esa.Role
+    ELSE s.Location
+  END AS location,
+  esa.Role
+FROM employee_shift_assignment esa
+JOIN shift s ON esa.Shift_ID = s.ID
+JOIN users u ON esa.Employee_ID = u.id
+WHERE esa.Role IN ('מאבטח', 'סייר רכוב', 'סייר א', 'סייר ב', 'סייר ג', 'הפסקות')
+ORDER BY s.Date, s.ShiftType, location, u.lastName;
+
   `;
   db.query(query, (err, results) => {
     if (err) {
