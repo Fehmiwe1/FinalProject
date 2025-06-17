@@ -1,5 +1,5 @@
 /* Main Layout as Columns */
-.mainPageGuard-body {
+.mainPageMoked-body {
   flex-grow: 1;
   display: grid;
   grid-template-columns: 1fr 2fr;

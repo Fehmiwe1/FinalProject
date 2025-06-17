@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../../assets/styles/Guard-styles/MainPageGuard.css";
+import "../../assets/styles/Moked-styles/MainPageMoked.css";
 
 function MainPageMoked() {
   const [contractorNumber, setContractorNumber] = useState("");
@@ -59,8 +59,8 @@ function MainPageMoked() {
   }, []);
 
   return (
-    <div className="mainPageGuerd-wrapper">
-      <main className="mainPageGuerd-body">
+    <div className="mainPageMoked-wrapper">
+      <main className="mainPageMoked-body">
         <section className="alerts-section">
           <h3>התראות/בקשות</h3>
           <table>
