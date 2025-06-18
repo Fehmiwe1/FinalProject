@@ -291,30 +291,50 @@ function ManagerSchedule() {
                               }
                             >
                               <option value="">בחר עובד</option>
-                              {uniqueGuards.map((user) => {
-                                const availability = GuardConstraints.find(
-                                  (c) =>
-                                    c.id === user.id &&
-                                    c.date === date &&
-                                    c.shift === shiftType
-                                )?.availability;
+                              {[...uniqueGuards]
+                                .map((user) => {
+                                  const availability =
+                                    GuardConstraints.find(
+                                      (c) =>
+                                        c.id === user.id &&
+                                        c.date === date &&
+                                        c.shift === shiftType
+                                    )?.availability || "יכול"; // ברירת מחדל
 
-                                let optionClass = "green-option";
-                                if (availability === "לא יכול")
-                                  optionClass = "red-option";
-                                else if (availability === "יכול חלקית")
-                                  optionClass = "yellow-option";
+                                  return {
+                                    ...user,
+                                    availability,
+                                  };
+                                })
+                                .sort((a, b) => {
+                                  const priority = {
+                                    יכול: 0,
+                                    "יכול חלקית": 1,
+                                    "לא יכול": 2,
+                                  };
+                                  return (
+                                    priority[a.availability] -
+                                    priority[b.availability]
+                                  );
+                                })
+                                .map((user) => {
+                                  const optionClass =
+                                    user.availability === "לא יכול"
+                                      ? "red-option"
+                                      : user.availability === "יכול חלקית"
+                                      ? "yellow-option"
+                                      : "green-option";
 
-                                return (
-                                  <option
-                                    key={user.id}
-                                    value={user.id.toString()}
-                                    className={optionClass}
-                                  >
-                                    {user.firstName} {user.lastName}
-                                  </option>
-                                );
-                              })}
+                                  return (
+                                    <option
+                                      key={user.id}
+                                      value={user.id.toString()}
+                                      className={optionClass}
+                                    >
+                                      {user.firstName} {user.lastName}
+                                    </option>
+                                  );
+                                })}
                             </select>
                           );
                         })}
@@ -389,30 +409,50 @@ function ManagerSchedule() {
                         onChange={(e) => handleChange(date, shift, e)}
                       >
                         <option value="">בחר עובד</option>
-                        {uniqueUsers.map((user) => {
-                          const availability = kabatConstraints.find(
-                            (c) =>
-                              c.id === user.id &&
-                              c.date === date &&
-                              c.shift === shift
-                          )?.availability;
+                        {[...uniqueUsers]
+                          .map((user) => {
+                            const availability =
+                              kabatConstraints.find(
+                                (c) =>
+                                  c.id === user.id &&
+                                  c.date === date &&
+                                  c.shift === shift
+                              )?.availability || "יכול";
 
-                          let optionClass = "green-option";
-                          if (availability === "לא יכול")
-                            optionClass = "red-option";
-                          else if (availability === "יכול חלקית")
-                            optionClass = "yellow-option";
+                            return {
+                              ...user,
+                              availability,
+                            };
+                          })
+                          .sort((a, b) => {
+                            const priority = {
+                              יכול: 0,
+                              "יכול חלקית": 1,
+                              "לא יכול": 2,
+                            };
+                            return (
+                              priority[a.availability] -
+                              priority[b.availability]
+                            );
+                          })
+                          .map((user) => {
+                            const optionClass =
+                              user.availability === "לא יכול"
+                                ? "red-option"
+                                : user.availability === "יכול חלקית"
+                                ? "yellow-option"
+                                : "green-option";
 
-                          return (
-                            <option
-                              key={user.id}
-                              value={user.id.toString()}
-                              className={optionClass}
-                            >
-                              {user.firstName} {user.lastName}
-                            </option>
-                          );
-                        })}
+                            return (
+                              <option
+                                key={user.id}
+                                value={user.id.toString()}
+                                className={optionClass}
+                              >
+                                {user.firstName} {user.lastName}
+                              </option>
+                            );
+                          })}
                       </select>
                     </td>
                   );

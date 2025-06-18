@@ -33,29 +33,7 @@ router.get("/scheduleGuard", (req, res) => {
   });
 });
 
-// פונקציה לחישוב מספר המאבטחים הנדרש לפי position, shiftType ויום בשבוע
-const getGuardCount = (shiftType, position, dayNameRaw) => {
-  const dayName = dayNameRaw.replace(/^יום\s/, "").trim(); // 🛠️ מסיר "יום " אם קיים
-
-  if (position === "ראשי") {
-    if (shiftType === "בוקר") return dayName === "שבת" ? 3 : 4;
-    if (shiftType === "ערב") return ["שישי", "שבת"].includes(dayName) ? 3 : 4;
-    if (shiftType === "לילה") return 2;
-  }
-  if (position === "נשר") {
-    if (dayName === "שבת") return 0;
-    if (dayName === "שישי" && (shiftType === "ערב" || shiftType === "לילה"))
-      return 0;
-    if (shiftType === "בוקר") return 3;
-    if (shiftType === "ערב") return 2;
-    if (shiftType === "לילה") return 0;
-  }
-  if (position === "הפסקות") {
-    if (shiftType !== "ערב" || ["שישי", "שבת"].includes(dayName)) return 0;
-    return 1;
-  }
-  return 0;
-};
+// שמירת סידור עבודה שנוצר למאבטחים
 
 router.post("/saveShiftsGuard", async (req, res) => {
   const assignments = req.body;
@@ -81,7 +59,7 @@ router.post("/saveShiftsGuard", async (req, res) => {
         .replace(/\u200E/g, "")
         .trim();
 
-      let Num_Guards = getGuardCount(shiftType, location, dayName);
+      let Num_Guards = shiftAssignments.length;
 
       // הגדרה ידנית לעמדות מיוחדות שתמיד צריכות לפחות שומר אחד
       const specialPositions = [
@@ -92,11 +70,10 @@ router.post("/saveShiftsGuard", async (req, res) => {
         "הפסקות",
       ];
       if (specialPositions.includes(location)) {
-        Num_Guards = 1;
+        Num_Guards = Math.max(Num_Guards, 1); // לוודא שיש לפחות אחד
         location = "ראשי";
       }
 
-      // ✅ לצורכי בדיקה – אפשר להסיר אחרי
       console.log("🔍 משמרת:", {
         date,
         shiftType,
@@ -105,13 +82,13 @@ router.post("/saveShiftsGuard", async (req, res) => {
         Num_Guards,
       });
 
-      // הכנסה או עדכון בטבלת shift
+      // הכנסה או עדכון בטבלת shift (עם קידום Num_Guards)
       await db.promise().execute(
         `
-        INSERT INTO shift (Date, Location, ShiftType, Num_Guards, Num_Moked, Num_Kabat)
-        VALUES (?, ?, ?, ?, 0, 0)
-        ON DUPLICATE KEY UPDATE Num_Guards = VALUES(Num_Guards)
-      `,
+          INSERT INTO shift (Date, Location, ShiftType, Num_Guards, Num_Moked, Num_Kabat)
+          VALUES (?, ?, ?, ?, 0, 0)
+          ON DUPLICATE KEY UPDATE Num_Guards = Num_Guards + VALUES(Num_Guards)
+        `,
         [date, location, shiftType, Num_Guards]
       );
 
@@ -127,22 +104,24 @@ router.post("/saveShiftsGuard", async (req, res) => {
 
       const shiftId = shiftRows[0].ID;
 
-      // מחיקת כל השיבוצים הקיימים למשמרת הזו (לפי עמדה ותפקיד)
-      await db
-        .promise()
-        .execute(
-          `DELETE FROM employee_shift_assignment WHERE Shift_ID = ? AND Role = ?`,
-          [shiftId, shiftAssignments[0].role]
-        );
-
-      // הכנסת השיבוצים החדשים
+      // הכנסת או עדכון השיבוצים
       for (const { userId, role } of shiftAssignments) {
-        await db
+        const [existing] = await db
           .promise()
           .execute(
-            `INSERT INTO employee_shift_assignment (Employee_ID, Shift_ID, Role) VALUES (?, ?, ?)`,
-            [userId, shiftId, role]
+            `SELECT * FROM employee_shift_assignment WHERE Shift_ID = ? AND Role = ? AND Employee_ID = ?`,
+            [shiftId, role, userId]
           );
+
+        if (existing.length === 0) {
+          await db
+            .promise()
+            .execute(
+              `INSERT INTO employee_shift_assignment (Employee_ID, Shift_ID, Role) VALUES (?, ?, ?)`,
+              [userId, shiftId, role]
+            );
+        }
+
         console.log(
           `✅ שיבוץ ${role} (ID: ${userId}) למשמרת ${date} ${shiftType} בעמדה ${location}`
         );
@@ -157,6 +136,7 @@ router.post("/saveShiftsGuard", async (req, res) => {
   }
 });
 
+// שליפת סידור עבודה של המאבטחים
 router.get("/allGuardAssignments", (req, res) => {
   const query = `
  SELECT 
