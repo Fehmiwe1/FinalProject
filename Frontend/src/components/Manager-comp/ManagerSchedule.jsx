@@ -243,6 +243,8 @@ function ManagerSchedule() {
       return true;
     });
 
+    const shiftOrder = ["בוקר", "ערב", "לילה"];
+
     return (
       <div className="guard-schedule-grid">
         <h3 className="title">
@@ -276,11 +278,110 @@ function ManagerSchedule() {
                   {weeks[weekIndex].map((date, i) => {
                     const count = getGuardCount(shiftType, position, i);
                     if (count === 0) return <td key={i}>—</td>;
+
                     return (
                       <td key={i}>
                         {[...Array(count)].map((_, idx) => {
                           const key = `${date}|${position}|${shiftType}|${idx}`;
                           const selectedId = assignments[key] || "";
+
+                          const filteredGuards = [...uniqueGuards]
+                            .map((user) => {
+                              const currentIndex =
+                                shiftOrder.indexOf(shiftType);
+
+                              const isAssignedElsewhereSameDay = Object.entries(
+                                assignments
+                              ).some(([assignKey, assignId]) => {
+                                const [assignDate] = assignKey.split("|");
+                                return (
+                                  assignDate === date &&
+                                  assignId === user.id.toString() &&
+                                  assignKey !== key
+                                );
+                              });
+
+                              const isBlockedByAdjacentShift = Object.entries(
+                                assignments
+                              ).some(([assignKey, assignId]) => {
+                                const [assignDate, assignPos, assignShift] =
+                                  assignKey.split("|");
+
+                                if (assignId !== user.id.toString())
+                                  return false;
+
+                                if (
+                                  assignDate === date &&
+                                  assignShift !== shiftType
+                                ) {
+                                  const assignedIndex =
+                                    shiftOrder.indexOf(assignShift);
+                                  return (
+                                    Math.abs(currentIndex - assignedIndex) < 2
+                                  );
+                                }
+
+                                const currentDateObj = new Date(date);
+                                const prevDate = new Date(currentDateObj);
+                                prevDate.setDate(currentDateObj.getDate() - 1);
+                                const prevDateStr = prevDate
+                                  .toISOString()
+                                  .split("T")[0];
+
+                                return (
+                                  assignDate === prevDateStr &&
+                                  assignShift === "לילה" &&
+                                  shiftType === "בוקר"
+                                );
+                              });
+
+                              const isDuplicateInSameShift = Object.entries(
+                                assignments
+                              ).some(([assignKey, assignId]) => {
+                                const [assignDate, assignPos, assignShift] =
+                                  assignKey.split("|");
+                                return (
+                                  assignDate === date &&
+                                  assignShift === shiftType &&
+                                  assignId === user.id.toString() &&
+                                  assignKey !== key
+                                );
+                              });
+
+                              const isBlocked =
+                                (isBlockedByAdjacentShift ||
+                                  isDuplicateInSameShift ||
+                                  isAssignedElsewhereSameDay) &&
+                                selectedId !== user.id.toString();
+
+                              if (isBlocked) return null;
+
+                              const availability =
+                                GuardConstraints.find(
+                                  (c) =>
+                                    c.id === user.id &&
+                                    c.date === date &&
+                                    c.shift === shiftType
+                                )?.availability || "יכול";
+
+                              return {
+                                ...user,
+                                availability,
+                              };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => {
+                              const priority = {
+                                יכול: 0,
+                                "יכול חלקית": 1,
+                                "לא יכול": 2,
+                              };
+                              return (
+                                priority[a.availability] -
+                                priority[b.availability]
+                              );
+                            });
+
                           return (
                             <select
                               key={idx}
@@ -291,50 +392,24 @@ function ManagerSchedule() {
                               }
                             >
                               <option value="">בחר עובד</option>
-                              {[...uniqueGuards]
-                                .map((user) => {
-                                  const availability =
-                                    GuardConstraints.find(
-                                      (c) =>
-                                        c.id === user.id &&
-                                        c.date === date &&
-                                        c.shift === shiftType
-                                    )?.availability || "יכול"; // ברירת מחדל
+                              {filteredGuards.map((user) => {
+                                const optionClass =
+                                  user.availability === "לא יכול"
+                                    ? "red-option"
+                                    : user.availability === "יכול חלקית"
+                                    ? "yellow-option"
+                                    : "green-option";
 
-                                  return {
-                                    ...user,
-                                    availability,
-                                  };
-                                })
-                                .sort((a, b) => {
-                                  const priority = {
-                                    יכול: 0,
-                                    "יכול חלקית": 1,
-                                    "לא יכול": 2,
-                                  };
-                                  return (
-                                    priority[a.availability] -
-                                    priority[b.availability]
-                                  );
-                                })
-                                .map((user) => {
-                                  const optionClass =
-                                    user.availability === "לא יכול"
-                                      ? "red-option"
-                                      : user.availability === "יכול חלקית"
-                                      ? "yellow-option"
-                                      : "green-option";
-
-                                  return (
-                                    <option
-                                      key={user.id}
-                                      value={user.id.toString()}
-                                      className={optionClass}
-                                    >
-                                      {user.firstName} {user.lastName}
-                                    </option>
-                                  );
-                                })}
+                                return (
+                                  <option
+                                    key={user.id}
+                                    value={user.id.toString()}
+                                    className={optionClass}
+                                  >
+                                    {user.firstName} {user.lastName}
+                                  </option>
+                                );
+                              })}
                             </select>
                           );
                         })}
@@ -349,6 +424,9 @@ function ManagerSchedule() {
       </div>
     );
   };
+  
+  
+  
 
   const renderWeekTable = (week, title) => {
     const uniqueUsers = [];
@@ -370,9 +448,15 @@ function ManagerSchedule() {
     Object.values(assignments).forEach((id) => {
       if (!userMap[id]) {
         userMap[id] = `עובד ${id}`;
-        uniqueUsers.push({ id: parseInt(id), firstName: `עובד`, lastName: id });
+        uniqueUsers.push({
+          id: parseInt(id),
+          firstName: `עובד`,
+          lastName: id,
+        });
       }
     });
+
+    const shiftOrder = ["בוקר", "ערב", "לילה"];
 
     return (
       <div className="guard-schedule-grid">
@@ -401,6 +485,75 @@ function ManagerSchedule() {
                 <td>{shift}</td>
                 {week.map((date) => {
                   const selectedId = assignments[`${date}|${shift}`];
+
+                  const filteredUsers = [...uniqueUsers]
+                    .map((user) => {
+                      const currentIndex = shiftOrder.indexOf(shift);
+
+                      const isBlocked = Object.entries(assignments).some(
+                        ([assignKey, assignId]) => {
+                          const [assignDate, assignShift] =
+                            assignKey.split("|");
+                          const assignedIndex = shiftOrder.indexOf(assignShift);
+                          const currentIndex = shiftOrder.indexOf(shift);
+
+                          if (assignId !== user.id.toString()) return false;
+
+                          // חסימת אותו יום – רציפות
+                          if (assignDate === date) {
+                            return (
+                              Math.abs(currentIndex - assignedIndex) < 2 &&
+                              assignShift !== shift
+                            );
+                          }
+
+                          // חסימת לילה של אתמול מול בוקר של היום
+                          const dateObj = new Date(date);
+                          const prevDate = new Date(dateObj);
+                          prevDate.setDate(dateObj.getDate() - 1);
+                          const prevDateStr = prevDate
+                            .toISOString()
+                            .split("T")[0];
+
+                          return (
+                            assignDate === prevDateStr &&
+                            assignShift === "לילה" &&
+                            shift === "בוקר"
+                          );
+                        }
+                      );
+                      
+
+                      if (isBlocked && selectedId !== user.id.toString()) {
+                        return null;
+                      }
+
+                      const constraint = kabatConstraints.find(
+                        (c) =>
+                          c.id === user.id &&
+                          c.date === date &&
+                          c.shift === shift
+                      );
+
+                      const availability = constraint?.availability || "יכול";
+
+                      return {
+                        ...user,
+                        availability,
+                      };
+                    })
+                    .filter(Boolean)
+                    .sort((a, b) => {
+                      const priority = {
+                        יכול: 0,
+                        "יכול חלקית": 1,
+                        "לא יכול": 2,
+                      };
+                      return (
+                        priority[a.availability] - priority[b.availability]
+                      );
+                    });
+
                   return (
                     <td key={date}>
                       <select
@@ -409,50 +562,24 @@ function ManagerSchedule() {
                         onChange={(e) => handleChange(date, shift, e)}
                       >
                         <option value="">בחר עובד</option>
-                        {[...uniqueUsers]
-                          .map((user) => {
-                            const availability =
-                              kabatConstraints.find(
-                                (c) =>
-                                  c.id === user.id &&
-                                  c.date === date &&
-                                  c.shift === shift
-                              )?.availability || "יכול";
+                        {filteredUsers.map((user) => {
+                          const optionClass =
+                            user.availability === "לא יכול"
+                              ? "red-option"
+                              : user.availability === "יכול חלקית"
+                              ? "yellow-option"
+                              : "green-option";
 
-                            return {
-                              ...user,
-                              availability,
-                            };
-                          })
-                          .sort((a, b) => {
-                            const priority = {
-                              יכול: 0,
-                              "יכול חלקית": 1,
-                              "לא יכול": 2,
-                            };
-                            return (
-                              priority[a.availability] -
-                              priority[b.availability]
-                            );
-                          })
-                          .map((user) => {
-                            const optionClass =
-                              user.availability === "לא יכול"
-                                ? "red-option"
-                                : user.availability === "יכול חלקית"
-                                ? "yellow-option"
-                                : "green-option";
-
-                            return (
-                              <option
-                                key={user.id}
-                                value={user.id.toString()}
-                                className={optionClass}
-                              >
-                                {user.firstName} {user.lastName}
-                              </option>
-                            );
-                          })}
+                          return (
+                            <option
+                              key={user.id}
+                              value={user.id.toString()}
+                              className={optionClass}
+                            >
+                              {user.firstName} {user.lastName}
+                            </option>
+                          );
+                        })}
                       </select>
                     </td>
                   );
