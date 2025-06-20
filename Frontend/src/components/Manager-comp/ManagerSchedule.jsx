@@ -290,17 +290,22 @@ function ManagerSchedule() {
                               const currentIndex =
                                 shiftOrder.indexOf(shiftType);
 
-                              const isAssignedElsewhereSameDay = Object.entries(
-                                assignments
-                              ).some(([assignKey, assignId]) => {
-                                const [assignDate] = assignKey.split("|");
-                                return (
-                                  assignDate === date &&
-                                  assignId === user.id.toString() &&
-                                  assignKey !== key
+                              // מניעת כפילות באותה משמרת במיקומים שונים
+                              const isDuplicateInSameShiftDifferentPosition =
+                                Object.entries(assignments).some(
+                                  ([assignKey, assignId]) => {
+                                    const [assignDate, assignPos, assignShift] =
+                                      assignKey.split("|");
+                                    return (
+                                      assignDate === date &&
+                                      assignShift === shiftType &&
+                                      assignId === user.id.toString() &&
+                                      assignKey !== key
+                                    );
+                                  }
                                 );
-                              });
 
+                              // מניעת שיבוץ במשמרות רצופות
                               const isBlockedByAdjacentShift = Object.entries(
                                 assignments
                               ).some(([assignKey, assignId]) => {
@@ -310,6 +315,7 @@ function ManagerSchedule() {
                                 if (assignId !== user.id.toString())
                                   return false;
 
+                                // באותו יום
                                 if (
                                   assignDate === date &&
                                   assignShift !== shiftType
@@ -321,6 +327,7 @@ function ManagerSchedule() {
                                   );
                                 }
 
+                                // בדיקה ללילה קודם + בוקר נוכחי
                                 const currentDateObj = new Date(date);
                                 const prevDate = new Date(currentDateObj);
                                 prevDate.setDate(currentDateObj.getDate() - 1);
@@ -335,23 +342,9 @@ function ManagerSchedule() {
                                 );
                               });
 
-                              const isDuplicateInSameShift = Object.entries(
-                                assignments
-                              ).some(([assignKey, assignId]) => {
-                                const [assignDate, assignPos, assignShift] =
-                                  assignKey.split("|");
-                                return (
-                                  assignDate === date &&
-                                  assignShift === shiftType &&
-                                  assignId === user.id.toString() &&
-                                  assignKey !== key
-                                );
-                              });
-
                               const isBlocked =
                                 (isBlockedByAdjacentShift ||
-                                  isDuplicateInSameShift ||
-                                  isAssignedElsewhereSameDay) &&
+                                  isDuplicateInSameShiftDifferentPosition) &&
                                 selectedId !== user.id.toString();
 
                               if (isBlocked) return null;
@@ -424,6 +417,7 @@ function ManagerSchedule() {
       </div>
     );
   };
+  
   
   
   
