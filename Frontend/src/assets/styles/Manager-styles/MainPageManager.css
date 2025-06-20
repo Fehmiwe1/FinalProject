@@ -82,6 +82,33 @@
   font-size: 16px;
 }
 
+.toggle-button {
+  margin: 10px 0;
+  padding: 8px 16px;
+  background-color: #3e556b;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background-color: #324557;
+}
+
+.requests-nav-button {
+  margin: 10px 0;
+  padding: 8px 16px;
+  background-color: #3e556b;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+requests-nav-button:hover {
+  background-color: #324557;
+}
 
 @media (max-width: 1024px) {
   .mainPageManager-container {
