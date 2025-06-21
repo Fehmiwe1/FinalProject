@@ -65,6 +65,14 @@ function WorkArrangement() {
     fetchAssignments(userRole);
   }, [userRole]);
 
+  const formatDateToHebrew = (dateStr) => {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const getGuardCount = (shiftType, position, dayIdx) => {
     const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
     const dayName = days[dayIdx];
@@ -109,7 +117,7 @@ function WorkArrangement() {
                   <th key={i}>
                     יום {dayNames[d.getDay()]}
                     <br />
-                    {date}
+                    {formatDateToHebrew(date)}
                   </th>
                 );
               })}
@@ -162,7 +170,7 @@ function WorkArrangement() {
                   <th key={i}>
                     יום {dayNames[d.getDay()]}
                     <br />
-                    {date}
+                    {formatDateToHebrew(date)}
                   </th>
                 );
               })}

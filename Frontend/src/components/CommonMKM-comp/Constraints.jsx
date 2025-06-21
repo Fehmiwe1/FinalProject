@@ -94,6 +94,15 @@ function Constraints() {
     setSelections(newSelections);
   };
 
+  const formatDateToHebrew = (dateStr) => {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
+
   const renderTable = (weekDates, title) => (
     <div className="week-block">
       <h3>{title}</h3>
@@ -121,7 +130,7 @@ function Constraints() {
                       ❌
                     </button>
                     <div>{`יום ${dayName}`}</div>
-                    <div>{dateStr}</div>
+                    <div>{formatDateToHebrew(dateStr)}</div>
                   </div>
                 </th>
               );

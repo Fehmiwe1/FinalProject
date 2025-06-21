@@ -234,7 +234,14 @@ function ManagerSchedule() {
       setMessageType("");
     }, 2000);
   };
-
+  const formatDateToHebrew = (dateStr) => {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
   const renderFullGuardScheduleTable = (weekIndex) => {
     const seenGuardIds = new Set();
     const uniqueGuards = GuardConstraints.filter((g) => {
@@ -262,7 +269,7 @@ function ManagerSchedule() {
                     <th key={i}>
                       יום {dayNames[d.getDay()]}
                       <br />
-                      {date}
+                      {formatDateToHebrew(date)}
                     </th>
                   );
                 })}
@@ -467,7 +474,7 @@ function ManagerSchedule() {
                     <th key={i}>
                       יום {dayNames[d.getDay()]}
                       <br />
-                      {date}
+                      {formatDateToHebrew(date)}
                     </th>
                   );
                 })}

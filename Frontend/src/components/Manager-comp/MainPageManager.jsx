@@ -126,6 +126,13 @@ function MainPageManager() {
     }
     return 1;
   };
+  const formatDateToHebrew = (dateStr) => {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const renderTable = (week, title) => {
     return (
@@ -141,7 +148,7 @@ function MainPageManager() {
                   <th key={i}>
                     יום {dayNames[d.getDay()]}
                     <br />
-                    {date}
+                    {formatDateToHebrew(date)}
                   </th>
                 );
               })}
@@ -208,7 +215,7 @@ function MainPageManager() {
                   <th key={i}>
                     יום {dayNames[d.getDay()]}
                     <br />
-                    {date}
+                    {formatDateToHebrew(date)}
                   </th>
                 );
               })}
@@ -299,14 +306,14 @@ function MainPageManager() {
                   ))}
                 </tbody>
               </table>
-              <button
-                className="requests-nav-button"
-                onClick={() => navigate("/RequestsManagement")}
-              >
-                מעבר לניהול הבקשות
-              </button>
             </>
           )}
+          <button
+            className="requests-nav-button"
+            onClick={() => navigate("/RequestsManagement")}
+          >
+            מעבר לניהול הבקשות
+          </button>
         </div>
 
         <div className="WorkArrangement-container">
