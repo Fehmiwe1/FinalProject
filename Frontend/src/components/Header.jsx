@@ -329,11 +329,12 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                    to="/guestSearch"
-                    end
-                    className={({ isActive }) =>
-                      isActive ? "menu-item active" : "menu-item"
-                    } >
+                      to="/entryConfirmation"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
                       אישור כניסה
                     </NavLink>
                   </li>
