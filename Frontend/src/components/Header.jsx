@@ -184,13 +184,12 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/report"
-                      end
+                      to="/WorkArrangement"
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"
                       }
                     >
-                      דו"ח שעות
+                      סידור עבודה
                     </NavLink>
                   </li>
                   <li>
@@ -203,16 +202,7 @@ function Header() {
                       אילוצים
                     </NavLink>
                   </li>
-                  <li>
-                    <NavLink
-                      to="/WorkArrangement"
-                      className={({ isActive }) =>
-                        isActive ? "menu-item active" : "menu-item"
-                      }
-                    >
-                      סידור עבודה
-                    </NavLink>
-                  </li>
+
                   <li>
                     <NavLink
                       to="/sick-leave"
@@ -223,6 +213,7 @@ function Header() {
                       מחלה/חופשה
                     </NavLink>
                   </li>
+
                   <li>
                     <NavLink
                       to="/myRequests"
@@ -231,6 +222,17 @@ function Header() {
                       }
                     >
                       הבקשות שלי
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/report"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      דו"ח שעות
                     </NavLink>
                   </li>
                 </>
@@ -250,13 +252,12 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/report"
-                      end
+                      to="/WorkArrangement"
                       className={({ isActive }) =>
                         isActive ? "menu-item active" : "menu-item"
                       }
                     >
-                      דו"ח שעות
+                      סידור עבודה
                     </NavLink>
                   </li>
                   <li>
@@ -269,16 +270,7 @@ function Header() {
                       אילוצים
                     </NavLink>
                   </li>
-                  <li>
-                    <NavLink
-                      to="/WorkArrangement"
-                      className={({ isActive }) =>
-                        isActive ? "menu-item active" : "menu-item"
-                      }
-                    >
-                      סידור עבודה
-                    </NavLink>
-                  </li>
+
                   <li>
                     <NavLink
                       to="/incident"
@@ -309,6 +301,17 @@ function Header() {
                       הבקשות שלי
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/report"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      דו"ח שעות
+                    </NavLink>
+                  </li>
                 </>
               )}
               {!isGuestPage && role === "kabat" && (
@@ -326,23 +329,12 @@ function Header() {
                   </li>
                   <li>
                     <NavLink
-                      to="/report"
-                      end
-                      className={({ isActive }) =>
-                        isActive ? "menu-item active" : "menu-item"
-                      }
-                    >
-                      דו"ח שעות
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/constraints"
-                      className={({ isActive }) =>
-                        isActive ? "menu-item active" : "menu-item"
-                      }
-                    >
-                      אילוצים
+                    to="/guestSearch"
+                    end
+                    className={({ isActive }) =>
+                      isActive ? "menu-item active" : "menu-item"
+                    } >
+                      אישור כניסה
                     </NavLink>
                   </li>
                   <li>
@@ -355,6 +347,17 @@ function Header() {
                       סידור עבודה
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/constraints"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      אילוצים
+                    </NavLink>
+                  </li>
+
                   <li>
                     <NavLink
                       to="/sick-leave"
@@ -373,6 +376,17 @@ function Header() {
                       }
                     >
                       הבקשות שלי
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/report"
+                      end
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      דו"ח שעות
                     </NavLink>
                   </li>
                 </>
