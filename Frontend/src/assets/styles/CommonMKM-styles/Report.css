@@ -1,10 +1,17 @@
 .report-wrapper {
-  min-height: 100%;
+  flex-grow: 1;
   background-color: #2c3e50;
-  padding: 2rem;
-  color: #ecf0f1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 100%;
+  overflow: visible;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  will-change: transform;
+  padding: 2rem 1rem;
 }
 
 .report-body {
@@ -14,6 +21,7 @@
   border-radius: 10px;
   padding: 2rem;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  
 }
 
 .report-section {

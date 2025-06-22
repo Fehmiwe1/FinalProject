@@ -61,7 +61,7 @@ function MainPageMoked() {
   return (
     <div className="mainPageMoked-wrapper">
       <main className="mainPageMoked-body">
-        <section className="alerts-section">
+        <section className="mainPageMoked-alerts-section">
           <h3>התראות/בקשות</h3>
           <table>
             <thead>
@@ -83,30 +83,35 @@ function MainPageMoked() {
           </table>
         </section>
 
-        <section className="entry-section">
+        <section className="mainPageMoked-entry-section">
           <h2>אישור כניסה</h2>
 
-          <label>מספר קבלן</label>
-          <input
-            type="text"
-            value={contractorNumber}
-            onChange={(e) => setContractorNumber(e.target.value)}
-          />
+          <div className="mainPageMoked-fields-row">
+            <div className="mainPageMoked-field-group">
+              <label>מספר קבלן</label>
+              <input
+                type="text"
+                value={contractorNumber}
+                onChange={(e) => setContractorNumber(e.target.value)}
+              />
+            </div>
 
-          <label>מספר רכב</label>
-          <input
-            type="text"
-            value={vehicleNumber}
-            onChange={(e) => setVehicleNumber(e.target.value)}
-          />
-
-          <button className="btn-search" onClick={handleSearch}>
+            <div className="mainPageMoked-field-group">
+              <label>מספר רכב</label>
+              <input
+                type="text"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+              />
+            </div>
+          </div>
+          <button className="mainPageMoked-btn-search" onClick={handleSearch}>
             חיפוש
           </button>
 
-          <div className="result-container">
+          <div className="mainPageMoked-result-container">
             <label>תוצאה</label>
-            <div className="result-box">
+            <div className="mainPageMoked-result-box">
               <p>{result}</p>
             </div>
           </div>

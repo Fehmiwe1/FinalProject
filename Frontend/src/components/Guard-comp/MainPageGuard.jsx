@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
 import "../../assets/styles/Guard-styles/MainPageGuard.css";
 
 function MainPageGuard() {
@@ -62,7 +61,7 @@ function MainPageGuard() {
   return (
     <div className="mainPageGuard-wrapper">
       <main className="mainPageGuard-body">
-        <section className="alerts-section">
+        <section className="mainPageGuard-alerts-section">
           <h3>התראות/בקשות</h3>
           <table>
             <thead>
@@ -84,30 +83,36 @@ function MainPageGuard() {
           </table>
         </section>
 
-        <section className="entry-section">
+        <section className="mainPageGuard-entry-section">
           <h2>אישור כניסה</h2>
 
-          <label>מספר קבלן</label>
-          <input
-            type="text"
-            value={contractorNumber}
-            onChange={(e) => setContractorNumber(e.target.value)}
-          />
+          <div className="mainPageGuard-fields-row">
+            <div className="mainPageGuard-field-group">
+              <label>מספר קבלן</label>
+              <input
+                type="text"
+                value={contractorNumber}
+                onChange={(e) => setContractorNumber(e.target.value)}
+              />
+            </div>
 
-          <label>מספר רכב</label>
-          <input
-            type="text"
-            value={vehicleNumber}
-            onChange={(e) => setVehicleNumber(e.target.value)}
-          />
+            <div className="mainPageGuard-field-group">
+              <label>מספר רכב</label>
+              <input
+                type="text"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+              />
+            </div>
+          </div>
 
-          <button className="btn-search" onClick={handleSearch}>
+          <button className="mainPageGuard-btn-search" onClick={handleSearch}>
             חיפוש
           </button>
 
-          <div className="result-container">
+          <div className="mainPageGuard-result-container">
             <label>תוצאה</label>
-            <div className="result-box">
+            <div className="mainPageGuard-result-box">
               <p>{result}</p>
             </div>
           </div>

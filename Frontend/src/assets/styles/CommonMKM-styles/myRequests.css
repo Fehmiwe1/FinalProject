@@ -13,7 +13,6 @@
   align-items: flex-start;
   will-change: transform;
   padding: 2rem 1rem;
-  min-height: 100vh;
 }
 
 .myRequests-body {
