@@ -8,6 +8,8 @@ function EmployeeConstraints() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [showTable, setShowTable] = useState(false);
+  const [dateError, setDateError] = useState("");
+
   const [roleFilter, setRoleFilter] = useState("guard");
 
   const fetchAllConstraints = async (from, to) => {
@@ -40,13 +42,28 @@ function EmployeeConstraints() {
 
   const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
 
+  const validateDateRange = (from, to) => {
+    if (from && to && new Date(to) < new Date(from)) {
+      setDateError("⚠️ עד תאריך לא יכול להיות קטן מ־מתאריך.");
+      setShowTable(false);
+      setTimeout(() => setDateError(""), 3000);
+      return false;
+    }
+    setDateError("");
+    return true;
+  };
+
   const handleSearch = () => {
     if (!fromDate || !toDate) {
       alert("יש לבחור תאריכים.");
       return;
     }
+
+    if (!validateDateRange(fromDate, toDate)) return;
+
     fetchAllConstraints(fromDate, toDate);
   };
+
   const formatDateToHebrew = (dateStr) => {
     const d = new Date(dateStr);
     const day = d.getDate().toString().padStart(2, "0");
@@ -146,6 +163,11 @@ function EmployeeConstraints() {
     <div className="employeeManagementPage">
       <div className="employeeManagement">
         <h2>אילוצי עובדים</h2>
+        {dateError && (
+          <div className="employeeManagementPage-date-error-message">
+            {dateError}
+          </div>
+        )}
 
         <div className="search-dates">
           <label>תפקיד:</label>
@@ -163,14 +185,24 @@ function EmployeeConstraints() {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => {
+              const newFrom = e.target.value;
+              setFromDate(newFrom);
+              validateDateRange(newFrom, toDate);
+            }}
           />
+
           <label>עד תאריך:</label>
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => {
+              const newTo = e.target.value;
+              setToDate(newTo);
+              validateDateRange(fromDate, newTo);
+            }}
           />
+
           <button className="btnSearch" onClick={handleSearch}>
             חפש
           </button>

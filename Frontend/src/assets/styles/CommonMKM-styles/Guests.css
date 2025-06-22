@@ -145,6 +145,16 @@
   background-color: #e74c3c;
 }
 
+
+.guestsPpage-number-error-message {
+  text-align: center;
+  font-size: 1.4rem;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: #ff4d4f;
+  font-weight: bold;
+}
 /* תגובה למסכים קטנים */
 @media (max-width: 768px) {
   .guests-table th,

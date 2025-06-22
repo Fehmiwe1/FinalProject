@@ -10,6 +10,8 @@ function Incident() {
   const [searchName, setSearchName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [dateError, setDateError] = useState("");
+
   const isManager = Cookies.get("userRole");
 
   useEffect(() => {
@@ -37,6 +39,15 @@ function Incident() {
           setTimeout(() => setMsg(""), 2000);
         })
         .catch(() => setMsg("אירעה שגיאה בעת מחיקת הדוח."));
+    }
+  };
+
+  const validateDates = (start, end) => {
+    if (start && end && new Date(end) < new Date(start)) {
+      setDateError("⚠️ עד תאריך לא יכול להיות קטן מ־מתאריך.");
+      setTimeout(() => setDateError(""), 3000);
+    } else {
+      setDateError("");
     }
   };
 
@@ -68,6 +79,9 @@ function Incident() {
           )}
 
           {msg && <div className="msg">{msg}</div>}
+          {dateError && (
+            <div className="incidentPpage-date-error-message">{dateError}</div>
+          )}
 
           <div className="search-filters">
             <div className="date-filter-inline">
@@ -85,7 +99,11 @@ function Incident() {
                 id="from"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  const newStart = e.target.value;
+                  setStartDate(newStart);
+                  validateDates(newStart, endDate);
+                }}
               />
             </div>
             <div className="date-filter-inline">
@@ -94,7 +112,11 @@ function Incident() {
                 id="to"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  const newEnd = e.target.value;
+                  setEndDate(newEnd);
+                  validateDates(startDate, newEnd);
+                }}
               />
             </div>
           </div>

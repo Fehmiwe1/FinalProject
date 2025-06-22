@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 function Guests() {
   const [guests, setGuests] = useState([]);
   const [msg, setMsg] = useState("");
+  const [numberError, setNumberError] = useState("");
   const [searchNumber, setSearchNumber] = useState("");
   const isManager = Cookies.get("userRole");
 
@@ -71,13 +72,27 @@ function Guests() {
           )}
 
           {msg && <div className="msg">{msg}</div>}
+          {numberError && (
+            <div className="guestsPpage-number-error-message">{numberError}</div>
+          )}
 
           <div className="search-filters">
             <input
               type="text"
               placeholder="חיפוש לפי מספר קבלן"
               value={searchNumber}
-              onChange={(e) => setSearchNumber(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchNumber(value);
+
+                const num = Number(value);
+                if (!isNaN(num) && num < 0) {
+                  setNumberError("⚠️ מספר קבלן לא יכול להיות שלילי.");
+                  setTimeout(() => setNumberError(""), 3000);
+                } else {
+                  setNumberError("");
+                }
+              }}
             />
           </div>
 

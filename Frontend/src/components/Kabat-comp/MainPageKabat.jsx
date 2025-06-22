@@ -10,6 +10,8 @@ function MainPageKabat() {
   const [searchName, setSearchName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [dateError, setDateError] = useState("");
+
   const isManager = Cookies.get("userRole") === "kabat";
 
   useEffect(() => {
@@ -21,6 +23,16 @@ function MainPageKabat() {
       .get("/post")
       .then((res) => setIncident(res.data))
       .catch(() => setMsg("אירעה שגיאה בטעינת הדוחות."));
+  };
+
+  // פונקציה לבדיקת טווח תאריכים
+  const validateDates = (start, end) => {
+    if (start && end && new Date(end) < new Date(start)) {
+      setDateError("⚠️ עד תאריך לא יכול להיות קטן מ־מתאריך.");
+      setTimeout(() => setDateError(""), 3000);
+    } else {
+      setDateError("");
+    }
   };
 
   const filteredIncidents = incident.filter((i) => {
@@ -51,6 +63,9 @@ function MainPageKabat() {
           )}
 
           {msg && <div className="msg">{msg}</div>}
+          {dateError && (
+            <div className="kabatPpage-date-error-message">{dateError}</div>
+          )}
 
           <div className="search-filters">
             <div className="date-filter-inline">
@@ -68,7 +83,11 @@ function MainPageKabat() {
                 id="from"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  const newStart = e.target.value;
+                  setStartDate(newStart);
+                  validateDates(newStart, endDate);
+                }}
               />
             </div>
             <div className="date-filter-inline">
@@ -77,7 +96,11 @@ function MainPageKabat() {
                 id="to"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  const newEnd = e.target.value;
+                  setEndDate(newEnd);
+                  validateDates(startDate, newEnd);
+                }}
               />
             </div>
           </div>

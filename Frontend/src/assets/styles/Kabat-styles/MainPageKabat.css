@@ -160,6 +160,16 @@
   transform: translateY(-2px);
   color: #c7c2c2;
 }
+
+.kabatPpage-date-error-message {
+  text-align: center;
+  font-size: 1.4rem;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: #ff4d4f;
+  font-weight: bold;
+}
 /* Responsive */
 @media (max-width: 768px) {
   .incident-page-title {
