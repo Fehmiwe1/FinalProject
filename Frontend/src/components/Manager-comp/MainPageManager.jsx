@@ -64,12 +64,20 @@ function MainPageManager() {
 
     const fetchAlerts = async () => {
       try {
-        const res = await axios.get("/employeeRequests/pendingAlerts");
-        setAlerts(res.data);
+        const [generalRes, sickLeaveRes] = await Promise.all([
+          axios.get("/employeeRequests/pendingAlerts"),
+          axios.get("/employeeRequests/pendingSickLeaves"),
+        ]);
+
+        // איחוד של שתי הרשימות
+        const combinedAlerts = [...generalRes.data, ...sickLeaveRes.data];
+
+        setAlerts(combinedAlerts);
       } catch (error) {
         console.error("שגיאה בטעינת בקשות:", error);
       }
     };
+    
 
     fetchEmployees();
     fetchAlerts();

@@ -194,7 +194,7 @@ router.put("/updateVacationStatus", (req, res) => {
 });
 
 
-// GET /employeeRequests/pendingAlerts
+// קבלת בקשות חופשה
 router.get("/pendingAlerts", (req, res) => {
   const query = `
     SELECT 
@@ -208,6 +208,28 @@ router.get("/pendingAlerts", (req, res) => {
     WHERE er.status = 'ממתין'
     ORDER BY er.request_date DESC
   `;
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: "DB error", err });
+    res.json(results);
+  });
+});
+
+
+// קבלת בקשות מחלה
+router.get("/pendingSickLeaves", (req, res) => {
+  const query = `
+  SELECT 
+    er.id,
+    u.firstName,
+    u.lastName,
+    er.request_type AS type,
+    DATE_FORMAT(er.request_date, '%Y-%m-%d %H:%i:%s') AS date
+  FROM employee_requests er
+  JOIN users u ON er.ID_employee = u.ID
+  WHERE er.request_type = 'מחלה'
+    AND TIMESTAMPDIFF(HOUR, er.request_date, NOW()) <= 24
+  ORDER BY er.request_date DESC
+`;
   db.query(query, (err, results) => {
     if (err) return res.status(500).json({ error: "DB error", err });
     res.json(results);
