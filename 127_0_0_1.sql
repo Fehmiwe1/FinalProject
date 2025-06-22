@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 17, 2025 at 08:21 PM
+-- Generation Time: Jun 22, 2025 at 08:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -91,7 +91,39 @@ INSERT INTO `employee_constraints` (`id`, `ID_employee`, `date`, `shift`, `avail
 (219, 32, '2025-06-12', 'לילה', 'לא יכול'),
 (220, 32, '2025-06-06', 'בוקר', 'לא יכול'),
 (221, 32, '2025-06-06', 'ערב', 'לא יכול'),
-(222, 32, '2025-06-06', 'לילה', 'לא יכול');
+(222, 32, '2025-06-06', 'לילה', 'לא יכול'),
+(253, 31, '2025-06-15', 'בוקר', 'לא יכול'),
+(254, 31, '2025-06-15', 'ערב', 'לא יכול'),
+(255, 31, '2025-06-15', 'לילה', 'לא יכול'),
+(256, 31, '2025-06-16', 'ערב', 'יכול חלקית'),
+(257, 31, '2025-06-16', 'בוקר', 'יכול חלקית'),
+(258, 31, '2025-06-16', 'לילה', 'יכול חלקית'),
+(259, 31, '2025-06-24', 'בוקר', 'לא יכול'),
+(260, 31, '2025-06-24', 'ערב', 'לא יכול'),
+(261, 31, '2025-06-24', 'לילה', 'לא יכול'),
+(262, 41, '2025-06-15', 'בוקר', 'לא יכול'),
+(263, 41, '2025-06-15', 'ערב', 'לא יכול'),
+(264, 41, '2025-06-15', 'לילה', 'לא יכול'),
+(265, 41, '2025-06-16', 'בוקר', 'יכול חלקית'),
+(266, 41, '2025-06-16', 'ערב', 'יכול חלקית'),
+(267, 41, '2025-06-16', 'לילה', 'יכול חלקית'),
+(268, 41, '2025-06-24', 'בוקר', 'לא יכול'),
+(269, 41, '2025-06-24', 'ערב', 'לא יכול'),
+(270, 41, '2025-06-24', 'לילה', 'לא יכול'),
+(271, 37, '2025-06-15', 'בוקר', 'לא יכול'),
+(272, 37, '2025-06-15', 'ערב', 'לא יכול'),
+(273, 37, '2025-06-15', 'לילה', 'לא יכול'),
+(274, 37, '2025-06-16', 'בוקר', 'יכול חלקית'),
+(275, 37, '2025-06-16', 'ערב', 'יכול חלקית'),
+(276, 37, '2025-06-16', 'לילה', 'יכול חלקית'),
+(277, 37, '2025-06-24', 'בוקר', 'לא יכול'),
+(278, 37, '2025-06-24', 'ערב', 'לא יכול'),
+(279, 37, '2025-06-24', 'לילה', 'לא יכול'),
+(307, 31, '2025-06-17', 'ערב', 'לא יכול'),
+(308, 31, '2025-06-17', 'לילה', 'יכול חלקית'),
+(318, 3, '2025-06-15', 'בוקר', 'יכול חלקית'),
+(319, 3, '2025-06-15', 'ערב', 'יכול חלקית'),
+(320, 3, '2025-06-15', 'לילה', 'יכול חלקית');
 
 -- --------------------------------------------------------
 
@@ -123,7 +155,12 @@ INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_
 (10, 42, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
 (11, 43, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
 (12, 44, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
-(13, 45, '2025-06-10', 'הרשמת עובד חדש', 'approval');
+(13, 45, '2025-06-10', 'הרשמת עובד חדש', 'approval'),
+(14, 46, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
+(15, 47, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
+(16, 48, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
+(17, 49, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
+(18, 50, '2025-06-21', 'הרשמת עובד חדש', 'approval');
 
 -- --------------------------------------------------------
 
@@ -150,14 +187,11 @@ CREATE TABLE `employee_requests` (
 --
 
 INSERT INTO `employee_requests` (`id`, `ID_employee`, `request_type`, `request_date`, `from_date`, `to_date`, `vacation_days`, `days_to_pay`, `reason`, `file_path`, `status`) VALUES
-(3, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884337492.pdf', NULL),
-(4, 31, 'מחלה', '2025-06-02', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748884622065.pdf', NULL),
-(5, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-05', 3, 2, '', NULL, 'סורב'),
-(6, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-14', 12, 13, '', NULL, 'ממתין'),
-(7, 31, 'חופשה', '2025-06-02', '2025-06-03', '2025-06-07', 5, 5, '', NULL, 'ממתין'),
-(8, 3, 'מחלה', '2025-06-03', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1748989977037.pdf', NULL),
-(9, 3, 'חופשה', '2025-06-03', '2025-06-05', '2025-06-07', 3, 3, 'טיול', NULL, 'אושר'),
-(10, 31, 'חופשה', '2025-06-09', '2025-06-26', '2025-06-28', 3, 2, 'טיול', NULL, 'סורב');
+(11, 31, 'חופשה', '2025-06-22', '2025-06-24', '2025-06-26', 3, 3, 'חופשה לטובת טיול', NULL, 'ממתין'),
+(12, 41, 'חופשה', '2025-06-22', '2025-06-03', '2025-06-05', 3, 2, 'איורע', NULL, 'אושר'),
+(13, 37, 'מחלה', '2025-03-22', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1750602978970.pdf', NULL),
+(14, 37, 'חופשה', '2025-06-22', '2025-06-30', '2025-07-03', 4, 4, 'טיול', NULL, 'סורב'),
+(15, 70, 'מחלה', '2025-06-22', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1750603742618.pdf', NULL);
 
 -- --------------------------------------------------------
 
@@ -177,99 +211,10 @@ CREATE TABLE `employee_shift_assignment` (
 --
 
 INSERT INTO `employee_shift_assignment` (`ID`, `Employee_ID`, `Shift_ID`, `Role`) VALUES
-(1534, 31, 1538, 'מאבטח'),
-(1535, 3, 1538, 'מאבטח'),
-(1536, 4, 1538, 'מאבטח'),
-(1537, 3, 1491, 'סייר א'),
-(1538, 36, 1491, 'סייר ב'),
-(1539, 3, 1491, 'סייר ג'),
-(1540, 35, 1491, 'סייר רכוב'),
-(1541, 36, 1491, 'מאבטח'),
-(1542, 31, 1491, 'מאבטח'),
-(1543, 4, 1491, 'מאבטח'),
-(1544, 35, 1491, 'מאבטח'),
-(1545, 32, 1491, 'מאבטח'),
-(1546, 31, 1517, 'הפסקות'),
-(1547, 4, 1517, 'סייר א'),
-(1548, 3, 1517, 'סייר ג'),
-(1549, 36, 1517, 'סייר רכוב'),
-(1550, 31, 1517, 'מאבטח'),
-(1551, 31, 1517, 'מאבטח'),
-(1552, 4, 1517, 'מאבטח'),
-(1553, 3, 1517, 'מאבטח'),
-(1554, 32, 1517, 'מאבטח'),
-(1555, 3, 1646, 'סייר ג'),
-(1556, 31, 1646, 'סייר רכוב'),
-(1557, 4, 1493, 'סייר א'),
-(1558, 31, 1493, 'מאבטח'),
-(1559, 3, 1493, 'מאבטח'),
-(1560, 4, 1493, 'מאבטח'),
-(1561, 32, 1493, 'מאבטח'),
-(1562, 3, 1664, 'הפסקות'),
-(1563, 32, 1664, 'סייר א'),
-(1564, 32, 1664, 'סייר רכוב'),
-(1565, 36, 1755, 'סייר ג'),
-(1566, 3, 1755, 'סייר רכוב'),
-(1567, 32, 1594, 'הפסקות'),
-(1568, 3, 1547, 'מאבטח'),
-(1569, 35, 1547, 'מאבטח'),
-(1570, 31, 1594, 'סייר א'),
-(1571, 3, 1594, 'סייר רכוב'),
-(1572, 35, 1594, 'מאבטח'),
-(1573, 32, 1756, 'סייר ג'),
-(1574, 4, 1756, 'סייר רכוב'),
-(1575, 36, 1522, 'הפסקות'),
-(1576, 35, 1522, 'סייר ג'),
-(1577, 36, 1522, 'מאבטח'),
-(1578, 3, 1522, 'מאבטח'),
-(1579, 4, 1522, 'מאבטח'),
-(1580, 32, 1522, 'מאבטח'),
-(1581, 32, 1595, 'סייר א'),
-(1582, 35, 1597, 'הפסקות'),
-(1583, 36, 1548, 'מאבטח'),
-(1584, 35, 1548, 'מאבטח'),
-(1585, 4, 1597, 'סייר ב'),
-(1586, 4, 1597, 'סייר רכוב'),
-(1587, 36, 1523, 'מאבטח'),
-(1588, 31, 1523, 'מאבטח'),
-(1589, 3, 1523, 'מאבטח'),
-(1590, 36, 1598, 'סייר ב'),
-(1591, 31, 1598, 'סייר ג'),
-(1592, 36, 1513, 'מאבטח'),
-(1593, 3, 1513, 'מאבטח'),
-(1594, 35, 1513, 'מאבטח'),
-(1595, 31, 1530, 'מאבטח'),
-(1596, 3, 1530, 'מאבטח'),
-(1597, 3, 1997, 'מאבטח'),
-(1598, 4, 1998, 'מאבטח'),
-(1599, 31, 1999, 'מאבטח'),
-(1600, 32, 2000, 'מאבטח'),
-(1601, 36, 2001, 'מאבטח'),
-(1602, 35, 2002, 'סייר רכוב'),
-(1603, 4, 2003, 'סייר רכוב'),
-(1604, 3, 1999, 'סייר רכוב'),
-(1605, 31, 2005, 'סייר א'),
-(1606, 32, 2006, 'סייר א'),
-(1607, 3, 2007, 'סייר א'),
-(1608, 4, 2008, 'סייר ב'),
-(1609, 31, 2009, 'סייר ב'),
-(1610, 32, 2010, 'סייר ב'),
-(1611, 35, 2011, 'סייר ג'),
-(1612, 36, 2012, 'סייר ג'),
-(1613, 3, 2013, 'סייר ג'),
-(1614, 32, 2003, 'הפסקות'),
-(1615, 33, 1429, 'מוקד'),
-(1616, 41, 1433, 'מוקד'),
-(1617, 43, 1444, 'מוקד'),
-(1618, 41, 2018, 'מוקד'),
-(1619, 42, 2019, 'מוקד'),
-(1620, 37, 1429, 'קבט'),
-(1621, 38, 1433, 'קבט'),
-(1622, 39, 1435, 'קבט'),
-(1623, 37, 2023, 'קבט'),
-(1624, 37, 2024, 'קבט'),
-(1625, 38, 2025, 'קבט'),
-(1626, 39, 2026, 'קבט');
+(1808, 45, 2205, 'מוקד'),
+(1809, 43, 2206, 'מוקד'),
+(1810, 44, 2207, 'מוקד'),
+(1811, 42, 2208, 'מוקד');
 
 -- --------------------------------------------------------
 
@@ -310,22 +255,27 @@ INSERT INTO `guests` (`GuestID`, `GuestNumber`, `CarNumber`, `GuestName`, `Guest
 
 CREATE TABLE `incident` (
   `id` int(11) NOT NULL,
-  `Incident_Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `Incident_Date` datetime NOT NULL,
-  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `ID_Employee` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `Incident_Name` varchar(100) NOT NULL,
+  `Incident_Date` datetime DEFAULT NULL,
+  `Kabat_Name` varchar(100) DEFAULT NULL,
+  `Dispatcher_Name` varchar(100) DEFAULT NULL,
+  `Patrol_Name` varchar(100) DEFAULT NULL,
+  `Other_Participants` text DEFAULT NULL,
+  `Description` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `incident`
 --
 
-INSERT INTO `incident` (`id`, `Incident_Name`, `Incident_Date`, `Description`, `ID_Employee`) VALUES
-(1, 'אירוע פריצת מחסום בשער ראשי', '2025-02-16 10:17:00', 'בשעה 16:17 ביום ראשון ה16.2 רכב הגיע לעמדת בידוק קידמית ונמצא ללא אישור כניסה לאחר שעמד 5 דקות במפרצון .ההמתנה החליט לפרוץ את המחסום ולהיכנס לקמפוס לאחר 10 דקות סייר רכוב וקבט מצאו אותו ליד מכלול והוציאו אותו מהקפוס', 1),
-(2, 'סירוב בידוק1', '2025-02-05 03:43:00', 'בשעה 5:43 בתאריך ה5.2 הגיע רכב לעמדת הבידוק וסירב להיבדק בטענה שהוא מגיע לבריכה ובחיים לא בדקו אותו לאחר שהמאבטח הסביר שעל חובתו לבדוק כל אדם אשר מגיע לקמפוס הנהג של הרכב התעצבן ותחליט לצעוק וביקש לראות את אחראי המשמרת לאחר הגעת אחראי המשמרת הבן אדם המשיך לסרב להיבדק ופרסס ולא נכנס לקמפוס', 1),
-(3, 'חפץ חשוד', '2025-02-17 19:00:00', 'בתאריך ה17.2 בשעה 19 מאבטח עלה לבדוק אוטובוס 19 אשר נכנס לקמפוס מצא במושב האחורי תיק מנופח ולאחר בדיקה עם הנוסעים המאבטח קבע שאין בעלים לתיק והכריז עליו חפץ חשוד ', 1),
-(4, 'התעלפות בבניין אולמן ', '2025-01-23 17:29:00', 'בתאריך ה23.1 בשעה 17:29 מוקד הביטחון קיבל טלפון שסטודנטית התעלפה באצמע מבחן ,סייר רכוב ואחראי משמרת קפצו לאירוע ,לאחר הגעת אחראי משמרת לאירועהוחלט על הזמנת אמבולנס ,לאחר הגעת האמבולנס הוחלט על פינוי הסטודנטית', 1),
-(5, 'גנבת אופניים', '2025-01-13 21:25:00', 'בתאריך ה14.1 בשעה 1:25 תועד אדם אשר מגיע למעונות מזרח ובוחן את עמדת האופניים אשר ממוקמת בכניסה של 458 בשעה 1:32 רואים אדם נוסף לבוש בכובע מגיע ופורץ את המנעולים של שלושה אופניים ולוקח את אחד מהם המשטרה עודכנה', 1);
+INSERT INTO `incident` (`id`, `Incident_Name`, `Incident_Date`, `Kabat_Name`, `Dispatcher_Name`, `Patrol_Name`, `Other_Participants`, `Description`) VALUES
+(1, 'סירוב בידוק', '2025-06-22 10:06:30', 'קבט1 קבט1', 'מוקד1 מוקד1', 'מאבטח1 מאבטח1', 'נהג רכב', 'סירוב בידוק'),
+(2, 'פריצת מחסום', '2025-06-22 06:36:20', 'קבט1 קבט1', 'מוקד1 מוקד1', 'מאבטח1 מאבטח1', 'נהג רכב', 'פריצת מחסום'),
+(3, 'חדירה לשטח אסור', '2025-06-21 02:15:00', 'כהן דוד', 'מורן בר', 'סייר לילה 1', 'נציג משטרה', 'התרחשה חדירה לשטח מגודר בשעות הלילה'),
+(4, 'אירוע רכב חשוד', '2025-06-20 18:30:00', 'לוי נועם', 'דנה שרון', 'סייר 2', 'עובר אורח', 'רכב חנה זמן רב סמוך לשער הראשי ללא זיהוי'),
+(5, 'עיכוב בשער', '2025-06-19 07:45:00', 'קבסה יניב', 'נופר זהבי', 'סייר ראשי', 'אורח מהנדסה', 'אורח סירב להזדהות – הוזמן קב\"ט'),
+(6, 'תקרית מילולית', '2025-06-18 15:10:00', 'מימון יוסי', 'טל גולן', 'סייר רכוב 3', 'עובד ניקיון', 'ויכוח בין קבלן לאחד העובדים; לא נדרשה התערבות חיצונית'),
+(7, 'הצתת פח אשפה', '2025-06-17 17:53:00', '', 'אור גרשון', 'סייר לילה 2', 'כיבוי אש', 'נרשמה הצתה של פח ליד המעונות, הוזעק כיבוי אש');
 
 -- --------------------------------------------------------
 
@@ -376,55 +326,10 @@ CREATE TABLE `shift` (
 --
 
 INSERT INTO `shift` (`ID`, `Date`, `Location`, `ShiftType`, `Num_Guards`, `Num_Moked`, `Num_Kabat`) VALUES
-(1429, '2025-06-15', 'אחר', 'בוקר', 0, 1, 1),
-(1430, '2025-06-15', 'אחר', 'ערב', 0, 1, 1),
-(1431, '2025-06-15', 'אחר', 'לילה', 0, 1, 1),
-(1432, '2025-06-16', 'אחר', 'בוקר', 0, 1, 1),
-(1433, '2025-06-16', 'אחר', 'ערב', 0, 1, 1),
-(1434, '2025-06-16', 'אחר', 'לילה', 0, 1, 1),
-(1435, '2025-06-17', 'אחר', 'בוקר', 0, 1, 1),
-(1443, '2025-06-17', 'אחר', 'ערב', 0, 1, 1),
-(1444, '2025-06-17', 'אחר', 'לילה', 0, 1, 1),
-(1491, '2025-06-15', 'ראשי', 'בוקר', 4, 0, 0),
-(1493, '2025-06-16', 'ראשי', 'בוקר', 4, 0, 0),
-(1513, '2025-06-21', 'ראשי', 'בוקר', 3, 0, 0),
-(1517, '2025-06-15', 'ראשי', 'ערב', 4, 0, 0),
-(1522, '2025-06-18', 'ראשי', 'ערב', 4, 0, 0),
-(1523, '2025-06-20', 'ראשי', 'ערב', 3, 0, 0),
-(1530, '2025-06-21', 'ראשי', 'לילה', 2, 0, 0),
-(1538, '2025-06-15', 'נשר', 'בוקר', 3, 0, 0),
-(1547, '2025-06-17', 'נשר', 'ערב', 2, 0, 0),
-(1548, '2025-06-19', 'נשר', 'ערב', 2, 0, 0),
-(1594, '2025-06-17', 'ראשי', 'ערב', 4, 0, 0),
-(1595, '2025-06-18', 'ראשי', 'לילה', 1, 0, 0),
-(1597, '2025-06-19', 'ראשי', 'ערב', 1, 0, 0),
-(1598, '2025-06-20', 'ראשי', 'לילה', 1, 0, 0),
-(1646, '2025-06-15', 'ראשי', 'לילה', 1, 0, 0),
-(1664, '2025-06-16', 'ראשי', 'ערב', 1, 0, 0),
-(1755, '2025-06-16', 'ראשי', 'לילה', 1, 0, 0),
-(1756, '2025-06-17', 'ראשי', 'לילה', 1, 0, 0),
-(1997, '2025-06-22', 'ראשי', 'בוקר', 4, 0, 0),
-(1998, '2025-06-23', 'ראשי', 'ערב', 4, 0, 0),
-(1999, '2025-06-23', 'ראשי', 'לילה', 1, 0, 0),
-(2000, '2025-06-25', 'נשר', 'בוקר', 3, 0, 0),
-(2001, '2025-06-22', 'נשר', 'ערב', 2, 0, 0),
-(2002, '2025-06-26', 'ראשי', 'בוקר', 1, 0, 0),
-(2003, '2025-06-24', 'ראשי', 'ערב', 1, 0, 0),
-(2005, '2025-06-24', 'ראשי', 'בוקר', 1, 0, 0),
-(2006, '2025-06-26', 'ראשי', 'ערב', 1, 0, 0),
-(2007, '2025-06-27', 'ראשי', 'לילה', 1, 0, 0),
-(2008, '2025-06-25', 'ראשי', 'בוקר', 1, 0, 0),
-(2009, '2025-06-22', 'ראשי', 'ערב', 1, 0, 0),
-(2010, '2025-06-25', 'ראשי', 'לילה', 1, 0, 0),
-(2011, '2025-06-27', 'ראשי', 'בוקר', 1, 0, 0),
-(2012, '2025-06-28', 'ראשי', 'ערב', 1, 0, 0),
-(2013, '2025-06-22', 'ראשי', 'לילה', 1, 0, 0),
-(2018, '2025-06-23', 'אחר', 'בוקר', 0, 1, 0),
-(2019, '2025-06-25', 'אחר', 'ערב', 0, 1, 0),
-(2023, '2025-06-22', 'אחר', 'בוקר', 0, 0, 1),
-(2024, '2025-06-23', 'אחר', 'ערב', 0, 0, 1),
-(2025, '2025-06-23', 'אחר', 'לילה', 0, 0, 1),
-(2026, '2025-06-25', 'אחר', 'לילה', 0, 0, 1);
+(2205, '2025-06-15', 'אחר', 'בוקר', 0, 1, 0),
+(2206, '2025-06-15', 'אחר', 'ערב', 0, 1, 0),
+(2207, '2025-06-15', 'אחר', 'לילה', 0, 1, 0),
+(2208, '2025-06-16', 'אחר', 'בוקר', 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -459,7 +364,7 @@ INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `pa
 (4, 'fehmi2', 'פהמי2', 'והבי', '2000-05-20', '$2b$10$shynZE/wVOCgHRtaJF2o3.K7bUgrFyjYZd4T8TXmD/fMQDgoqYzM.', 'fehmiwe1@gmail.com', '0528861847', '21', 'waa', '3005600', 'guard', 'active', NULL),
 (31, 'Maor', 'מאור', 'דוד', '1997-11-13', '$2b$10$LYoogQBupC8IjAZSdwr4Nu8UcWS4kYmi9m4/yl8zurGh4ziY1GGqO', 'maor@gmail.com', '0522222222', 'חיפה', 'חיפה', '3224712', 'guard', 'active', NULL),
 (32, 'avidan', 'אבידן', 'סלומי', '1989-05-26', '$2b$10$vWKRtl7x0PHUFA2uWQzWF..kKkuvO0CTqeVzZo73vnaaU7utCUiOa', 'avidan@gmail.com', '0501234567', 'דד', 'רכסים', '2406080', 'guard', 'active', '2025-05-21'),
-(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$tpdi6ExqJLPzgiXN5RccheDlpqyj9JHeXUwk/MSdsZDhvZcjlbpCS', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'moked', 'active', '2025-05-21'),
+(33, 'elia', 'איליה', 'כרומנשק', '1982-11-02', '$2b$10$tpdi6ExqJLPzgiXN5RccheDlpqyj9JHeXUwk/MSdsZDhvZcjlbpCS', 'elia1@gmail.com', '0521234567', 'טבריה', 'טבריה', '1234567', 'guard', 'active', '2025-05-21'),
 (35, 'bar', 'בר', 'כהן', '1998-05-06', '$2b$10$YWhI4LpVlYOqED4sW1QsRujztkHEiAZq9FbFW91mXNq3VjYL.xHCS', 'bar@gmail.com', '0521234567', '10', 'חיפה', '1234567', 'guard', 'active', '2025-05-21'),
 (36, 'armon2020', 'יונתן', 'ארמון', '2000-10-20', '$2b$10$aP/cAkKi0yR7vUIs2E86IuYyUQo1iJoTwiPENlsT1VB0syvOHdvwW', 'armon@gmail.com', '0522222224', 'הבריכה', 'נשר', '3663910', 'guard', 'active', '2025-06-09'),
 (37, 'kabat1', 'קבט1', 'קבט1', '2008-02-11', '$2b$10$P/X4fDXxPwUR04YHHYT9guhmtQ0PKf2utAu9tlCwDZz1uTLtPvKNS', 'kabat1@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'kabat', 'active', '2025-06-10'),
@@ -470,7 +375,32 @@ INSERT INTO `users` (`id`, `username`, `firstName`, `lastName`, `birthDate`, `pa
 (42, 'moked2', 'מוקד2', 'מוקד2', '2008-02-11', '$2b$10$D.YO/VEm5be/QertNSR0Aeo1CpwBsbCwtMY84l8VThgd3CoFQOYBO', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
 (43, 'moked3', 'מוקד3', 'מוקד3', '2008-02-11', '$2b$10$DUEa5ZOjgB5osS2UVjXKauKDi9BTwGbbOmOiKdc3wAG2ulKp8iHGS', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
 (44, 'moked4', 'מוקד4', 'מוקד4', '2008-02-11', '$2b$10$MJIKkBOqm4VPPq0p/gkPeuLBsbhDGKVyDOQkjQIY/iieFE3dNFctS', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
-(45, 'moked5', 'מוקד5', 'מוקד5', '2008-02-11', '$2b$10$BeFxicWuhsWkiA11IfOHwOsHR9MEun7SRSwh1EqYvsjzYHSejdKAi', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10');
+(45, 'moked5', 'מוקד5', 'מוקד5', '2008-02-11', '$2b$10$BeFxicWuhsWkiA11IfOHwOsHR9MEun7SRSwh1EqYvsjzYHSejdKAi', 'moked@gmail.com', '0522222224', 'חיפה', 'חיפה', '1234567', 'moked', 'active', '2025-06-10'),
+(46, 'kabat5', 'קבט5', 'קבט5', '2025-06-03', '$2b$10$Z06X5Excw6m5ziEXYfmCNuukgmQwVaOqYZ.GZFoP18WTmiqBqxA1K', 'kabat5@gmail.com', '0522222224', 'רחוברחוב', 'חיפה', '1234567', 'kabat', 'active', '2025-06-21'),
+(47, 'kabat6', 'קבט6', 'קבט6', '2025-06-03', '$2b$10$cahKJGfFJ6Ehat69ynT9xu9qB5u8koypv9b10q7HHXzv7ZSMakx5G', 'kabat6@gmail.com', '0522222224', 'רחוב', 'חיפה', '1234567', 'kabat', 'active', '2025-06-21'),
+(48, 'kabat7', 'קבט7', 'קבט7', '2025-06-03', '$2b$10$stAZKv6bXKtlxF1dEN2V0OXpCwYyqRAjFEZZZtbqHIRjApVQKE9ye', 'kabat7@gmail.com', '0522222224', 'רחוב', 'חיפה', '1234567', 'kabat', 'active', '2025-06-21'),
+(49, 'Moked6', 'מוקד6', 'מוקד6', '2025-06-03', '$2b$10$g70D873D.krvsi9BJItRae0sp0lXMlNr2Tu6MUJ9agPx41xjq4ef6', 'Moked6@gmail.com', '0522222224', 'רחוב', 'חיפה', '1234567', 'moked', 'active', '2025-06-21'),
+(50, 'Moked7', 'מוקד7', 'מוקד7', '2025-06-03', '$2b$10$bC/621GGmWnsHpaR6X5gyu1VlcEr88cz7eAtJwjeVyTrpDTm81/nC', 'Moked7@gmail.com', '0522222224', 'רחוב', 'חיפה', '1234567', 'moked', 'active', '2025-06-21'),
+(51, 'guard1', 'מאבטח1', 'מאבטח1', NULL, '$2b$10$GRlDytwHtX068U.Ll/p4r.9fc1EqWioMxKM.V/dgZ8etOOdDjpWLS', 'guard1@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(52, 'guard2', 'מאבטח2', 'מאבטח2', NULL, '$2b$10$DyrxJUUUvoTACTiQ3z04duavfn6Gxx8S6XGnNO.TQK3laaAdTtuju', 'guard2@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(53, 'guard3', 'מאבטח3', 'מאבטח3', NULL, '$2b$10$jUMZri1PpPU6pbAL4eKxEOwhFUGpqXVa/FaVJLao/7q6eFAAlWabG', 'guard3@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(54, 'guard4', 'מאבטח4', 'מאבטח4', NULL, '$2b$10$RJCu1moJqzPUHbAN2u5T3eWaTwqocIhIlDwOJAQdEpdR/Iedz/Rmu', 'guard4@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(55, 'guard5', 'מאבטח5', 'מאבטח5', NULL, '$2b$10$2qpyDSb5SBZmUrkCNUV.r.C/o.IrQCxVLpPK45Mx9E6LU8t48zxIW', 'guard5@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(56, 'guard6', 'מאבטח6', 'מאבטח6', NULL, '$2b$10$bCpwFb4enZR3k3zDHBcqWO3CVp9UBBaDrHGV86Bm6871zkCQMUAIe', 'guard6@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(57, 'guard7', 'מאבטח7', 'מאבטח7', NULL, '$2b$10$U9CinL2LglamTx2cbLrpGO0l5SBGgnoDR8b8p0/JUGv6RGqfHmGGe', 'guard7@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(58, 'guard8', 'מאבטח8', 'מאבטח8', NULL, '$2b$10$jeCWzMe.YaJtHSaflQr5YuzlP/ZkkPrEWOcp.b.SXzEfiFe8Suh6G', 'guard8@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(59, 'guard9', 'מאבטח9', 'מאבטח9', NULL, '$2b$10$Bfc/CHnyHTnVuUxqUA6JKeQ2xpISf09Er/ZpT.t4hJIExLcxR1sre', 'guard9@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(60, 'guard10', 'מאבטח10', 'מאבטח10', NULL, '$2b$10$6VDYbWlfS95vO2Yghv3Gz.1PkP4VQtw8mGnFBjwYKVNFd4bMAhWsy', 'guard10@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(61, 'guard11', 'מאבטח11', 'מאבטח11', NULL, '$2b$10$slvt3RFqTCT4sAdCCaoJdOApKAD/1nN1tNMz6rmiyTHN8vr6mlmC6', 'guard11@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(62, 'guard12', 'מאבטח12', 'מאבטח12', NULL, '$2b$10$flKXBPJiAkhq6ObTbQvesOh.VU6JEUi5afL0dEIjkCh8vtH4vvzwq', 'guard12@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(63, 'guard13', 'מאבטח13', 'מאבטח13', NULL, '$2b$10$eaKMED67zaYPa2MF/WpON.e.17IXVoCUhUBoFbiZeCEyQ9Aa3z54y', 'guard13@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(64, 'guard14', 'מאבטח14', 'מאבטח14', NULL, '$2b$10$J.iv0BWZmRVeDVi/rWg8h.N85pcym.qiLMSbfZhLfm7c5hLGEewlO', 'guard14@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(65, 'guard15', 'מאבטח15', 'מאבטח15', NULL, '$2b$10$x/Z8TsVN7Oh6ou3bFwyHtutWOm1j8fjfKXCmVP77DJ.hGv1STLWBS', 'guard15@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(66, 'guard16', 'מאבטח16', 'מאבטח16', NULL, '$2b$10$sjJvo5XR/5uOOiJbKAphtO17IwF/migp3TttAD0pRSMPSKip1FkLK', 'guard16@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(67, 'guard17', 'מאבטח17', 'מאבטח17', NULL, '$2b$10$PKkXfJ3zX.fzwWcApdRWtuUbJZED.ugYYI7MqK39HqRpdWqAennia', 'guard17@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(68, 'guard18', 'מאבטח18', 'מאבטח18', NULL, '$2b$10$7IZ5EKChSD/iBfTFhqupFOOvALjl0QudHtf.UrSAZH6pPW6h0DOkm', 'guard18@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(69, 'guard19', 'מאבטח19', 'מאבטח19', NULL, '$2b$10$c4EuSepdYh7CgeqMABCp9u9m3boxndTJ8SLN8LUWwLrjUSBLrfpDa', 'guard19@gmail.com', '', '', '', '', 'guard', 'active', NULL),
+(70, 'guard20', 'מאבטח20', 'מאבטח20', NULL, '$2b$10$MhhyMfOXSvakAsrhnPb7leFWZnN5PlG2zuNU1qgVXsk3DJ.vlBmC.', 'guard20@gmail.com', '', '', '', '', 'guard', 'active', NULL);
 
 --
 -- Indexes for dumped tables
@@ -517,8 +447,7 @@ ALTER TABLE `guests`
 -- Indexes for table `incident`
 --
 ALTER TABLE `incident`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ID_Employee` (`ID_Employee`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `role`
@@ -547,25 +476,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `employee_constraints`
 --
 ALTER TABLE `employee_constraints`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=321;
 
 --
 -- AUTO_INCREMENT for table `employee_notifications`
 --
 ALTER TABLE `employee_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `employee_requests`
 --
 ALTER TABLE `employee_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `employee_shift_assignment`
 --
 ALTER TABLE `employee_shift_assignment`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1627;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1812;
 
 --
 -- AUTO_INCREMENT for table `guests`
@@ -577,19 +506,19 @@ ALTER TABLE `guests`
 -- AUTO_INCREMENT for table `incident`
 --
 ALTER TABLE `incident`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `shift`
 --
 ALTER TABLE `shift`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2027;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2213;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- Constraints for dumped tables
@@ -619,12 +548,6 @@ ALTER TABLE `employee_requests`
 ALTER TABLE `employee_shift_assignment`
   ADD CONSTRAINT `employee_shift_assignment_ibfk_1` FOREIGN KEY (`Employee_ID`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `employee_shift_assignment_ibfk_2` FOREIGN KEY (`Shift_ID`) REFERENCES `shift` (`ID`);
-
---
--- Constraints for table `incident`
---
-ALTER TABLE `incident`
-  ADD CONSTRAINT `incident_ibfk_1` FOREIGN KEY (`ID_Employee`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
