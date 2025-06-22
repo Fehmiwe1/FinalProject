@@ -8,6 +8,7 @@ function MainPageMoked() {
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
@@ -23,10 +24,28 @@ function MainPageMoked() {
   }, []);
 
   const handleSearch = async () => {
+    setErrorMessage("");
+    setResult("");
+
+    const contractorNum = Number(contractorNumber);
+    const vehicleNum = Number(vehicleNumber);
+
+    if (isNaN(contractorNum) || isNaN(vehicleNum)) {
+      setErrorMessage("⚠️ יש להזין מספרים חוקיים בלבד.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    if (contractorNum < 0 || vehicleNum < 0) {
+      setErrorMessage("⚠️ מספר קבלן ומספר רכב לא יכולים להיות שליליים.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
     try {
       const response = await axios.post("/guests/check", {
-        contractorNumber,
-        vehicleNumber,
+        contractorNumber: contractorNum,
+        vehicleNumber: vehicleNum,
       });
 
       const { status } = response.data;
@@ -85,7 +104,9 @@ function MainPageMoked() {
 
         <section className="mainPageMoked-entry-section">
           <h2>אישור כניסה</h2>
-
+          {errorMessage && (
+            <div className="mainPageMoked-error-message">{errorMessage}</div>
+          )}
           <div className="mainPageMoked-fields-row">
             <div className="mainPageMoked-field-group">
               <label>מספר קבלן</label>

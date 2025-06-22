@@ -78,6 +78,8 @@
   flex: 1;
 }
 
+
+.upload-box label,
 .form-fields label,
 .calendar-block label,
 .form-fields textarea,
@@ -135,8 +137,7 @@
 }
 
 .success-message {
-  background-color: #27ae60;
-  color: #fff;
+  color: #27ae60;
 }
 
 /* Responsive */

@@ -7,15 +7,34 @@ function EntryConfirmation() {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearch = async () => {
+    setErrorMessage("");
+    setResult("");
+
+    const contractorNum = Number(contractorNumber);
+    const vehicleNum = Number(vehicleNumber);
+
+    if (isNaN(contractorNum) || isNaN(vehicleNum)) {
+      setErrorMessage("⚠️ יש להזין מספרים חוקיים בלבד.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    if (contractorNum < 0 || vehicleNum < 0) {
+      setErrorMessage("⚠️ מספר קבלן ומספר רכב לא יכולים להיות שליליים.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
     try {
       const response = await axios.post("/guests/check", {
-        contractorNumber,
-        vehicleNumber,
+        contractorNumber: contractorNum,
+        vehicleNumber: vehicleNum,
       });
 
-      const { status, message } = response.data;
+      const { status } = response.data;
 
       if (status === "authorized") {
         setResult("✅ רכב מורשה להיכנס");
@@ -49,7 +68,11 @@ function EntryConfirmation() {
       <main className="entryConfirmation-body">
         <section className="entryConfirmation-entry-section">
           <h2>אישור כניסה</h2>
-
+          {errorMessage && (
+            <div className="entryConfirmation-error-message">
+              {errorMessage}
+            </div>
+          )}
           <div className="entryConfirmation-fields-row">
             <div className="entryConfirmation-field-group">
               <label>מספר קבלן</label>

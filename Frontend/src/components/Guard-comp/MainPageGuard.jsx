@@ -8,6 +8,8 @@ function MainPageGuard() {
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
@@ -23,13 +25,31 @@ function MainPageGuard() {
   }, []);
 
   const handleSearch = async () => {
+    setErrorMessage("");
+    setResult("");
+
+    const contractorNum = Number(contractorNumber);
+    const vehicleNum = Number(vehicleNumber);
+
+    if (isNaN(contractorNum) || isNaN(vehicleNum)) {
+      setErrorMessage("⚠️ יש להזין מספרים חוקיים בלבד.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    if (contractorNum < 0 || vehicleNum < 0) {
+      setErrorMessage("⚠️ מספר קבלן ומספר רכב לא יכולים להיות שליליים.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
     try {
       const response = await axios.post("/guests/check", {
-        contractorNumber,
-        vehicleNumber,
+        contractorNumber: contractorNum,
+        vehicleNumber: vehicleNum,
       });
 
-      const { status, message } = response.data;
+      const { status } = response.data;
 
       if (status === "authorized") {
         setResult("✅ רכב מורשה להיכנס");
@@ -44,6 +64,8 @@ function MainPageGuard() {
       setResult("⚠️ שגיאה בעת הבדיקה");
     }
   };
+  
+  
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -52,6 +74,7 @@ function MainPageGuard() {
         setAlerts(response.data);
       } catch (error) {
         console.error("Error loading guests", error);
+        
       }
     };
 
@@ -85,6 +108,9 @@ function MainPageGuard() {
 
         <section className="mainPageGuard-entry-section">
           <h2>אישור כניסה</h2>
+          {errorMessage && (
+            <div className="mainPageGuard-error-message">{errorMessage}</div>
+          )}
 
           <div className="mainPageGuard-fields-row">
             <div className="mainPageGuard-field-group">

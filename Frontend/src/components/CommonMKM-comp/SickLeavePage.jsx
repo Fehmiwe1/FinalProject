@@ -33,23 +33,45 @@ function SickLeavePage() {
     const { name, value } = e.target;
     const updatedForm = { ...vacationForm, [name]: value };
 
+    const newFrom = name === "fromDate" ? value : vacationForm.fromDate;
+    const newTo = name === "toDate" ? value : vacationForm.toDate;
+    const newUnpaid =
+      name === "unpaidDays" ? Number(value) : Number(vacationForm.unpaidDays);
+    const newLeaveDays =
+      name === "leaveDays" ? Number(value) : Number(vacationForm.leaveDays);
+
     if (["leaveDays", "unpaidDays"].includes(name) && Number(value) < 0) {
       setVacationError("לא ניתן להזין מספר שלילי.");
-      setTimeout(() => setVacationError(""), 3000);
+      setTimeout(() => setVacationError(""), 3500);
       return;
     }
 
-    if (name === "fromDate" || name === "toDate") {
-      const newFrom = name === "fromDate" ? value : vacationForm.fromDate;
-      const newTo = name === "toDate" ? value : vacationForm.toDate;
-      if (newFrom && newTo && new Date(newTo) >= new Date(newFrom)) {
-        updatedForm.leaveDays = calculateLeaveDays(newFrom, newTo);
-      }
+    // בדיקה: עד תאריך ≥ מתאריך
+    if (newFrom && newTo && new Date(newTo) < new Date(newFrom)) {
+      setVacationError("׳עד תאריך׳ חייב להיות שווה או מאוחר מ׳מתאריך׳.");
+      setVacationForm(updatedForm);
+      setTimeout(() => setVacationError(""), 3500);
+      return;
+    }
+
+    // חישוב ימי חופשה
+    if (newFrom && newTo && new Date(newTo) >= new Date(newFrom)) {
+      updatedForm.leaveDays = calculateLeaveDays(newFrom, newTo);
+    }
+
+    // בדיקה: ימים לתשלום ≤ ימי חופשה
+    if (newUnpaid > newLeaveDays) {
+      setVacationError('ימים לתשלום לא יכולים להיות יותר מ־סה"כ ימי חופשה.');
+      setVacationForm(updatedForm);
+      setTimeout(() => setVacationError(""), 3500);
+      return;
     }
 
     setVacationForm(updatedForm);
     setVacationError("");
   };
+  
+  
 
   const handleSickChange = (e) => {
     const file = e.target.files?.[0] || null;
@@ -62,19 +84,19 @@ function SickLeavePage() {
 
     if (!fromDate || !toDate) {
       setVacationError("נא לבחור תאריכים.");
-      setTimeout(() => setVacationError(""), 3000);
+      setTimeout(() => setVacationError(""), 3500);
       return;
     }
 
     if (new Date(toDate) < new Date(fromDate)) {
       setVacationError("תאריך סיום לא יכול להיות לפני התחלה.");
-      setTimeout(() => setVacationError(""), 3000);
+      setTimeout(() => setVacationError(""), 3500);
       return;
     }
 
     if (Number(unpaidDays) > Number(leaveDays)) {
       setVacationError('ימים לתשלום לא יכולים להיות יותר מ־סה"כ ימי חופשה.');
-      setTimeout(() => setVacationError(""), 3000);
+      setTimeout(() => setVacationError(""), 3500);
       return;
     }
 
