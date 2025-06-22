@@ -13,7 +13,7 @@ function Incident() {
   const [dateError, setDateError] = useState("");
 
   const userRole = Cookies.get("userRole");
-  const canEdit = userRole === "manager" || userRole === "kabat";
+  const canEdit = userRole === "kabat";
 
   useEffect(() => {
     fetchData();

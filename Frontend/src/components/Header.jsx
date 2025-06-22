@@ -270,7 +270,16 @@ function Header() {
                       אילוצים
                     </NavLink>
                   </li>
-
+                  <li>
+                    <NavLink
+                      to="/guests"
+                      className={({ isActive }) =>
+                        isActive ? "menu-item active" : "menu-item"
+                      }
+                    >
+                      קבלנים
+                    </NavLink>
+                  </li>
                   <li>
                     <NavLink
                       to="/incident"

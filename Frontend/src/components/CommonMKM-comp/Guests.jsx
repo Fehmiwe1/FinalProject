@@ -9,7 +9,9 @@ function Guests() {
   const [msg, setMsg] = useState("");
   const [numberError, setNumberError] = useState("");
   const [searchNumber, setSearchNumber] = useState("");
-  const isManager = Cookies.get("userRole");
+
+  const userRole = Cookies.get("userRole");
+  const canEdit = userRole === "manager" || userRole === "moked";
 
   useEffect(() => {
     fetchGuests();
@@ -63,7 +65,7 @@ function Guests() {
         <div className="guestsPageContainer">
           <h1 className="guests-page-title">כאן תוכל לצפות ברשימת קבלנים</h1>
 
-          {isManager === "manager" && (
+          {canEdit && (
             <div className="create-guests">
               <Link to="/createGuests" className="btn">
                 קבלן חדש
@@ -73,7 +75,9 @@ function Guests() {
 
           {msg && <div className="msg">{msg}</div>}
           {numberError && (
-            <div className="guestsPpage-number-error-message">{numberError}</div>
+            <div className="guestsPpage-number-error-message">
+              {numberError}
+            </div>
           )}
 
           <div className="search-filters">
@@ -125,7 +129,7 @@ function Guests() {
                       >
                         צפייה
                       </Link>
-                      {isManager === "manager" && (
+                      {canEdit && (
                         <>
                           <Link
                             to={`/editGuest/${guest.GuestNumber}`}
