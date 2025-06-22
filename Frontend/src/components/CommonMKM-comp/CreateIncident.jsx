@@ -4,18 +4,20 @@ import axios from "axios";
 import "../../assets/styles/CommonMKM-styles/CreateIncident.css";
 
 function CreateIncident() {
-  const [msg, setMsg] = useState(""); // הודעת הצלחה
-  const [error, setError] = useState(""); // הודעת שגיאה
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
   const [newReport, setNewReport] = useState({
-    Incident_Name: "", // שם האירוע
-    Incident_Date: "", // תאריך האירוע
-    ID_Employee: "", // תעודת זהות של העובד
-    Description: "", // תיאור
+    Incident_Name: "",
+    Incident_Date: "",
+    Kabat_Name: "",
+    Dispatcher_Name: "",
+    Patrol_Name: "",
+    Other_Participants: "",
+    Description: "",
   });
 
   const navigate = useNavigate();
 
-  // פונקציה שמעדכנת את השדות לפי הקלט של המשתמש
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewReport((prevReport) => ({
@@ -24,47 +26,43 @@ function CreateIncident() {
     }));
   };
 
-  // פונקציה לניקוי מחרוזות מרווחים מיותרים
-  const cleanString = (str) => {
-    return str.trim().replace(/\s+/g, " ");
-  };
+  const cleanString = (str) => str.trim().replace(/\s+/g, " ");
 
-  // פונקציה ליצירת הדוח ושליחתו לשרת
   const createReport = async (reportToSend) => {
     try {
       const res = await axios.post("/post/", reportToSend, {
         headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       });
 
-      console.log("הדכוח נוצר:", res.data);
+      console.log('✅ הדו"ח נוצר:', res.data);
       setMsg("הדוח נוצר בהצלחה");
       setTimeout(() => {
         setMsg("");
         navigate("/Incident");
       }, 2500);
     } catch (error) {
-      console.error("שגיאה:", error);
-      setError("יצירת הדוח נכשלה. נסה שוב.");
+      console.error("❌ שגיאה:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "יצירת הדוח נכשלה. נסה שוב.");
     }
   };
 
-  // פונקציה שמטפלת בשליחת הטופס
   const handleSubmit = (e) => {
     e.preventDefault();
-    const now = new Date().toISOString().slice(0, 16); // תאריך נוכחי
 
     const cleanedReport = {
       Incident_Name: cleanString(newReport.Incident_Name),
       Incident_Date: newReport.Incident_Date,
-      ID_Employee: newReport.ID_Employee.trim(),
+      Kabat_Name: cleanString(newReport.Kabat_Name),
+      Dispatcher_Name: cleanString(newReport.Dispatcher_Name),
+      Patrol_Name: cleanString(newReport.Patrol_Name),
+      Other_Participants: cleanString(newReport.Other_Participants),
       Description: cleanString(newReport.Description),
     };
 
-    // בדיקות תקינות
     if (
       !cleanedReport.Incident_Name ||
       !cleanedReport.Incident_Date ||
-      !cleanedReport.ID_Employee ||
       !cleanedReport.Description
     ) {
       setError("אנא מלא את כל השדות הדרושים.");
@@ -73,16 +71,6 @@ function CreateIncident() {
 
     if (cleanedReport.Incident_Name.length < 5) {
       setError("שם האירוע חייב להכיל לפחות 5 תווים.");
-      return;
-    }
-
-    if (!cleanedReport.Incident_Date || cleanedReport.Incident_Date > now) {
-      setError("תאריך האירוע חייב להיות היום או מוקדם יותר.");
-      return;
-    }
-
-    if (isNaN(cleanedReport.ID_Employee) || cleanedReport.ID_Employee <= 0) {
-      setError("מספר תעודת זהות חייב להיות מספר חיובי.");
       return;
     }
 
@@ -98,7 +86,10 @@ function CreateIncident() {
   return (
     <div className="main">
       <div className="create-report">
-        <button className="close-button" onClick={() => navigate("/Incident")}>
+        <button
+          className="close-button"
+          onClick={() => navigate("/Incident")}
+        >
           ✕
         </button>
         <h2>יצירת דוח אירוע חדש</h2>
@@ -116,6 +107,7 @@ function CreateIncident() {
               className="create-Report-input"
             />
           </div>
+
           <div className="create-Report-div">
             <label className="create-Report-label">תאריך האירוע:</label>
             <input
@@ -127,17 +119,51 @@ function CreateIncident() {
               className="create-Report-input"
             />
           </div>
+
           <div className="create-Report-div">
-            <label className="create-Report-label">תעודת זהות של העובד:</label>
+            <label className="create-Report-label">שם קב"ט:</label>
             <input
-              type="number"
-              name="ID_Employee"
-              value={newReport.ID_Employee}
+              type="text"
+              name="Kabat_Name"
+              value={newReport.Kabat_Name}
               onChange={handleChange}
-              required
               className="create-Report-input"
             />
           </div>
+
+          <div className="create-Report-div">
+            <label className="create-Report-label">שם מוקדנית:</label>
+            <input
+              type="text"
+              name="Dispatcher_Name"
+              value={newReport.Dispatcher_Name}
+              onChange={handleChange}
+              className="create-Report-input"
+            />
+          </div>
+
+          <div className="create-Report-div">
+            <label className="create-Report-label">שם סייר רכוב:</label>
+            <input
+              type="text"
+              name="Patrol_Name"
+              value={newReport.Patrol_Name}
+              onChange={handleChange}
+              className="create-Report-input"
+            />
+          </div>
+
+          <div className="create-Report-div">
+            <label className="create-Report-label">משתתפים נוספים:</label>
+            <input
+              type="text"
+              name="Other_Participants"
+              value={newReport.Other_Participants}
+              onChange={handleChange}
+              className="create-Report-input"
+            />
+          </div>
+
           <div className="create-Report-div">
             <label className="create-Report-label">תיאור:</label>
             <textarea
@@ -148,6 +174,7 @@ function CreateIncident() {
               className="create-Report-textarea"
             />
           </div>
+
           <button className="create-Report-button" type="submit">
             צור דוח אירוע
           </button>

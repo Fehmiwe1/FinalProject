@@ -12,7 +12,8 @@ function Incident() {
   const [endDate, setEndDate] = useState("");
   const [dateError, setDateError] = useState("");
 
-  const isManager = Cookies.get("userRole");
+  const userRole = Cookies.get("userRole");
+  const canEdit = userRole === "manager" || userRole === "kabat";
 
   useEffect(() => {
     fetchData();
@@ -70,7 +71,7 @@ function Incident() {
             כאן תוכל לצפות בדוחות אירועים חריגים
           </h1>
 
-          {isManager === "manager" && (
+          {canEdit && (
             <div className="create-incident">
               <Link to="/createIncident" className="btn">
                 דוח אירוע חדש
@@ -136,14 +137,19 @@ function Incident() {
                     <td>{incident.Incident_Name}</td>
                     <td>
                       {new Date(incident.Incident_Date).toLocaleDateString(
-                        "he-IL"
+                        "he-IL",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        }
                       )}
                     </td>
                     <td>
                       <Link to={`/post/${incident.id}`} className="view-button">
                         צפייה
                       </Link>
-                      {isManager === "manager" && (
+                      {canEdit && (
                         <>
                           <Link
                             to={`/editincident/${incident.id}`}

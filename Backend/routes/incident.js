@@ -1,110 +1,148 @@
 const express = require("express");
 const router = express.Router();
 const dbSingleton = require("../dbSingleton");
-// התחברות למסד הנתונים
 const db = dbSingleton.getConnection();
 
-// קבלת כל הדוחות
+// ✅ קבלת כל הדוחות
 router.get("/", (req, res) => {
-  const query = "SELECT * FROM incident";
+  const query = "SELECT * FROM incident ORDER BY Incident_Date DESC";
   db.query(query, (err, results) => {
-    if (err) {
-      res.status(500).send(err);
-      return;
-    }
+    if (err) return res.status(500).send(err);
     res.json(results);
   });
 });
 
-// הוספת דוח חדש
-router.post("/", (req, res) => {
-  const { Incident_Name, Incident_Date, ID_Employee, Description } = req.body;
+// ✅ קבלת דוח לפי מזהה
+router.get("/:id", (req, res) => {
+  const query = "SELECT * FROM incident WHERE id = ?";
+  db.query(query, [req.params.id], (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.json(results);
+  });
+});
 
-  // בדיקה שכל השדות הנדרשים סופקו
-  if (!Incident_Name || !Incident_Date || !ID_Employee || !Description) {
-    return res.status(400).json({ message: "All fields are required!" });
+// ✅ הוספת דוח חדש
+router.post("/", (req, res) => {
+  const {
+    Incident_Name,
+    Incident_Date,
+    Kabat_Name,
+    Dispatcher_Name,
+    Patrol_Name,
+    Other_Participants,
+    Description,
+  } = req.body;
+
+  // בדיקת שדות חובה
+  if (!Incident_Name || !Incident_Date || !Description || !Kabat_Name) {
+    return res
+      .status(400)
+      .json({
+        message: 'יש למלא את כל השדות החיוניים (שם אירוע, תאריך, קב"ט, תיאור).',
+      });
   }
 
-  // המרת תאריך לפורמט מתאים (אם יש צורך)
   const parsedDate = new Date(Incident_Date).toISOString();
 
-  const query =
-    "INSERT INTO incident (Incident_Name, Incident_Date, ID_Employee, Description) VALUES (?, ?, ?, ?)";
+  const query = `
+    INSERT INTO incident 
+    (Incident_Name, Incident_Date, Kabat_Name, Dispatcher_Name, Patrol_Name, Other_Participants, Description) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-  db.query(
-    query,
-    [Incident_Name, parsedDate, ID_Employee, Description],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
-      }
+  const values = [
+    Incident_Name,
+    parsedDate,
+    Kabat_Name,
+    Dispatcher_Name,
+    Patrol_Name,
+    Other_Participants,
+    Description,
+  ];
 
-      res.json({
-        message: "Report added successfully!",
-        id: results.insertId,
-        report: {
-          Incident_Name,
-          Incident_Date: parsedDate,
-          ID_Employee,
-          Description,
-        },
-      });
-    }
-  );
-});
-
-// קבלת דוח לפי מזהה
-router.get("/:id", (req, res) => {
-  const id = req.params.id;
-  const query = "SELECT * FROM incident WHERE id = ? ";
-  db.query(query, id, (err, results) => {
+  db.query(query, values, (err, results) => {
     if (err) {
-      res.status(500).send(err);
-      return;
+      console.error("❌ DB Error:", err);
+      return res
+        .status(500)
+        .json({ message: "שגיאה במסד הנתונים", error: err });
     }
-    res.json(results);
+
+    res.json({
+      message: "הדוח נוסף בהצלחה!",
+      id: results.insertId,
+      report: {
+        Incident_Name,
+        Incident_Date: parsedDate,
+        Kabat_Name,
+        Dispatcher_Name,
+        Patrol_Name,
+        Other_Participants,
+        Description,
+      },
+    });
   });
 });
 
-// עדכון דוח קיים
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
-  const { Incident_Name, Incident_Date, ID_Employee, Description } = req.body;
 
-  // בדיקה שכל השדות הנדרשים סופקו
-  if (!Incident_Name || !Incident_Date || !ID_Employee || !Description) {
-    return res.status(400).json({ message: "All fields are required!" });
+// ✅ עדכון דוח קיים
+router.put("/:id", (req, res) => {
+  const {
+    Incident_Name,
+    Incident_Date,
+    Dispatcher_Name,
+    Patrol_Name,
+    Other_Participants,
+    Description,
+  } = req.body;
+
+  const user = req.session.user;
+  const Kabat_Name = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+    : "";
+
+  if (!Incident_Name || !Incident_Date || !Description) {
+    return res
+      .status(400)
+      .json({ message: "All required fields must be filled." });
   }
 
-  const query =
-    "UPDATE incident SET Incident_Name = ?, Incident_Date = ?, ID_Employee = ?, Description = ? WHERE id = ?";
+  const parsedDate = new Date(Incident_Date).toISOString();
 
-  db.query(
-    query,
-    [Incident_Name, Incident_Date, ID_Employee, Description, id],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
-      }
+  const query = `
+    UPDATE incident 
+    SET Incident_Name = ?, Incident_Date = ?, Kabat_Name = ?, Dispatcher_Name = ?, Patrol_Name = ?, Other_Participants = ?, Description = ?
+    WHERE id = ?`;
 
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: "Incident not found!" });
-      }
+  const values = [
+    Incident_Name,
+    parsedDate,
+    Kabat_Name,
+    Dispatcher_Name,
+    Patrol_Name,
+    Other_Participants,
+    Description,
+    req.params.id,
+  ];
 
-      res.json({ message: "Incident updated successfully!" });
+  db.query(query, values, (err, results) => {
+    if (err) {
+      console.error("❌ DB Error (update):", err);
+      return res.status(500).json({ message: "Database error", error: err });
     }
-  );
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Incident not found!" });
+    }
+
+    res.json({ message: "Incident updated successfully!" });
+  });
 });
 
-// מחיקת דוח לפי מזהה (רק למנהל)
+// ✅ מחיקת דוח לפי מזהה
 router.delete("/:id", (req, res) => {
-  const { id } = req.params;
   const query = "DELETE FROM incident WHERE id = ?";
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      res.status(500).send(err);
-      return;
-    }
+  db.query(query, [req.params.id], (err, results) => {
+    if (err) return res.status(500).send(err);
 
     if (results.affectedRows === 0) {
       return res.status(404).json({ message: "Incident not found!" });

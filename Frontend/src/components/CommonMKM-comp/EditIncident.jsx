@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, NavLink } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../assets/styles/CommonMKM-styles/EditIncident.css";
 
 function EditIncident() {
-  const [post, setPost] = useState({});
-  const { id } = useParams();
-  const navigate = useNavigate();
-
   const [editReport, setEditReport] = useState(null);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
-  }, [id]);
-
-  const fetchData = () => {
     axios
       .get(`/post/${id}`)
       .then((res) => {
@@ -36,29 +30,12 @@ function EditIncident() {
         setError("שגיאה בשליפת הנתונים.");
         setLoading(false);
       });
-  };
-
-  const updateReport = (reportToSend) => {
-    axios
-      .put(`/post/${id}`, reportToSend)
-      .then((res) => {
-        console.log("אירוע עודכן:", res.data);
-        setMsg("האירוע עודכן בהצלחה.");
-        setTimeout(() => {
-          setMsg("");
-          navigate("/Incident");
-        }, 2000);
-      })
-      .catch((error) => {
-        console.error("שגיאה:", error);
-        setError("עדכון האירוע נכשל.");
-      });
-  };
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditReport((prevPost) => ({
-      ...prevPost,
+    setEditReport((prev) => ({
+      ...prev,
       [name]: value,
     }));
   };
@@ -68,24 +45,30 @@ function EditIncident() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const now = new Date().toISOString().slice(0, 16);
+
     if (!editReport) return;
 
     const cleanedReport = {
       Incident_Name: cleanString(editReport.Incident_Name),
       Incident_Date: editReport.Incident_Date,
-      ID_Employee: editReport.ID_Employee,
+      Kabat_Name: cleanString(editReport.Kabat_Name),
+      Dispatcher_Name: cleanString(editReport.Dispatcher_Name),
+      Patrol_Name: cleanString(editReport.Patrol_Name),
+      Other_Participants: cleanString(editReport.Other_Participants),
       Description: cleanString(editReport.Description),
     };
 
+    // בדיקות
     if (
       !cleanedReport.Incident_Name ||
       !cleanedReport.Incident_Date ||
-      !cleanedReport.ID_Employee ||
+      !cleanedReport.Kabat_Name ||
       !cleanedReport.Description
     ) {
-      setError("יש למלא את כל השדות החיוניים.");
+      setError("אנא מלא את כל השדות החיוניים.");
       return;
     }
+
     if (cleanedReport.Incident_Name.length < 5) {
       setError("שם האירוע חייב להכיל לפחות 5 תווים.");
       return;
@@ -96,23 +79,29 @@ function EditIncident() {
       return;
     }
 
-    if (isNaN(cleanedReport.ID_Employee) || cleanedReport.ID_Employee <= 0) {
-      setError("מספר עובד חייב להיות מספר חיובי.");
-      return;
-    }
-
     if (cleanedReport.Description.length < 11) {
       setError("התיאור חייב להכיל לפחות 11 תווים.");
       return;
     }
 
     setError("");
-    updateReport(cleanedReport);
+    axios
+      .put(`/post/${id}`, cleanedReport)
+      .then((res) => {
+        console.log("🎉 עודכן:", res.data);
+        setMsg("האירוע עודכן בהצלחה.");
+        setTimeout(() => {
+          setMsg("");
+          navigate("/Incident");
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error("שגיאה בעדכון:", error);
+        setError("עדכון האירוע נכשל.");
+      });
   };
 
-  if (loading) {
-    return <div>טוען נתוני אירוע...</div>;
-  }
+  if (loading) return <div>טוען נתונים...</div>;
 
   return (
     <div className="main">
@@ -132,8 +121,8 @@ function EditIncident() {
                 name="Incident_Name"
                 value={editReport.Incident_Name}
                 onChange={handleChange}
-                required
                 className="edit-Report-input"
+                required
               />
             </div>
             <div className="edit-Report-div">
@@ -143,18 +132,47 @@ function EditIncident() {
                 name="Incident_Date"
                 value={editReport.Incident_Date}
                 onChange={handleChange}
+                className="edit-Report-input"
                 required
+              />
+            </div>
+            <div className="edit-Report-div">
+              <label className="edit-Report-label">שם קב"ט:</label>
+              <input
+                type="text"
+                name="Kabat_Name"
+                value={editReport.Kabat_Name}
+                onChange={handleChange}
                 className="edit-Report-input"
               />
             </div>
             <div className="edit-Report-div">
-              <label className="edit-Report-label">מספר עובד:</label>
+              <label className="edit-Report-label">שם מוקדנית:</label>
               <input
-                type="number"
-                name="ID_Employee"
-                value={editReport.ID_Employee}
+                type="text"
+                name="Dispatcher_Name"
+                value={editReport.Dispatcher_Name}
                 onChange={handleChange}
-                required
+                className="edit-Report-input"
+              />
+            </div>
+            <div className="edit-Report-div">
+              <label className="edit-Report-label">שם סייר רכוב:</label>
+              <input
+                type="text"
+                name="Patrol_Name"
+                value={editReport.Patrol_Name}
+                onChange={handleChange}
+                className="edit-Report-input"
+              />
+            </div>
+            <div className="edit-Report-div">
+              <label className="edit-Report-label">משתתפים נוספים:</label>
+              <input
+                type="text"
+                name="Other_Participants"
+                value={editReport.Other_Participants}
+                onChange={handleChange}
                 className="edit-Report-input"
               />
             </div>
@@ -164,8 +182,8 @@ function EditIncident() {
                 name="Description"
                 value={editReport.Description}
                 onChange={handleChange}
-                required
                 className="edit-Report-textarea"
+                required
               />
             </div>
             <button className="edit-Report-btn" type="submit">
