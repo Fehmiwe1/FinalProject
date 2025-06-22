@@ -7,6 +7,8 @@ function RequestsManagement() {
   const [employees, setEmployees] = useState([]);
   const [requests, setRequests] = useState([]);
   const [msg, setMsg] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
+
   const dontShow = Cookies.get("eventDescription");
 
   useEffect(() => {
@@ -95,10 +97,19 @@ function RequestsManagement() {
     .filter((req) => req.requestType === "חופשה" && req.status === "ממתין")
     .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
 
-  const sickRequests = requests
-    .filter((req) => req.requestType === "מחלה")
-    .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
+    const sickRequests = requests
+      .filter((req) => {
+        if (req.requestType !== "מחלה") return false;
 
+        const requestDate = new Date(req.requestDate);
+        const today = new Date();
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(today.getMonth() - 1);
+
+        return requestDate >= oneMonthAgo && requestDate <= today;
+      })
+      .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
+  
   return (
     <div className="requestsManagement">
       <div className="requestsManagement-container">
@@ -109,6 +120,13 @@ function RequestsManagement() {
           {msg && <div className="error-message">{msg}</div>}
 
           <h2 className="titleH2">בקשות חופשה</h2>
+          <button
+            className="history-toggle-btn"
+            onClick={() => setShowHistory(!showHistory)}
+          >
+            {showHistory ? "הסתר היסטוריה" : "הצג היסטוריה"}
+          </button>
+
           <table className="requestsNotifications-table">
             <thead>
               <tr>
@@ -117,7 +135,6 @@ function RequestsManagement() {
                 <th>מתאריך</th>
                 <th>עד תאריך</th>
                 <th>סטטוס</th>
-                <th>פעולות</th>
               </tr>
             </thead>
             <tbody>
@@ -162,6 +179,44 @@ function RequestsManagement() {
               )}
             </tbody>
           </table>
+          {showHistory && (
+            <>
+              <h3 className="titleH3">היסטוריית בקשות חופשה</h3>
+              <table className="requestsNotifications-table">
+                <thead>
+                  <tr>
+                    <th>שם עובד</th>
+                    <th>תאריך בקשה</th>
+                    <th>מתאריך</th>
+                    <th>עד תאריך</th>
+                    <th>סטטוס</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests
+                    .filter(
+                      (req) =>
+                        req.requestType === "חופשה" && req.status !== "ממתין"
+                    )
+                    .sort(
+                      (a, b) =>
+                        new Date(b.requestDate) - new Date(a.requestDate)
+                    )
+                    .map((req) => (
+                      <tr key={`history-${req.id}`}>
+                        <td>
+                          {req.firstName} {req.lastName}
+                        </td>
+                        <td>{formatDateToHebrew(req.requestDate)}</td>
+                        <td>{formatDateToHebrew(req.fromDate)}</td>
+                        <td>{formatDateToHebrew(req.toDate)}</td>
+                        <td>{req.status}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </>
+          )}
 
           <h2 className="titleH2">בקשות מחלה</h2>
           <table className="requestsNotifications-table">
