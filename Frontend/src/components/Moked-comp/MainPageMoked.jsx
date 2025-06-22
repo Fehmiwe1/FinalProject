@@ -10,6 +10,16 @@ function MainPageMoked() {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const formatDateToHebrew = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
@@ -94,7 +104,8 @@ function MainPageMoked() {
               {pendingRequests.map((req, index) => (
                 <tr key={index}>
                   <td>{req.request_type}</td>
-                  <td>{new Date(req.request_date).toLocaleDateString()}</td>
+                  <td>{formatDateToHebrew(req.request_date)}</td>
+
                   <td>{req.status}</td>
                 </tr>
               ))}

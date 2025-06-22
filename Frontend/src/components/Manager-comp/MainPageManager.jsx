@@ -301,7 +301,7 @@ function MainPageManager() {
                         {alert.firstName} {alert.lastName}
                       </td>
                       <td>{alert.type}</td>
-                      <td>{alert.date}</td>
+                      <td>{formatDateToHebrew(alert.date)}</td>
                     </tr>
                   ))}
                 </tbody>

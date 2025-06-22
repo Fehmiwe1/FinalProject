@@ -82,6 +82,15 @@ function RequestsManagement() {
     }
   };
 
+  const formatDateToHebrew = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const vacationRequests = requests
     .filter((req) => req.requestType === "חופשה" && req.status === "ממתין")
     .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
@@ -118,10 +127,10 @@ function RequestsManagement() {
                     <td>
                       {req.firstName} {req.lastName}
                     </td>
-                    <td>{req.requestDate}</td>
-                    <td>{req.fromDate || "-"}</td>
-                    <td>{req.toDate || "-"}</td>
-                    <td>{req.status}</td>
+                    <td>{formatDateToHebrew(req.requestDate)}</td>
+                    <td>{formatDateToHebrew(req.fromDate)}</td>
+                    <td>{formatDateToHebrew(req.toDate)}</td>
+
                     <td>
                       {req.status === "ממתין" && (
                         <>
@@ -170,7 +179,8 @@ function RequestsManagement() {
                     <td>
                       {req.firstName} {req.lastName}
                     </td>
-                    <td>{req.requestDate}</td>
+                    <td>{formatDateToHebrew(req.requestDate)}</td>
+
                     <td>
                       {req.filePath && (
                         <div className="file-actions">
@@ -218,6 +228,7 @@ function RequestsManagement() {
                       {emp.firstName} {emp.lastName}
                     </td>
                     <td>{emp.event_description}</td>
+                    <td>{formatDateToHebrew(emp.event_date)}</td>
                     <td>
                       <button
                         onClick={() =>
