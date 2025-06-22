@@ -6,8 +6,11 @@ import "../../assets/styles/CommonMKM-styles/WorkArrangement.css";
 function WorkArrangement() {
   const [assignments, setAssignments] = useState([]);
   const [weeks, setWeeks] = useState([[], []]);
-  const [guardWeekView, setGuardWeekView] = useState(0); // 0 = שבוע ראשון, 1 = שבוע שני
+  const [guardWeekView, setGuardWeekView] = useState(0);
   const userRole = Cookies.get("userRole");
+
+  const roles = ["guard", "moked", "kabat"];
+  const [selectedRole, setSelectedRole] = useState(userRole);
 
   const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
   const shifts = ["בוקר", "ערב", "לילה"];
@@ -41,19 +44,20 @@ function WorkArrangement() {
       setWeeks(dates);
     };
 
-    const fetchAssignments = async (role) => {
-      try {
-        let url = "";
-        if (role === "kabat") {
-          url = "/createSchedule/allKabatAssignments";
-        } else if (role === "moked") {
-          url = "/createSchedule/allMokedAssignments";
-        } else if (role === "guard") {
-          url = "/createSchedule/allGuardAssignments";
-        } else {
-          return;
-        }
+    generateWeeks();
+  }, []);
 
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      let url = "";
+      if (selectedRole === "kabat") url = "/createSchedule/allKabatAssignments";
+      else if (selectedRole === "moked")
+        url = "/createSchedule/allMokedAssignments";
+      else if (selectedRole === "guard")
+        url = "/createSchedule/allGuardAssignments";
+      else return;
+
+      try {
         const res = await axios.get(url, { withCredentials: true });
         setAssignments(res.data);
       } catch (err) {
@@ -61,16 +65,14 @@ function WorkArrangement() {
       }
     };
 
-    generateWeeks();
-    fetchAssignments(userRole);
-  }, [userRole]);
+    fetchAssignments();
+  }, [selectedRole]);
 
   const formatDateToHebrew = (dateStr) => {
     const d = new Date(dateStr);
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}/${d.getFullYear()}`;
   };
 
   const getGuardCount = (shiftType, position, dayIdx) => {
@@ -79,153 +81,155 @@ function WorkArrangement() {
 
     if (position === "ראשי") {
       if (shiftType === "בוקר") return dayName === "שבת" ? 3 : 4;
-      if (shiftType === "ערב")
-        return dayName === "שישי" || dayName === "שבת" ? 3 : 4;
+      if (shiftType === "ערב") return ["שישי", "שבת"].includes(dayName) ? 3 : 4;
       if (shiftType === "לילה") return 2;
     }
     if (position === "נשר") {
-      if (dayName === "שישי" && (shiftType === "ערב" || shiftType === "לילה"))
+      if (
+        dayName === "שבת" ||
+        (dayName === "שישי" && ["ערב", "לילה"].includes(shiftType))
+      )
         return 0;
-      if (dayName === "שבת") return 0;
       if (shiftType === "בוקר") return 3;
       if (shiftType === "ערב") return 2;
-      if (shiftType === "לילה") return 0;
     }
     if (position === "הפסקות") {
-      if (shiftType !== "ערב" || dayName === "שישי" || dayName === "שבת")
-        return 0;
+      if (shiftType !== "ערב" || ["שישי", "שבת"].includes(dayName)) return 0;
       return 1;
     }
     return 1;
   };
 
-  const renderTable = (week, title) => {
-    const sortedWeek = [...week].sort(
-      (a, b) => new Date(a).getDay() - new Date(b).getDay()
-    );
-
-    return (
-      <div className="assignment-table-wrapper">
-        <h3>{title}</h3>
-        <table className="assignment-table">
-          <thead>
-            <tr>
-              <th>משמרת / תאריך</th>
-              {sortedWeek.map((date, i) => {
-                const d = new Date(date);
+  const renderTable = (week, title) => (
+    <div className="assignment-table-wrapper">
+      <h3>{title}</h3>
+      <table className="assignment-table">
+        <thead>
+          <tr>
+            <th>משמרת / תאריך</th>
+            {week.map((date, i) => {
+              const d = new Date(date);
+              return (
+                <th key={i}>
+                  יום {dayNames[d.getDay()]} <br />
+                  {formatDateToHebrew(date)}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {shifts.map((shift) => (
+            <tr key={shift}>
+              <td>{shift}</td>
+              {week.map((date) => {
+                const assigned = assignments.filter(
+                  (a) => a.date === date && a.shift === shift
+                );
                 return (
-                  <th key={i}>
-                    יום {dayNames[d.getDay()]}
-                    <br />
-                    {formatDateToHebrew(date)}
-                  </th>
+                  <td key={`${date}-${shift}`}>
+                    {assigned
+                      .map((a) => `${a.firstName} ${a.lastName}`)
+                      .join(", ") || "—"}
+                  </td>
                 );
               })}
             </tr>
-          </thead>
-          <tbody>
-            {shifts.map((shift) => (
-              <tr key={shift}>
-                <td>{shift}</td>
-                {sortedWeek.map((date) => {
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderGuardView = (weekIndex) => (
+    <div className="guard-schedule-grid">
+      <h3 className="title">
+        צפייה בשיבוצים - {weekIndex === 0 ? "שבוע ראשון" : "שבוע שני"}
+      </h3>
+      <table className="schedule-table">
+        <thead>
+          <tr>
+            <th>עמדה / תאריך</th>
+            {weeks[weekIndex].map((date, i) => {
+              const d = new Date(date);
+              return (
+                <th key={i}>
+                  יום {dayNames[d.getDay()]} <br />
+                  {formatDateToHebrew(date)}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {positions.map((position) =>
+            Guardshifts.map((shiftType) => (
+              <tr key={`${position}-${shiftType}`}>
+                <td>
+                  {position} - {shiftType}
+                </td>
+                {weeks[weekIndex].map((date, i) => {
+                  const count = getGuardCount(shiftType, position, i);
                   const assigned = assignments.filter(
-                    (a) => a.date === date && a.shift === shift
+                    (a) =>
+                      a.date === date &&
+                      a.shift === shiftType &&
+                      (a.location === position || a.role === position)
                   );
+
                   return (
-                    <td key={`${date}-${shift}`}>
-                      {assigned.length > 0
-                        ? assigned
-                            .map((a) => `${a.firstName} ${a.lastName}`)
-                            .join(", ")
-                        : ""}
+                    <td key={`${date}-${position}-${shiftType}`}>
+                      {[...Array(count)].map((_, idx) => {
+                        const a = assigned[idx];
+                        return (
+                          <div key={idx}>
+                            {a ? `${a.firstName} ${a.lastName}` : "—"}
+                          </div>
+                        );
+                      })}
                     </td>
                   );
                 })}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
-  const renderGuardView = (weekIndex) => {
-    const guardsMap = {};
-    assignments.forEach((g) => {
-      guardsMap[g.id] = `${g.firstName} ${g.lastName}`;
-    });
-
-    return (
-      <div className="guard-schedule-grid">
-        <h3 className="title">
-          צפייה בשיבוצים - {weekIndex === 0 ? "שבוע ראשון" : "שבוע שני"}
-        </h3>
-        <table className="schedule-table">
-          <thead>
-            <tr>
-              <th>עמדה / תאריך</th>
-              {weeks[weekIndex].map((date, i) => {
-                const d = new Date(date);
-                return (
-                  <th key={i}>
-                    יום {dayNames[d.getDay()]}
-                    <br />
-                    {formatDateToHebrew(date)}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {positions.map((position) =>
-              Guardshifts.map((shiftType) => (
-                <tr key={`${position}-${shiftType}`}>
-                  <td>
-                    {position} - {shiftType}
-                  </td>
-                  {weeks[weekIndex].map((date, i) => {
-                    const count = getGuardCount(shiftType, position, i);
-                    const assigned = assignments.filter(
-                      (a) =>
-                        a.date === date &&
-                        a.shift === shiftType &&
-                        (a.location === position || a.role === position)
-                    );
-
-                    return (
-                      <td key={`${date}-${position}-${shiftType}`}>
-                        {[...Array(count)].map((_, idx) => {
-                          const a = assigned[idx];
-                          return (
-                            <div key={idx}>
-                              {a ? `${a.firstName} ${a.lastName}` : "—"}
-                            </div>
-                          );
-                        })}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    );
+  const canViewRole = (role) => {
+    if (userRole === "moked") return true; // יכול לראות הכל
+    if (userRole === "kabat") return role === "kabat" || role === "guard";
+    return role === "guard"; // מאבטח רואה רק את עצמו
   };
 
   return (
     <div className="WorkArrangement-wrapper">
       <main className="WorkArrangement-body">
         <h2>סידור עבודה</h2>
-        {(userRole === "kabat" || userRole === "moked") && (
-          <>
-            {renderTable(weeks[0], "שבוע ראשון")}
-            {renderTable(weeks[1], "שבוע שני")}
-          </>
+
+        {(userRole === "moked" || userRole === "kabat") && (
+          <aside className="WorkArrangement-role-selector">
+            {roles
+              .filter((r) => canViewRole(r))
+              .map((role) => (
+                <button
+                  key={role}
+                  className={selectedRole === role ? "active" : ""}
+                  onClick={() => setSelectedRole(role)}
+                >
+                  {role === "guard"
+                    ? "מאבטח"
+                    : role === "moked"
+                    ? "מוקד"
+                    : 'קב"ט'}
+                </button>
+              ))}
+          </aside>
         )}
 
-        {userRole === "guard" && (
+        {selectedRole === "guard" ? (
           <>
             <div className="week-toggle">
               <button
@@ -243,10 +247,12 @@ function WorkArrangement() {
             </div>
             {renderGuardView(guardWeekView)}
           </>
+        ) : (
+          <>
+            {renderTable(weeks[0], "שבוע ראשון")}
+            {renderTable(weeks[1], "שבוע שני")}
+          </>
         )}
-        {userRole !== "kabat" &&
-          userRole !== "moked" &&
-          userRole !== "guard" && <p>אין לך הרשאה לצפות בסידור העבודה.</p>}
       </main>
     </div>
   );

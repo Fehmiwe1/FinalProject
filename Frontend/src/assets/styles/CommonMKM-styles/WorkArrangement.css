@@ -144,3 +144,30 @@
   background-color: #22303c;
   word-wrap: break-word;
 }
+
+
+
+
+.WorkArrangement-role-selector {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  direction: rtl;
+  justify-content: flex-start;
+  width: 100%; 
+}
+
+
+.WorkArrangement-role-selector button {
+  padding: 0.5rem 1rem;
+  background-color: #2a3a4b;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.WorkArrangement-role-selector button.active {
+  background-color: #1e293b;
+  font-weight: bold;
+}
