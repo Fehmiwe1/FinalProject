@@ -6,53 +6,82 @@ function MainPageManager() {
   const [employees, setEmployees] = useState([]);
   const [searchName, setSearchName] = useState("");
   const [msg, setMsg] = useState("");
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
     fetchEmployees();
+    fetchRoles();
   }, []);
 
   const fetchEmployees = async () => {
-    axios
-      .get("/employeeManagement")
-      .then((res) => {
-        setEmployees(res.data);
-      })
-      .catch((error) => {
-        console.error("שגיאה:", error);
-        setMsg("אירעה שגיאה בטעינת העובדים.");
-      });
+    try {
+      const res = await axios.get("/employeeManagement");
+      setEmployees(res.data);
+    } catch (error) {
+      console.error("שגיאה:", error);
+      setMsg("אירעה שגיאה בטעינת העובדים.");
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const res = await axios.get("/role");
+      setRoles(res.data);
+    } catch (err) {
+      console.error("שגיאה בטעינת ההרשאות", err);
+    }
   };
 
   const toggleStatus = async (id, currentStatus) => {
-    axios
-      .put(`/employeeManagement/${id}`, {
+    try {
+      const res = await axios.put(`/employeeManagement/${id}`, {
         status: currentStatus === "active" ? "inactive" : "active",
-      })
-      .then((res) => {
-        setEmployees((prev) =>
-          prev.map((emp) =>
-            emp.id === id ? { ...emp, status: res.data.status } : emp
-          )
-        );
-      })
-      .catch((error) => {
-        console.error("שגיאה בעדכון הסטטוס:", error);
-        setMsg("אירעה שגיאה בעדכון הסטטוס.");
       });
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === id ? { ...emp, status: res.data.status } : emp
+        )
+      );
+    } catch (error) {
+      console.error("שגיאה בעדכון הסטטוס:", error);
+      setMsg("אירעה שגיאה בעדכון הסטטוס.");
+    }
   };
 
   const changeRole = async (id, newRole) => {
-    axios
-      .put(`/employeeManagement/role/${id}`, { role: newRole })
-      .then(() => {
-        setEmployees((prev) =>
-          prev.map((emp) => (emp.id === id ? { ...emp, role: newRole } : emp))
-        );
-      })
-      .catch((error) => {
-        console.error("שגיאה בעדכון התפקיד:", error);
-        setMsg("אירעה שגיאה בעדכון התפקיד.");
+    try {
+      await axios.put(`/employeeManagement/role/${id}`, { role: newRole });
+      setEmployees((prev) =>
+        prev.map((emp) => (emp.id === id ? { ...emp, role: newRole } : emp))
+      );
+    } catch (error) {
+      console.error("שגיאה בעדכון התפקיד:", error);
+      setMsg("אירעה שגיאה בעדכון התפקיד.");
+    }
+  };
+
+  const togglePermission = async (roleName, field, newValue) => {
+    try {
+      const response = await axios.put("/role/updatePermission", {
+        roleName,
+        permissionField: field,
+        newValue,
       });
+
+      if (response.data.success) {
+        setRoles((prev) =>
+          prev.map((role) =>
+            role.Role_Name === roleName ? { ...role, [field]: newValue } : role
+          )
+        );
+      } else {
+        console.error("שגיאה בעדכון ההרשאה - ללא success");
+        setMsg("שגיאה בעדכון ההרשאה.");
+      }
+    } catch (err) {
+      console.error("❌ שגיאה בבקשת axios:", err);
+      setMsg("שגיאה בעדכון ההרשאה.");
+    }
   };
 
   const filteredEmployees = employees.filter((emp) => {
@@ -61,11 +90,76 @@ function MainPageManager() {
     return fullName.includes(searchName.toLowerCase());
   });
 
+  const permissionFields = [
+    { field: "Create_Work_Schedule", label: "יצירת סידור עבודה" },
+    { field: "Update_Work_Schedule", label: "עדכון סידור עבודה" },
+    { field: "Watch_Incident", label: "צפייה בדוחות אירוע" },
+    { field: "Create_Incident", label: "הוספת דוח אירוע" },
+    { field: "Updating_Incident", label: "עריכת דוח אירוע" },
+    { field: "Update_Guest_List", label: "עדכון רשימת אורחים" },
+  ];
+
+  const translateRole = (role) => {
+    switch (role) {
+      case "manager":
+        return "מנהל";
+      case "kabat":
+        return 'קב"ט';
+      case "moked":
+        return "מוקד";
+      case "guard":
+        return "מאבטח";
+      default:
+        return role;
+    }
+  };
+
   return (
     <div className="employeeManagementPage">
       <div className="employeeManagement">
         <h2>ניהול עובדים</h2>
 
+        {/* טבלת ההרשאות */}
+        <h3 className="role-table-title">טבלת הרשאות תפקידים</h3>
+        <div className="role-table-container">
+          <table className="role-table">
+            <thead>
+              <tr>
+                <th>תפקיד</th>
+                {permissionFields.map(({ label }) => (
+                  <th key={label}>{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {roles.map((role) => (
+                <tr key={role.ID_Role}>
+                  <td>{translateRole(role.Role_Name)}</td>
+                  {permissionFields.map(({ field }) => (
+                    <td key={field}>
+                      <label className="switch">
+                        <input
+                          type="checkbox"
+                          checked={role[field] === "able"}
+                          onChange={() =>
+                            togglePermission(
+                              role.Role_Name,
+                              field,
+                              role[field] === "able" ? "unable" : "able"
+                            )
+                          }
+                        />
+                        <span className="slider round"></span>
+                      </label>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* חיפוש עובדים */}
         <div className="search-filters">
           <input
             type="text"
@@ -75,6 +169,7 @@ function MainPageManager() {
           />
         </div>
 
+        {/* טבלת עובדים */}
         <div className="employeeManagement-container">
           <table className="employee-table">
             <thead>
@@ -123,6 +218,7 @@ function MainPageManager() {
             </tbody>
           </table>
         </div>
+
         {msg && <p>{msg}</p>}
       </div>
     </div>
