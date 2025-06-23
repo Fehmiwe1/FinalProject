@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 22, 2025 at 08:12 PM
+-- Generation Time: Jun 23, 2025 at 04:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -191,7 +191,8 @@ INSERT INTO `employee_requests` (`id`, `ID_employee`, `request_type`, `request_d
 (12, 41, 'חופשה', '2025-06-22', '2025-06-03', '2025-06-05', 3, 2, 'איורע', NULL, 'אושר'),
 (13, 37, 'מחלה', '2025-03-22', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1750602978970.pdf', NULL),
 (14, 37, 'חופשה', '2025-06-22', '2025-06-30', '2025-07-03', 4, 4, 'טיול', NULL, 'סורב'),
-(15, 70, 'מחלה', '2025-06-22', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1750603742618.pdf', NULL);
+(15, 70, 'מחלה', '2025-06-22', '0000-00-00', '0000-00-00', 0, 0, '', 'uploads\\sick-1750603742618.pdf', NULL),
+(16, 41, 'חופשה', '2025-06-22', '2025-06-24', '2025-06-26', 3, 2, 'מסיבה', NULL, 'ממתין');
 
 -- --------------------------------------------------------
 
@@ -285,25 +286,24 @@ INSERT INTO `incident` (`id`, `Incident_Name`, `Incident_Date`, `Kabat_Name`, `D
 
 CREATE TABLE `role` (
   `ID_Role` int(11) NOT NULL,
-  `Role_Name` varchar(255) NOT NULL,
-  `Create_Work_Schedul` tinyint(1) NOT NULL,
-  `Create_Incidet` tinyint(1) NOT NULL,
-  `Update_Work_Schadul` tinyint(1) NOT NULL,
-  `Watch_Incidet` tinyint(1) NOT NULL,
-  `Update_Guest_List` tinyint(1) NOT NULL,
-  `Work_Permission` tinyint(1) NOT NULL,
-  `Leave_Approval` tinyint(1) NOT NULL,
-  `Work_Change_Approval` tinyint(1) NOT NULL,
-  `Updating_Incident` tinyint(1) NOT NULL
+  `Role_Name` varchar(50) NOT NULL,
+  `Create_Work_Schedule` varchar(10) NOT NULL DEFAULT 'unable',
+  `Update_Work_Schedule` varchar(10) NOT NULL DEFAULT 'unable',
+  `Watch_Incident` varchar(10) NOT NULL DEFAULT 'unable',
+  `Create_Incident` varchar(10) NOT NULL DEFAULT 'unable',
+  `Updating_Incident` varchar(10) NOT NULL DEFAULT 'unable',
+  `Update_Guest_List` varchar(10) NOT NULL DEFAULT 'unable'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `role`
 --
 
-INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedul`, `Create_Incidet`, `Update_Work_Schadul`, `Watch_Incidet`, `Update_Guest_List`, `Work_Permission`, `Leave_Approval`, `Work_Change_Approval`, `Updating_Incident`) VALUES
-(1, 'manager', 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(2, 'kabat', 0, 0, 0, 0, 0, 0, 0, 0, 0);
+INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedule`, `Update_Work_Schedule`, `Watch_Incident`, `Create_Incident`, `Updating_Incident`, `Update_Guest_List`) VALUES
+(1, 'manager', 'able', 'able', 'able', 'able', 'able', 'able'),
+(2, 'kabat', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable'),
+(3, 'moked', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable'),
+(4, 'guard', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable');
 
 -- --------------------------------------------------------
 
@@ -453,7 +453,8 @@ ALTER TABLE `incident`
 -- Indexes for table `role`
 --
 ALTER TABLE `role`
-  ADD PRIMARY KEY (`ID_Role`);
+  ADD PRIMARY KEY (`ID_Role`),
+  ADD UNIQUE KEY `Role_Name` (`Role_Name`);
 
 --
 -- Indexes for table `shift`
@@ -488,7 +489,7 @@ ALTER TABLE `employee_notifications`
 -- AUTO_INCREMENT for table `employee_requests`
 --
 ALTER TABLE `employee_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `employee_shift_assignment`
@@ -507,6 +508,12 @@ ALTER TABLE `guests`
 --
 ALTER TABLE `incident`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `role`
+--
+ALTER TABLE `role`
+  MODIFY `ID_Role` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `shift`

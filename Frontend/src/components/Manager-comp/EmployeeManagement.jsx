@@ -160,6 +160,8 @@ function MainPageManager() {
         </div>
 
         {/* חיפוש עובדים */}
+        <h3 className="role-table-title">טבלת עובדים</h3>
+
         <div className="search-filters">
           <input
             type="text"
