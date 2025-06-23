@@ -148,3 +148,37 @@ input:checked + .slider:before {
   background-color: #2c3e50;
   color: #ecf0f1;
 }
+
+.role-table-container {
+  width: 90%;
+  overflow-x: auto;
+}
+
+.role-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #34495e;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+.role-table thead {
+  background-color: #3e556b;
+  color: #ddd7d2;
+  font-size: 1.4rem;
+}
+
+.role-table th,
+.role-table td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #2c3e50;
+}
+
+.role-table tbody tr:hover {
+  background-color: #2a3a4b;
+  cursor: default; /* או pointer אם תרצה פעולות */
+}

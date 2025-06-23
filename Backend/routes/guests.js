@@ -157,7 +157,7 @@ router.post("/check", (req, res) => {
     });
   }
 
-  // שלב 1: עדכון אוטומטי של אורחים שפג תוקפם
+  // שלב 1: עדכון אורחים שפג תוקפם
   const deactivateExpiredQuery = `
     UPDATE guests
     SET IsActive = 0
@@ -173,44 +173,47 @@ router.post("/check", (req, res) => {
       });
     }
 
-    // שלב 2: המשך בדיקה רגילה לאחר העדכון
+    // שלב 2: שליפה של כל השורות של הקבלן
     const contractorQuery = `
       SELECT * FROM guests
-      WHERE GuestNumber = ? AND IsActive = 1
+      WHERE GuestNumber = ?
     `;
 
-    db.query(contractorQuery, [contractorNumber], (err, contractors) => {
+    db.query(contractorQuery, [contractorNumber], (err, guests) => {
       if (err) {
         return res
           .status(500)
           .json({ status: "error", message: "Database error" });
       }
 
-      if (contractors.length === 0) {
+      if (guests.length === 0) {
         return res.json({
           status: "contractor_not_found",
           message: "Contractor not found.",
         });
       }
 
-      const matchingVehicle = contractors.find(
-        (g) => g.CarNumber === vehicleNumber
-      );
-      if (!matchingVehicle) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const matching = guests.find((g) => {
+        const start = new Date(g.StartDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(g.EndDate);
+        end.setHours(0, 0, 0, 0);
+        return (
+          String(g.CarNumber) === String(vehicleNumber) &&
+          g.IsActive === 1 &&
+          now >= start &&
+          now <= end
+        );
+      });
+
+      if (!matching) {
         return res.json({
           status: "vehicle_not_found",
-          message: "Vehicle not associated with contractor.",
-        });
-      }
-
-      const now = new Date();
-      const startDate = new Date(matchingVehicle.StartDate);
-      const endDate = new Date(matchingVehicle.EndDate);
-
-      if (now <= startDate || now >= endDate) {
-        return res.json({
-          status: "not_in_range",
-          message: "Access period expired or not started.",
+          message:
+            "Vehicle not associated with contractor or not active/valid.",
         });
       }
 
@@ -218,5 +221,6 @@ router.post("/check", (req, res) => {
     });
   });
 });
+
 
 module.exports = router;
