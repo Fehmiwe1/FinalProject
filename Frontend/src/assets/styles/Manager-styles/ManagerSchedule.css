@@ -200,3 +200,21 @@
 .save-button:hover {
   background-color: #3b4a59;
 }
+
+.auto-fill-button {
+  display: block;
+  margin: 12px auto;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background-color: #1e293b;
+  color: #ffffff;
+  cursor: pointer;
+  width: auto; /* הכפתור יתאים עצמו לאורך התוכן */
+}
+
+.auto-fill-button:hover {
+  background-color: #3b4a59;
+}

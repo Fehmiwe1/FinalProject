@@ -234,6 +234,202 @@ function ManagerSchedule() {
       setMessageType("");
     }, 2000);
   };
+
+  const handleAutoAssignWeekTable = () => {
+    const newAssignments = { ...assignments };
+    const shiftOrder = ["בוקר", "ערב", "לילה"];
+
+    const isBlocked = (userId, date, shift, currentAssignments) => {
+      const currentIndex = shiftOrder.indexOf(shift);
+      const dateObj = new Date(date);
+      const prevDate = new Date(dateObj);
+      prevDate.setDate(dateObj.getDate() - 1);
+      const prevDateStr = prevDate.toISOString().split("T")[0];
+
+      return Object.entries(currentAssignments).some(([key, val]) => {
+        if (val !== userId.toString()) return false;
+
+        const parts = key.split("|");
+        const [kDate, kShift] =
+          parts.length === 2 ? [parts[0], parts[1]] : [parts[0], parts[2]];
+
+        const assignedIndex = shiftOrder.indexOf(kShift);
+
+        // באותו יום – משמרות סמוכות
+        if (kDate === date && shift !== kShift) {
+          return Math.abs(currentIndex - assignedIndex) < 2;
+        }
+
+        // לילה של אתמול מול בוקר של היום
+        if (kDate === prevDateStr && kShift === "לילה" && shift === "בוקר") {
+          return true;
+        }
+
+        return false;
+      });
+    };
+
+    // רק אם התפקיד הוא מוקד או קב"ט
+    if (selectedRole !== "מוקד" && selectedRole !== "קבט") {
+      setMessage('שיבוץ אוטומטי אפשרי רק למוקדנים ולקב"טים');
+      setMessageType("error");
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+
+    // רשימת עובדים ייחודיים מתוך kabatConstraints
+    const uniqueUsers = [
+      ...new Map(kabatConstraints.map((user) => [user.id, user])).values(),
+    ];
+
+    // מעבר על כל תאריכים ומשמרות
+    weeks.flat().forEach((date) => {
+      shifts.forEach((shift) => {
+        const key = `${date}|${shift}`;
+        if (newAssignments[key]) return; // אל תדרוס שיבוץ קיים
+
+        // מציאת מועמדים מתאימים
+        const candidates = uniqueUsers
+          .map((user) => {
+            const availability =
+              kabatConstraints.find(
+                (c) => c.id === user.id && c.date === date && c.shift === shift
+              )?.availability || "יכול";
+
+            return { ...user, availability };
+          })
+          .filter(
+            (user) =>
+              user.availability !== "לא יכול" &&
+              !isBlocked(user.id.toString(), date, shift, newAssignments)
+          )
+          .sort((a, b) => {
+            const priority = { יכול: 0, "יכול חלקית": 1 };
+            return (
+              (priority[a.availability] ?? 2) - (priority[b.availability] ?? 2)
+            );
+          });
+
+        // אם יש מועמד מתאים – שיבוץ
+        if (candidates.length > 0) {
+          newAssignments[key] = candidates[0].id.toString();
+        }
+      });
+    });
+
+    // עדכון assignments והודעה למשתמש
+    setAssignments(newAssignments);
+    setMessage("המילוי האוטומטי הושלם");
+    setMessageType("success");
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
+
+  const handleAutoAssignFullGuardScheduleTable = () => {
+    const newAssignments = { ...assignments };
+    const shiftOrder = ["בוקר", "ערב", "לילה"];
+
+    const isBlocked = (userId, date, shift, currentAssignments) => {
+      const currentIndex = shiftOrder.indexOf(shift);
+      const dateObj = new Date(date);
+      const prevDate = new Date(dateObj);
+      prevDate.setDate(dateObj.getDate() - 1);
+      const prevDateStr = prevDate.toISOString().split("T")[0];
+
+      return Object.entries(currentAssignments).some(([key, val]) => {
+        if (val !== userId.toString()) return false;
+        const parts = key.split("|");
+        const [kDate, , kShift] = parts;
+        const assignedIndex = shiftOrder.indexOf(kShift);
+
+        // באותו יום
+        if (kDate === date && shift !== kShift) {
+          return Math.abs(currentIndex - assignedIndex) < 2;
+        }
+
+        // לילה של אתמול + בוקר של היום
+        if (kDate === prevDateStr && kShift === "לילה" && shift === "בוקר") {
+          return true;
+        }
+
+        return false;
+      });
+    };
+
+    const uniqueGuards = [
+      ...new Map(GuardConstraints.map((g) => [g.id, g])).values(),
+    ];
+
+    // שבועיים
+    weeks.flat().forEach((date, dayIndex) => {
+      const dayOfWeek = new Date(date).getDay(); // עבור getGuardCount
+
+      positions.forEach((position) => {
+        Guardshifts.forEach((shiftType) => {
+          const count = getGuardCount(shiftType, position, dayOfWeek);
+
+          for (let idx = 0; idx < count; idx++) {
+            const key = `${date}|${position}|${shiftType}|${idx}`;
+            if (newAssignments[key]) continue; // כבר שובץ ידנית
+
+            const candidates = uniqueGuards
+              .map((user) => {
+                const availability =
+                  GuardConstraints.find(
+                    (c) =>
+                      c.id === user.id &&
+                      c.date === date &&
+                      c.shift === shiftType
+                  )?.availability || "יכול";
+
+                return { ...user, availability };
+              })
+              .filter(
+                (u) =>
+                  u.availability !== "לא יכול" &&
+                  !Object.entries(newAssignments).some(
+                    ([assignKey, assignId]) => {
+                      const [assignDate, assignPos, assignShift] =
+                        assignKey.split("|");
+                      return (
+                        assignDate === date &&
+                        assignShift === shiftType &&
+                        assignId === u.id.toString()
+                      );
+                    }
+                  ) &&
+                  !isBlocked(u.id.toString(), date, shiftType, newAssignments)
+              )
+              .sort((a, b) => {
+                const priority = { יכול: 0, "יכול חלקית": 1 };
+                return (
+                  (priority[a.availability] ?? 2) -
+                  (priority[b.availability] ?? 2)
+                );
+              });
+
+            if (candidates.length > 0) {
+              newAssignments[key] = candidates[0].id.toString();
+            }
+          }
+        });
+      });
+    });
+
+    setAssignments(newAssignments);
+    setMessage("המילוי האוטומטי למאבטחים הושלם");
+    setMessageType("success");
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
+
   const formatDateToHebrew = (dateStr) => {
     const d = new Date(dateStr);
     const day = d.getDate().toString().padStart(2, "0");
@@ -608,6 +804,12 @@ function ManagerSchedule() {
           <>
             {renderWeekTable(weeks[0], "שבוע ראשון")}
             {renderWeekTable(weeks[1], "שבוע שני")}
+            <button
+              className="auto-fill-button"
+              onClick={handleAutoAssignWeekTable}
+            >
+              מילוי סידור אוטומטי
+            </button>
             <button className="save-button" onClick={handleSaveSchedule}>
               שמור סידור עבודה
             </button>
@@ -630,6 +832,12 @@ function ManagerSchedule() {
               </button>
             </div>
             {renderFullGuardScheduleTable(guardWeekView)}
+            <button
+              className="auto-fill-button"
+              onClick={handleAutoAssignFullGuardScheduleTable}
+            >
+              מילוי סידור אוטומטי
+            </button>
             <button
               className="save-button"
               onClick={handleSaveScheduleForGuard}
