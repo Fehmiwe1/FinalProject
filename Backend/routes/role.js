@@ -13,6 +13,7 @@ router.get("/", (req, res) => {
       Role_Name,
       Create_Work_Schedule,
       Update_Work_Schedule,
+      Watch_Work_Schedule,
       Watch_Incident,
       Create_Incident,
       Updating_Incident,
@@ -38,6 +39,7 @@ router.put("/updatePermission", (req, res) => {
   const allowedFields = [
     "Create_Work_Schedule",
     "Update_Work_Schedule",
+    "Watch_Work_Schedule",
     "Watch_Incident",
     "Create_Incident",
     "Updating_Incident",

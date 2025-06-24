@@ -93,6 +93,7 @@ function MainPageManager() {
   const permissionFields = [
     { field: "Create_Work_Schedule", label: "יצירת סידור עבודה" },
     { field: "Update_Work_Schedule", label: "עדכון סידור עבודה" },
+    { field: "Watch_Work_Schedule", label: "צפייה בסידור עבודה" },
     { field: "Watch_Incident", label: "צפייה בדוחות אירוע" },
     { field: "Create_Incident", label: "הוספת דוח אירוע" },
     { field: "Updating_Incident", label: "עריכת דוח אירוע" },

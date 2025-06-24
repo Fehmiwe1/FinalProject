@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 23, 2025 at 04:05 AM
+-- Generation Time: Jun 24, 2025 at 06:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -136,7 +136,7 @@ CREATE TABLE `employee_notifications` (
   `ID_employee` int(11) NOT NULL,
   `event_date` date NOT NULL,
   `event_description` text NOT NULL,
-  `notification_status` enum('approval','rejection','pending') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'pending'
+  `notification_status` enum('approval','rejection','pending','task') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -160,7 +160,12 @@ INSERT INTO `employee_notifications` (`id`, `ID_employee`, `event_date`, `event_
 (15, 47, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
 (16, 48, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
 (17, 49, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
-(18, 50, '2025-06-21', 'הרשמת עובד חדש', 'approval');
+(18, 50, '2025-06-21', 'הרשמת עובד חדש', 'approval'),
+(19, 31, '2025-06-26', 'ריענון נשק', 'task'),
+(20, 36, '2025-06-27', 'ריענון קרב מגע', 'task'),
+(21, 41, '2025-08-14', 'קורס מוקד', 'task'),
+(22, 37, '2025-06-24', 'קורס מנבטים', 'task'),
+(23, 31, '2025-06-22', 'אבטח כנס בצרצל', 'task');
 
 -- --------------------------------------------------------
 
@@ -215,7 +220,57 @@ INSERT INTO `employee_shift_assignment` (`ID`, `Employee_ID`, `Shift_ID`, `Role`
 (1808, 45, 2205, 'מוקד'),
 (1809, 43, 2206, 'מוקד'),
 (1810, 44, 2207, 'מוקד'),
-(1811, 42, 2208, 'מוקד');
+(1811, 42, 2208, 'מוקד'),
+(1812, 38, 2206, 'קבט'),
+(1813, 38, 2214, 'קבט'),
+(1814, 38, 2215, 'קבט'),
+(1815, 40, 2208, 'קבט'),
+(1816, 46, 2205, 'קבט'),
+(1817, 40, 2218, 'קבט'),
+(1818, 46, 2219, 'קבט'),
+(1819, 40, 2220, 'קבט'),
+(1820, 38, 2221, 'קבט'),
+(1821, 47, 2222, 'קבט'),
+(1822, 46, 2223, 'קבט'),
+(1823, 40, 2224, 'קבט'),
+(1824, 38, 2225, 'קבט'),
+(1825, 39, 2226, 'קבט'),
+(1826, 40, 2227, 'קבט'),
+(1827, 39, 2228, 'קבט'),
+(1828, 46, 2229, 'קבט'),
+(1829, 39, 2230, 'קבט'),
+(1830, 47, 2231, 'קבט'),
+(1831, 38, 2232, 'קבט'),
+(1832, 43, 2215, 'מוקד'),
+(1833, 44, 2218, 'מוקד'),
+(1834, 42, 2239, 'מוקד'),
+(1835, 42, 2219, 'מוקד'),
+(1836, 43, 2231, 'מוקד'),
+(1837, 44, 2229, 'מוקד'),
+(1838, 50, 2224, 'מוקד'),
+(1839, 44, 2225, 'מוקד'),
+(1840, 43, 2245, 'מוקד'),
+(1841, 42, 2246, 'מוקד'),
+(1842, 4, 2247, 'מאבטח'),
+(1843, 51, 2247, 'מאבטח'),
+(1844, 65, 2247, 'מאבטח'),
+(1845, 36, 2248, 'מאבטח'),
+(1846, 36, 2249, 'סייר ג'),
+(1847, 64, 2250, 'מאבטח'),
+(1848, 62, 2249, 'מאבטח'),
+(1849, 58, 2252, 'מאבטח'),
+(1850, 53, 2253, 'מאבטח'),
+(1851, 58, 2254, 'מאבטח'),
+(1852, 61, 2255, 'סייר רכוב'),
+(1853, 58, 2248, 'סייר רכוב'),
+(1854, 59, 2257, 'סייר רכוב'),
+(1855, 53, 2258, 'סייר רכוב'),
+(1856, 59, 2259, 'מאבטח'),
+(1857, 51, 2260, 'סייר רכוב'),
+(1858, 57, 2261, 'סייר א'),
+(1859, 56, 2262, 'סייר ב'),
+(1860, 60, 2255, 'סייר ב'),
+(1861, 56, 2261, 'סייר ב');
 
 -- --------------------------------------------------------
 
@@ -289,6 +344,7 @@ CREATE TABLE `role` (
   `Role_Name` varchar(50) NOT NULL,
   `Create_Work_Schedule` varchar(10) NOT NULL DEFAULT 'unable',
   `Update_Work_Schedule` varchar(10) NOT NULL DEFAULT 'unable',
+  `Watch_Work_Schedule` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'unable',
   `Watch_Incident` varchar(10) NOT NULL DEFAULT 'unable',
   `Create_Incident` varchar(10) NOT NULL DEFAULT 'unable',
   `Updating_Incident` varchar(10) NOT NULL DEFAULT 'unable',
@@ -299,11 +355,11 @@ CREATE TABLE `role` (
 -- Dumping data for table `role`
 --
 
-INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedule`, `Update_Work_Schedule`, `Watch_Incident`, `Create_Incident`, `Updating_Incident`, `Update_Guest_List`) VALUES
-(1, 'manager', 'able', 'able', 'able', 'able', 'able', 'able'),
-(2, 'kabat', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable'),
-(3, 'moked', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable'),
-(4, 'guard', 'unable', 'unable', 'unable', 'unable', 'unable', 'unable');
+INSERT INTO `role` (`ID_Role`, `Role_Name`, `Create_Work_Schedule`, `Update_Work_Schedule`, `Watch_Work_Schedule`, `Watch_Incident`, `Create_Incident`, `Updating_Incident`, `Update_Guest_List`) VALUES
+(1, 'manager', 'able', 'able', 'able', 'able', 'unable', 'unable', 'able'),
+(2, 'kabat', 'unable', 'unable', 'able', 'able', 'able', 'able', 'unable'),
+(3, 'moked', 'unable', 'unable', 'able', 'able', 'unable', 'unable', 'able'),
+(4, 'guard', 'unable', 'unable', 'able', 'unable', 'unable', 'unable', 'unable');
 
 -- --------------------------------------------------------
 
@@ -326,10 +382,44 @@ CREATE TABLE `shift` (
 --
 
 INSERT INTO `shift` (`ID`, `Date`, `Location`, `ShiftType`, `Num_Guards`, `Num_Moked`, `Num_Kabat`) VALUES
-(2205, '2025-06-15', 'אחר', 'בוקר', 0, 1, 0),
-(2206, '2025-06-15', 'אחר', 'ערב', 0, 1, 0),
+(2205, '2025-06-15', 'אחר', 'בוקר', 0, 1, 1),
+(2206, '2025-06-15', 'אחר', 'ערב', 0, 1, 1),
 (2207, '2025-06-15', 'אחר', 'לילה', 0, 1, 0),
-(2208, '2025-06-16', 'אחר', 'בוקר', 0, 1, 0);
+(2208, '2025-06-16', 'אחר', 'בוקר', 0, 1, 1),
+(2214, '2025-06-16', 'אחר', 'לילה', 0, 0, 1),
+(2215, '2025-06-17', 'אחר', 'ערב', 0, 1, 1),
+(2218, '2025-06-17', 'אחר', 'לילה', 0, 1, 1),
+(2219, '2025-06-18', 'אחר', 'בוקר', 0, 1, 1),
+(2220, '2025-06-18', 'אחר', 'ערב', 0, 0, 1),
+(2221, '2025-06-19', 'אחר', 'ערב', 0, 0, 1),
+(2222, '2025-06-19', 'אחר', 'בוקר', 0, 0, 1),
+(2223, '2025-06-19', 'אחר', 'לילה', 0, 0, 1),
+(2224, '2025-06-24', 'אחר', 'בוקר', 0, 1, 1),
+(2225, '2025-06-23', 'אחר', 'ערב', 0, 1, 1),
+(2226, '2025-06-22', 'אחר', 'בוקר', 0, 0, 1),
+(2227, '2025-06-23', 'אחר', 'בוקר', 0, 0, 1),
+(2228, '2025-06-24', 'אחר', 'לילה', 0, 0, 1),
+(2229, '2025-06-24', 'אחר', 'ערב', 0, 1, 1),
+(2230, '2025-06-25', 'אחר', 'ערב', 0, 0, 1),
+(2231, '2025-06-25', 'אחר', 'בוקר', 0, 1, 1),
+(2232, '2025-06-25', 'אחר', 'לילה', 0, 0, 1),
+(2239, '2025-06-18', 'אחר', 'לילה', 0, 1, 0),
+(2245, '2025-06-22', 'אחר', 'ערב', 0, 1, 0),
+(2246, '2025-06-22', 'אחר', 'לילה', 0, 1, 0),
+(2247, '2025-06-15', 'ראשי', 'בוקר', 3, 0, 0),
+(2248, '2025-06-15', 'ראשי', 'לילה', 2, 0, 0),
+(2249, '2025-06-16', 'ראשי', 'ערב', 2, 0, 0),
+(2250, '2025-06-15', 'ראשי', 'ערב', 1, 0, 0),
+(2252, '2025-06-16', 'נשר', 'בוקר', 1, 0, 0),
+(2253, '2025-06-17', 'נשר', 'בוקר', 1, 0, 0),
+(2254, '2025-06-17', 'נשר', 'ערב', 1, 0, 0),
+(2255, '2025-06-16', 'ראשי', 'בוקר', 2, 0, 0),
+(2257, '2025-06-17', 'ראשי', 'ערב', 1, 0, 0),
+(2258, '2025-06-18', 'ראשי', 'בוקר', 1, 0, 0),
+(2259, '2025-06-18', 'נשר', 'בוקר', 1, 0, 0),
+(2260, '2025-06-19', 'ראשי', 'בוקר', 1, 0, 0),
+(2261, '2025-06-18', 'ראשי', 'ערב', 2, 0, 0),
+(2262, '2025-06-17', 'ראשי', 'בוקר', 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -483,7 +573,7 @@ ALTER TABLE `employee_constraints`
 -- AUTO_INCREMENT for table `employee_notifications`
 --
 ALTER TABLE `employee_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `employee_requests`
@@ -495,7 +585,7 @@ ALTER TABLE `employee_requests`
 -- AUTO_INCREMENT for table `employee_shift_assignment`
 --
 ALTER TABLE `employee_shift_assignment`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1812;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1862;
 
 --
 -- AUTO_INCREMENT for table `guests`
@@ -519,7 +609,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `shift`
 --
 ALTER TABLE `shift`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2213;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2265;
 
 --
 -- AUTO_INCREMENT for table `users`
