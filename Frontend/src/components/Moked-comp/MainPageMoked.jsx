@@ -8,6 +8,7 @@ function MainPageMoked() {
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const formatDateToHebrew = (dateStr) => {
@@ -19,7 +20,6 @@ function MainPageMoked() {
     return `${day}/${month}/${year}`;
   };
 
-  
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
@@ -30,7 +30,17 @@ function MainPageMoked() {
       }
     };
 
+    const fetchTasks = async () => {
+      try {
+        const res = await axios.get("/employeeNotifications/getTasks");
+        setTasks(res.data);
+      } catch (error) {
+        console.error("Error loading tasks", error);
+      }
+    };
+
     fetchPendingRequests();
+    fetchTasks();
   }, []);
 
   const handleSearch = async () => {
@@ -105,8 +115,25 @@ function MainPageMoked() {
                 <tr key={index}>
                   <td>{req.request_type}</td>
                   <td>{formatDateToHebrew(req.request_date)}</td>
-
                   <td>{req.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <h3>משימות</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>תיאור משימה</th>
+                <th>תאריך משימה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task, index) => (
+                <tr key={index}>
+                  <td>{task.event_description}</td>
+                  <td>{formatDateToHebrew(task.event_date)}</td>
                 </tr>
               ))}
             </tbody>

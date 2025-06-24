@@ -67,9 +67,7 @@ function Incident() {
     <div className="incidentPpage">
       <div className="container-Incident">
         <div className="incidentPageContainer">
-          <h1 className="incident-page-title">
-            כאן תוכל לצפות בדוחות אירועים חריגים
-          </h1>
+          <h1 className="incident-page-title">דוחות אירועים חריגים</h1>
 
           {canEdit && (
             <div className="create-incident">

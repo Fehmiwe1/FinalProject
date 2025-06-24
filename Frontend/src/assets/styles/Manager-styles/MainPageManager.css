@@ -110,10 +110,54 @@ requests-nav-button:hover {
   background-color: #324557;
 }
 
+.task-form-group {
+  margin-bottom: 15px;
+}
+
+.task-form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.task-form-group input,
+.task-form-group textarea,
+.task-form-group select {
+  width: 100%;
+  padding: 8px;
+  background-color: #333;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 6px;
+}
+
+.task-submit-button {
+  background-color: #3e556b;
+  padding: 10px 20px;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.task-submit-button:hover {
+  background-color: #324557;
+}
+
+.task-message {
+  color: #2ecc71;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.error-task-message {
+  color: #c0392b;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
 @media (max-width: 1024px) {
   .mainPageManager-container {
     flex-direction: column;
-    align-items: center;
+    align-itetask-message: center;
   }
 
   .notifications-container,

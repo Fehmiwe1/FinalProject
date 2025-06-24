@@ -1,3 +1,4 @@
+// MainPageGuard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../../assets/styles/Guard-styles/MainPageGuard.css";
@@ -8,6 +9,7 @@ function MainPageGuard() {
   const [result, setResult] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const formatDateToHebrew = (dateStr) => {
@@ -18,7 +20,7 @@ function MainPageGuard() {
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   };
-  
+
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
@@ -29,7 +31,17 @@ function MainPageGuard() {
       }
     };
 
+    const fetchTasks = async () => {
+      try {
+        const res = await axios.get("/employeeNotifications/getTasks");
+        setTasks(res.data);
+      } catch (error) {
+        console.error("Error loading tasks", error);
+      }
+    };
+
     fetchPendingRequests();
+    fetchTasks();
   }, []);
 
   const handleSearch = async () => {
@@ -72,8 +84,6 @@ function MainPageGuard() {
       setResult("⚠️ שגיאה בעת הבדיקה");
     }
   };
-  
-  
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -82,7 +92,6 @@ function MainPageGuard() {
         setAlerts(response.data);
       } catch (error) {
         console.error("Error loading guests", error);
-        
       }
     };
 
@@ -107,8 +116,25 @@ function MainPageGuard() {
                 <tr key={index}>
                   <td>{req.request_type}</td>
                   <td>{formatDateToHebrew(req.request_date)}</td>
-
                   <td>{req.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <h3 style={{ marginTop: "30px" }}>משימות</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>תיאור משימה</th>
+                <th>תאריך משימה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task, index) => (
+                <tr key={index}>
+                  <td>{task.event_description}</td>
+                  <td>{formatDateToHebrew(task.event_date)}</td>
                 </tr>
               ))}
             </tbody>

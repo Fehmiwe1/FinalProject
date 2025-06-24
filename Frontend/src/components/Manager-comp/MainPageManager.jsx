@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/Manager-styles/MainPageManager.css";
 
@@ -16,7 +15,18 @@ function MainPageManager() {
   const [assignments, setAssignments] = useState([]);
   const [weeks, setWeeks] = useState([[], []]);
   const [guardWeekView, setGuardWeekView] = useState(0); // 0 = שבוע ראשון, 1 = שבוע שני
-  const userRole = Cookies.get("userRole");
+
+  const [taskRole, setTaskRole] = useState("");
+  const [taskEmployees, setTaskEmployees] = useState([]);
+  const [taskEmployeeId, setTaskEmployeeId] = useState("");
+  const [taskDate, setTaskDate] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [taskSearch, setTaskSearch] = useState("");
+  const [taskMsg, setTaskMsg] = useState("");
+  const [errorTaskMsg, setErrorTaskMsg] = useState("");
+
+  const [tasks, setTasks] = useState([]);
 
   const navigate = useNavigate();
 
@@ -77,7 +87,6 @@ function MainPageManager() {
         console.error("שגיאה בטעינת בקשות:", error);
       }
     };
-    
 
     fetchEmployees();
     fetchAlerts();
@@ -267,6 +276,81 @@ function MainPageManager() {
     );
   };
 
+  useEffect(() => {
+    const fetchTaskEmployees = async () => {
+      if (!taskRole) return;
+
+      let endpoint = "";
+      if (taskRole === "guard")
+        endpoint = "/employeeNotifications/scheduleGuards";
+      else if (taskRole === "moked")
+        endpoint = "/employeeNotifications/scheduleMoked";
+      else if (taskRole === "kabat")
+        endpoint = "/employeeNotifications/scheduleKabet";
+      else return;
+
+      try {
+        const res = await axios.get(endpoint);
+        setTaskEmployees(res.data);
+      } catch (err) {
+        console.error("שגיאה בשליפת עובדים לפי תפקיד:", err);
+      }
+    };
+    fetchTaskEmployees();
+  }, [taskRole]);
+
+  const handleSendTask = async () => {
+    if (!taskEmployeeId || !taskDate || !taskDescription) {
+      setErrorTaskMsg("יש למלא את כל השדות");
+      setTimeout(() => setErrorTaskMsg(""), 3000);
+      return;
+    }
+    const selectedDate = new Date(taskDate);
+    const today = new Date();
+    selectedDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      setErrorTaskMsg("לא ניתן לשלוח משימה לתאריך עבר");
+      setTimeout(() => setErrorTaskMsg(""), 3000);
+      return;
+    }
+    try {
+      await axios.post("/employeeNotifications/sendNotification", {
+        ID_employee: taskEmployeeId,
+        event_date: taskDate,
+        event_description: taskDescription,
+      });
+      setTaskMsg("המשימה נשלחה בהצלחה");
+      setTaskEmployeeId("");
+      setTaskDate("");
+      setTaskDescription("");
+      setTaskSearch("");
+    } catch (err) {
+      console.error("שגיאה בשליחת משימה:", err);
+      setErrorTaskMsg("אירעה שגיאה בשליחת המשימה");
+    } finally {
+      setTimeout(() => {
+        setTaskMsg("");
+        setErrorTaskMsg("");
+      }, 3000);
+    }
+  };
+
+  const filteredEmployees = taskEmployees.filter((emp) =>
+    `${emp.firstName} ${emp.lastName}`.includes(taskSearch)
+  );
+
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get("/employeeNotifications/tasks");
+      setTasks(res.data);
+    } catch (error) {
+      console.error("שגיאה בטעינת משימות:", error);
+    }
+  };
+
+  fetchTasks();
+
   return (
     <div className="mainPageManager">
       <div className="mainPageManager-container">
@@ -290,10 +374,35 @@ function MainPageManager() {
               ))}
             </tbody>
           </table>
+          {tasks.length > 0 && (
+            <>
+              <h2>משימות עובדים</h2>
+              <table className="notifications-table">
+                <thead>
+                  <tr>
+                    <th>שם עובד</th>
+                    <th>תיאור משימה</th>
+                    <th>תאריך משימה</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tasks.map((task, index) => (
+                    <tr key={index}>
+                      <td>
+                        {task.firstName} {task.lastName}
+                      </td>
+                      <td>{task.event_description}</td>
+                      <td>{formatDateToHebrew(task.event_date)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
 
           {alerts.length > 0 && (
             <>
-              <h2 style={{ marginTop: "20px" }}>בקשות חופשה/מחלה ממתינות</h2>
+              <h2>בקשות חופשה/מחלה ממתינות</h2>
               <table className="notifications-table">
                 <thead>
                   <tr>
@@ -371,6 +480,84 @@ function MainPageManager() {
                 {renderTable(weeks[0], "שבוע ראשון")}
                 {renderTable(weeks[1], "שבוע שני")}
               </>
+            )}
+          </div>
+
+          <div className="WA-container">
+            <h2>הוספת משימה</h2>
+            {taskMsg && <div className="task-message">{taskMsg}</div>}
+            {errorTaskMsg && (
+              <div className="error-task-message">{errorTaskMsg}</div>
+            )}
+
+            <button
+              className="toggle-button"
+              onClick={() => setShowTaskForm(!showTaskForm)}
+            >
+              {showTaskForm ? "הסתר הוספת משימה" : "הצג הוספת משימה"}
+            </button>
+            {showTaskForm && (
+              <div className="task-form-container">
+                <div className="task-form-group">
+                  <label>בחר תפקיד:</label>
+                  <select
+                    value={taskRole}
+                    onChange={(e) => {
+                      setTaskRole(e.target.value);
+                      setTaskEmployeeId("");
+                      setTaskSearch("");
+                    }}
+                  >
+                    <option value="">-- בחר תפקיד --</option>
+                    <option value="guard">מאבטח</option>
+                    <option value="moked">מוקד</option>
+                    <option value="kabat">קב"ט</option>
+                  </select>
+                </div>
+                <div className="task-form-group">
+                  <label>בחר עובד:</label>
+                  <input
+                    list="employeeOptions"
+                    value={taskSearch}
+                    onChange={(e) => {
+                      setTaskSearch(e.target.value);
+                      const match = taskEmployees.find(
+                        (emp) =>
+                          `${emp.firstName} ${emp.lastName}` === e.target.value
+                      );
+                      setTaskEmployeeId(match ? match.id : "");
+                    }}
+                    placeholder="בחר או הקלד שם עובד"
+                    disabled={!taskRole}
+                  />
+                  <datalist id="employeeOptions">
+                    {filteredEmployees.map((emp) => (
+                      <option
+                        key={emp.id}
+                        value={`${emp.firstName} ${emp.lastName}`}
+                      />
+                    ))}
+                  </datalist>
+                </div>
+                <div className="task-form-group">
+                  <label>תאריך משימה:</label>
+                  <input
+                    type="date"
+                    value={taskDate}
+                    onChange={(e) => setTaskDate(e.target.value)}
+                  />
+                </div>
+                <div className="task-form-group">
+                  <label>תיאור משימה:</label>
+                  <textarea
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                  />
+                </div>
+                <button className="task-submit-button" onClick={handleSendTask}>
+                  שלח משימה
+                </button>
+              </div>
             )}
           </div>
         </div>
