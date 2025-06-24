@@ -34,7 +34,7 @@ function ManagerSchedule() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const diffDays = Math.floor((today - base) / (1000 * 60 * 60 * 24));
-      const periodIndex = Math.floor(diffDays / 14);
+      const periodIndex = Math.floor((diffDays + 1) / 14); // ✅ תיקון כאן
       const startOfPeriod = new Date(base);
       startOfPeriod.setDate(base.getDate() + periodIndex * 14);
 
@@ -241,7 +241,7 @@ function ManagerSchedule() {
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   };
-  
+
   const renderFullGuardScheduleTable = (weekIndex) => {
     const seenGuardIds = new Set();
     const uniqueGuards = GuardConstraints.filter((g) => {
@@ -424,10 +424,6 @@ function ManagerSchedule() {
       </div>
     );
   };
-  
-  
-  
-  
 
   const renderWeekTable = (week, title) => {
     const uniqueUsers = [];
@@ -523,7 +519,6 @@ function ManagerSchedule() {
                           );
                         }
                       );
-                      
 
                       if (isBlocked && selectedId !== user.id.toString()) {
                         return null;
