@@ -41,6 +41,23 @@
     border-radius: 4px;
     color: #f1f1f1;
   }
+
+  .add-guest-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 20px;
+    cursor: pointer;
+    margin-top: 5%;
+    margin-bottom: 3%;
+  }
+  
+  .add-guest-button:hover {
+    background-color: #555;
+  }
   
   .create-guest-button {
     width: 100%;

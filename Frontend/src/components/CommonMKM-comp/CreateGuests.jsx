@@ -180,7 +180,7 @@ function CreateGuests() {
 
           <button
             type="button"
-            className="create-guest-button"
+            className="add-guest-button"
             onClick={addVehicle}
           >
             הוסף רכב נוסף

@@ -42,9 +42,7 @@ function Report() {
       format: "a4",
     });
 
-    // Optional: use Alef font if added (for Hebrew)
-    // addAlefFont(doc);
-    // doc.setFont("Alef");
+
     doc.setFont("helvetica");
 
     // Logo in top-right corner
