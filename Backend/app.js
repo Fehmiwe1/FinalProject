@@ -13,6 +13,7 @@ const guestsRoutes = require("./routes/guests");
 const employeeRequestsRoutes = require("./routes/employeeRequests");
 const createScheduleRoutes = require("./routes/createSchedule");
 const roleRoutes = require("./routes/role");
+const reportRoutes = require("./routes/report");
 
 const port = 8801;
 
@@ -55,6 +56,7 @@ app.use("/employeeConstraints", employeeConstraintsRoutes);
 app.use("/employeeRequests", employeeRequestsRoutes);
 app.use("/createSchedule", createScheduleRoutes);
 app.use("/role", roleRoutes);
+app.use("/report", reportRoutes);
 
 // טיפול בשגיאות
 app.use((err, req, res, next) => {
