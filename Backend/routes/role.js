@@ -17,6 +17,7 @@ router.get("/", (req, res) => {
       Watch_Incident,
       Create_Incident,
       Updating_Incident,
+      Create_Guest_List,
       Update_Guest_List
     FROM role
   `;
@@ -43,6 +44,7 @@ router.put("/updatePermission", (req, res) => {
     "Watch_Incident",
     "Create_Incident",
     "Updating_Incident",
+    "Create_Guest_List",
     "Update_Guest_List",
   ];
 
@@ -68,6 +70,54 @@ router.put("/updatePermission", (req, res) => {
     }
 
     res.json({ success: true });
+  });
+});
+
+// 🔹 שליפת הרשאות כולל עיבוד
+router.get("/getPermissions", (req, res) => {
+  const query = `
+    SELECT 
+      ID_Role,
+      Role_Name,
+      Create_Work_Schedule,
+      Update_Work_Schedule,
+      Watch_Work_Schedule,
+      Watch_Incident,
+      Create_Incident,
+      Updating_Incident,
+      Create_Guest_List,
+      Update_Guest_List
+    FROM role
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("שגיאה בשליפת נתוני הרשאות:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    // עיבוד הרשאות
+    const processed = results.map((role) => {
+      const permissions = {};
+      const able = [];
+      const unable = [];
+
+      Object.entries(role).forEach(([key, value]) => {
+        if (["ID_Role", "Role_Name"].includes(key)) return;
+        permissions[key] = value;
+        (value === "able" ? able : unable).push(key);
+      });
+
+      return {
+        ID_Role: role.ID_Role,
+        Role_Name: role.Role_Name,
+        permissions,
+        can: able,
+        cannot: unable,
+      };
+    });
+
+    res.json(processed);
   });
 });
 

@@ -11,12 +11,13 @@ function Incident() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [dateError, setDateError] = useState("");
+  const [permissions, setPermissions] = useState(null);
 
   const userRole = Cookies.get("userRole");
-  const canEdit = userRole === "kabat";
 
   useEffect(() => {
     fetchData();
+    fetchPermissions();
   }, []);
 
   const fetchData = () => {
@@ -24,6 +25,20 @@ function Incident() {
       .get("/post")
       .then((res) => setIncident(res.data))
       .catch(() => setMsg("אירעה שגיאה בטעינת הדוחות."));
+  };
+
+  const fetchPermissions = () => {
+    axios
+      .get("/role/getPermissions")
+      .then((res) => {
+        const roleData = res.data.find((r) => r.Role_Name === userRole);
+        if (roleData) {
+          setPermissions(roleData.permissions);
+        }
+      })
+      .catch((err) => {
+        console.error("שגיאה בשליפת ההרשאות:", err);
+      });
   };
 
   const handleDelete = (post) => {
@@ -63,13 +78,16 @@ function Incident() {
     return nameMatch && dateMatch;
   });
 
+  const canCreate = permissions?.Create_Incident === "able";
+  const canEdit = permissions?.Updating_Incident === "able";
+
   return (
     <div className="incidentPpage">
       <div className="container-Incident">
         <div className="incidentPageContainer">
           <h1 className="incident-page-title">דוחות אירועים חריגים</h1>
 
-          {canEdit && (
+          {canCreate && (
             <div className="create-incident">
               <Link to="/createIncident" className="btn">
                 דוח אירוע חדש

@@ -9,12 +9,13 @@ function Guests() {
   const [msg, setMsg] = useState("");
   const [numberError, setNumberError] = useState("");
   const [searchNumber, setSearchNumber] = useState("");
+  const [permissions, setPermissions] = useState(null);
 
   const userRole = Cookies.get("userRole");
-  const canEdit = userRole === "manager" || userRole === "moked";
 
   useEffect(() => {
     fetchGuests();
+    fetchPermissions();
   }, []);
 
   const fetchGuests = () => {
@@ -22,6 +23,18 @@ function Guests() {
       .get("/guests")
       .then((res) => setGuests(res.data))
       .catch(() => setMsg("אירעה שגיאה בטעינת הקבלנים."));
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const res = await axios.get("/role/getPermissions");
+      const roleData = res.data.find((r) => r.Role_Name === userRole);
+      if (roleData) {
+        setPermissions(roleData.permissions);
+      }
+    } catch (err) {
+      console.error("שגיאה בטעינת ההרשאות:", err);
+    }
   };
 
   const handleToggleAccess = (guest) => {
@@ -59,13 +72,21 @@ function Guests() {
     }, {})
   );
 
+  // הרשאות לפי טבלת role
+  const canEdit = permissions?.Update_Guest_List === "able";
+  const canCreate = permissions?.Create_Guest_List === "able";
+
+  if (!permissions) {
+    return <div className="loading">טוען הרשאות...</div>;
+  }
+
   return (
     <div className="guestsPpage">
       <div className="container-guests">
         <div className="guestsPageContainer">
           <h1 className="guests-page-title">כאן תוכל לצפות ברשימת קבלנים</h1>
 
-          {canEdit && (
+          {canCreate && (
             <div className="create-guests">
               <Link to="/createGuests" className="btn">
                 קבלן חדש

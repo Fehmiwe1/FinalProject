@@ -97,6 +97,7 @@ function MainPageManager() {
     { field: "Watch_Incident", label: "צפייה בדוחות אירוע" },
     { field: "Create_Incident", label: "הוספת דוח אירוע" },
     { field: "Updating_Incident", label: "עריכת דוח אירוע" },
+    { field: "Create_Guest_List", label: "הוספת אורח" },
     { field: "Update_Guest_List", label: "עדכון רשימת אורחים" },
   ];
 

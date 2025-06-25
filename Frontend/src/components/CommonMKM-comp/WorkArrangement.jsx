@@ -7,8 +7,9 @@ function WorkArrangement() {
   const [assignments, setAssignments] = useState([]);
   const [weeks, setWeeks] = useState([[], []]);
   const [guardWeekView, setGuardWeekView] = useState(0);
-  const userRole = Cookies.get("userRole");
+  const [permissions, setPermissions] = useState(null);
 
+  const userRole = Cookies.get("userRole");
   const roles = ["guard", "moked", "kabat"];
   const [selectedRole, setSelectedRole] = useState(userRole);
 
@@ -45,6 +46,22 @@ function WorkArrangement() {
     };
 
     generateWeeks();
+  }, []);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const res = await axios.get("/role/getPermissions");
+        const roleData = res.data.find((r) => r.Role_Name === userRole);
+        if (roleData) {
+          setPermissions(roleData.permissions);
+        }
+      } catch (err) {
+        console.error("שגיאה בטעינת ההרשאות:", err);
+      }
+    };
+
+    fetchPermissions();
   }, []);
 
   useEffect(() => {
@@ -199,10 +216,15 @@ function WorkArrangement() {
   );
 
   const canViewRole = (role) => {
-    if (userRole === "moked") return true; // יכול לראות הכל
+    if (userRole === "moked") return true; // מוקדן רואה הכל
     if (userRole === "kabat") return role === "kabat" || role === "guard";
-    return role === "guard"; // מאבטח רואה רק את עצמו
+    if (userRole === "guard") return role === "guard";
+    return false;
   };
+
+  if (!permissions) {
+    return <div className="loading">טוען הרשאות...</div>;
+  }
 
   return (
     <div className="WorkArrangement-wrapper">
