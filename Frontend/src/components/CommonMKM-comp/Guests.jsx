@@ -70,9 +70,8 @@ function Guests() {
       if (!acc[guest.GuestNumber]) acc[guest.GuestNumber] = guest;
       return acc;
     }, {})
-  );
+  ).sort((a, b) => b.IsActive - a.IsActive); // מיון לפי סטטוס
 
-  // הרשאות לפי טבלת role
   const canEdit = permissions?.Update_Guest_List === "able";
   const canCreate = permissions?.Create_Guest_List === "able";
 
