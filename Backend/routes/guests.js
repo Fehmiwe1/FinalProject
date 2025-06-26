@@ -59,7 +59,6 @@ router.post("/", (req, res) => {
   const { GuestNumber, CarNumber, GuestName, GuestPhone, StartDate, EndDate } =
     req.body;
 
-  // בדיקה שכל השדות הנדרשים סופקו
   if (
     !GuestNumber ||
     !CarNumber ||
@@ -71,12 +70,15 @@ router.post("/", (req, res) => {
     return res.status(400).json({ message: "All fields are required!" });
   }
 
-  // המרת תאריך לפורמט מתאים (אם יש צורך)
   const parsedStartDate = new Date(StartDate).toISOString();
   const parsedEndDate = new Date(EndDate).toISOString();
+  const now = new Date();
+
+  // חישוב isActive לפי תאריך סיום
+  const IsActive = new Date(EndDate) >= now ? 1 : 0;
 
   const query =
-    "INSERT INTO guests (GuestNumber, CarNumber, GuestName, GuestPhone, StartDate, EndDate) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO guests (GuestNumber, CarNumber, GuestName, GuestPhone, StartDate, EndDate, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
   db.query(
     query,
@@ -87,6 +89,7 @@ router.post("/", (req, res) => {
       GuestPhone,
       parsedStartDate,
       parsedEndDate,
+      IsActive,
     ],
     (err, results) => {
       if (err) {
@@ -94,20 +97,22 @@ router.post("/", (req, res) => {
       }
 
       res.json({
-        message: "Report added successfully!",
+        message: "Guest added successfully!",
         id: results.insertId,
-        report: {
+        guest: {
           GuestNumber,
           CarNumber,
           GuestName,
           GuestPhone,
           StartDate: parsedStartDate,
           EndDate: parsedEndDate,
+          IsActive,
         },
       });
     }
   );
 });
+
 
 // עדכון רכב לפי מזהה ייחודי
 router.put("/vehicle/:GuestID", (req, res) => {
