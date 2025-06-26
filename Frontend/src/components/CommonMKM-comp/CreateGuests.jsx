@@ -40,27 +40,34 @@ function CreateGuests() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!GuestNumber || !StartDate || !EndDate) {
       setError("יש למלא מספר קבלן ותאריכים.");
-      setTimeout(() => setError(""), 1000 * 60 * 60 * 24 * 730);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (new Date(EndDate) < new Date(StartDate)) {
+      setError("תאריך סיום לא יכול להיות לפני תאריך התחלה.");
+      setTimeout(() => setError(""), 3000);
       return;
     }
 
     if (!/^\d+$/.test(GuestNumber)) {
       setError("מספר קבלן חייב להכיל ספרות בלבד.");
-      setTimeout(() => setError(""), 1000 * 60 * 60 * 24 * 730);
+      setTimeout(() => setError(""), 3000);
       return;
     }
 
     for (let v of vehicles) {
       if (!v.CarNumber || !v.GuestName || !v.GuestPhone) {
         setError("יש למלא את כל שדות הרכב.");
-        setTimeout(() => setError(""), 1000 * 60 * 60 * 24 * 730);
+        setTimeout(() => setError(""), 3000);
         return;
       }
       if (!/^\d{10}$/.test(v.GuestPhone)) {
         setError("מספר טלפון חייב להכיל בדיוק 10 ספרות.");
-        setTimeout(() => setError(""), 1000 * 60 * 60 * 24 * 730);
+        setTimeout(() => setError(""), 3000);
         return;
       }
     }
@@ -83,7 +90,7 @@ function CreateGuests() {
     } catch (err) {
       console.error(err);
       setError("התרחשה שגיאה בהוספת קבלן.");
-      setTimeout(() => setError(""), 1000 * 60 * 60 * 24 * 730);
+      setTimeout(() => setError(""), 3000);
     }
   };
 

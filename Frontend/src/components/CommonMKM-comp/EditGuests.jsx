@@ -5,7 +5,7 @@ import "../../assets/styles/CommonMKM-styles/EditGuest.css";
 
 function EditGuest() {
   const [vehicles, setVehicles] = useState([]);
-  const { id } = useParams(); // id הוא GuestNumber
+  const { id } = useParams(); // GuestNumber
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
@@ -22,7 +22,7 @@ function EditGuest() {
         }
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("שגיאה בשליפת נתוני האורח.");
         setLoading(false);
       });
@@ -38,6 +38,51 @@ function EditGuest() {
       updated[index][name] = value;
       return updated;
     });
+  };
+
+  const handleGeneralChange = (e) => {
+    const { name, value } = e.target;
+    setVehicles((prev) =>
+      prev.map((v) => ({
+        ...v,
+        [name]: value,
+      }))
+    );
+  };
+
+  const handleDelete = async (guestId) => {
+    if (!window.confirm("האם אתה בטוח שברצונך למחוק את הרכב הזה?")) return;
+
+    try {
+      await axios.delete(`/guests/delete/${guestId}`);
+      setVehicles((prev) => prev.filter((v) => v.GuestID !== guestId));
+      setMsg("הרכב נמחק בהצלחה.");
+      setTimeout(() => setMsg(""), 3000);
+    } catch {
+      setError("שגיאה במחיקת הרכב.");
+      setTimeout(() => setError(""), 3000);
+    }
+  };
+
+  const handleCancelAddVehicle = (index) => {
+    setVehicles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddVehicle = () => {
+    if (vehicles.length === 0) return;
+
+    const base = vehicles[0];
+    const newVehicle = {
+      GuestNumber: base.GuestNumber,
+      CarNumber: "",
+      GuestName: "",
+      GuestPhone: "",
+      StartDate: base.StartDate,
+      EndDate: base.EndDate,
+      isNew: true, // סימון כרכב חדש
+    };
+
+    setVehicles((prev) => [...prev, newVehicle]);
   };
 
   const validate = () => {
@@ -68,11 +113,14 @@ function EditGuest() {
         setError("שם האורח חייב להכיל אותיות בעברית בלבד.");
         return false;
       }
-    }
 
-    if (new Date(vehicles[0].EndDate) < new Date(vehicles[0].StartDate)) {
-      setError("תאריך סיום חייב להיות אחרי תאריך התחלה.");
-      return false;
+      // 💡 בדיקת טווח תאריכים לכל רכב
+      if (new Date(v.EndDate) < new Date(v.StartDate)) {
+        setError(
+          `קבלן מספר ${v.GuestNumber} – תאריך סיום לא יכול להיות לפני תאריך התחלה.`
+        );
+        return false;
+      }
     }
 
     return true;
@@ -83,9 +131,14 @@ function EditGuest() {
     if (!validate()) return;
 
     try {
-      const promises = vehicles.map((v) =>
-        axios.put(`/guests/${v.GuestNumber}`, v)
-      );
+      const promises = vehicles.map((v) => {
+        if (v.GuestID) {
+          return axios.put(`/guests/vehicle/${v.GuestID}`, v);
+        } else {
+          return axios.post(`/guests/addVehicle`, v);
+        }
+      });
+
       await Promise.all(promises);
       setMsg("פרטי האורח עודכנו בהצלחה.");
       setTimeout(() => navigate("/guests"), 2000);
@@ -106,21 +159,39 @@ function EditGuest() {
         <h2>עריכת פרטי אורח</h2>
         {error && <p className="error-message">{error}</p>}
         {msg && <p className="success-msg">{msg}</p>}
+
         <form className="edit-guest-form" onSubmit={handleSubmit}>
+          <div className="edit-guest-div">
+            <h4>פרטים כלליים</h4>
+            <label>מספר קבלן:</label>
+            <input
+              type="text"
+              name="GuestNumber"
+              value={vehicles[0]?.GuestNumber || ""}
+              readOnly
+            />
+            <label>תאריך התחלה:</label>
+            <input
+              type="date"
+              name="StartDate"
+              value={vehicles[0]?.StartDate?.split("T")[0] || ""}
+              onChange={handleGeneralChange}
+            />
+            <label>תאריך סיום:</label>
+            <input
+              type="date"
+              name="EndDate"
+              value={vehicles[0]?.EndDate?.split("T")[0] || ""}
+              onChange={handleGeneralChange}
+            />
+          </div>
+
           {vehicles.map((vehicle, index) => (
-            <div className="edit-guest-div" key={vehicle.id}>
+            <div className="edit-guest-div" key={index}>
               <h4>רכב {index + 1}</h4>
-              <label>מספר קבלן:</label>
-              <input
-                type="text"
-                name="GuestNumber"
-                value={vehicle.GuestNumber}
-                readOnly
-              />
               <label>מספר רכב:</label>
               <input
                 type="number"
-                min="0"
                 name="CarNumber"
                 value={vehicle.CarNumber}
                 onChange={(e) => handleChange(index, e)}
@@ -139,22 +210,35 @@ function EditGuest() {
                 value={vehicle.GuestPhone}
                 onChange={(e) => handleChange(index, e)}
               />
-              <label>תאריך התחלה:</label>
-              <input
-                type="date"
-                name="StartDate"
-                value={vehicle.StartDate?.split("T")[0]}
-                onChange={(e) => handleChange(index, e)}
-              />
-              <label>תאריך סיום:</label>
-              <input
-                type="date"
-                name="EndDate"
-                value={vehicle.EndDate?.split("T")[0]}
-                onChange={(e) => handleChange(index, e)}
-              />
+
+              {vehicle.GuestID ? (
+                <button
+                  type="button"
+                  className="delete-vehicle-btn"
+                  onClick={() => handleDelete(vehicle.GuestID)}
+                >
+                  מחק רכב
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="delete-vehicle-btn"
+                  onClick={() => handleCancelAddVehicle(index)}
+                >
+                  בטל הוספה
+                </button>
+              )}
             </div>
           ))}
+
+          <button
+            type="button"
+            className="add-guest-button"
+            onClick={handleAddVehicle}
+          >
+            הוסף רכב
+          </button>
+
           <button type="submit" className="edit-guest-btn">
             שמור
           </button>

@@ -4,22 +4,47 @@ const dbSingleton = require("../dbSingleton");
 // התחברות למסד הנתונים
 const db = dbSingleton.getConnection();
 
-// קבלת כל אורחים
+// קבלת כל אורחים עם עדכון חסומים שפג תוקפם
 router.get("/", (req, res) => {
-  const query = "SELECT * FROM guests";
+  const query = `
+    SELECT 
+      GuestID,
+      GuestNumber,
+      CarNumber,
+      GuestName,
+      GuestPhone,
+      DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
+      DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
+      IsActive
+    FROM guests
+  `;
+
   db.query(query, (err, results) => {
     if (err) {
-      res.status(500).send(err);
-      return;
+      return res.status(500).json({ message: "Database error", error: err });
     }
     res.json(results);
   });
 });
 
-// קבלת דוח לפי מזהה
+// קבלת דוח לפי מזהה (מספר קבלן)
 router.get("/:GuestNumber", (req, res) => {
   const guestNumber = req.params.GuestNumber;
-  const query = "SELECT * FROM guests WHERE GuestNumber = ?";
+
+  const query = `
+    SELECT 
+      GuestID,
+      GuestNumber,
+      CarNumber,
+      GuestName,
+      GuestPhone,
+      DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
+      DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
+      IsActive
+    FROM guests
+    WHERE GuestNumber = ?
+  `;
+
   db.query(query, [guestNumber], (err, results) => {
     if (err) {
       res.status(500).send(err);
@@ -84,44 +109,152 @@ router.post("/", (req, res) => {
   );
 });
 
-// עדכון קבלן לפי מספר קבלן
-router.put("/:GuestNumber", (req, res) => {
-  const guestNumber = req.params.GuestNumber;
+// עדכון רכב לפי מזהה ייחודי
+router.put("/vehicle/:GuestID", (req, res) => {
+  const guestId = req.params.GuestID;
   const { CarNumber, GuestName, GuestPhone, StartDate, EndDate } = req.body;
 
   if (!CarNumber || !GuestName || !GuestPhone || !StartDate || !EndDate) {
     return res.status(400).json({ message: "All fields are required!" });
   }
 
-  const parsedStartDate = new Date(StartDate).toISOString();
-  const parsedEndDate = new Date(EndDate).toISOString();
+  const parsedStartDate = new Date(StartDate);
+  const parsedEndDate = new Date(EndDate);
 
-  const query = `
+  const formattedStartDate = parsedStartDate.toISOString().split("T")[0];
+  const formattedEndDate = parsedEndDate.toISOString().split("T")[0];
+
+  const updateQuery = `
     UPDATE guests
-    SET CarNumber = ?, GuestName = ?, GuestPhone = ?, StartDate = ?, EndDate = ?
-    WHERE GuestNumber = ?
+    SET CarNumber = ?, GuestName = ?, GuestPhone = ?, 
+        StartDate = ?, EndDate = ?
+    WHERE GuestID = ?
   `;
 
   db.query(
-    query,
+    updateQuery,
     [
+      CarNumber,
+      GuestName,
+      GuestPhone,
+      formattedStartDate,
+      formattedEndDate,
+      guestId,
+    ],
+    (err, results) => {
+      if (err) {
+        console.error("DB error:", err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: "Vehicle not found!" });
+      }
+
+      const selectQuery = `
+        SELECT 
+          GuestID,
+          GuestNumber,
+          CarNumber,
+          GuestName,
+          GuestPhone,
+          DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
+          DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
+          IsActive
+        FROM guests
+        WHERE GuestID = ?
+      `;
+
+      db.query(selectQuery, [guestId], (selectErr, rows) => {
+        if (selectErr) {
+          console.error("DB error on SELECT:", selectErr);
+          return res
+            .status(500)
+            .json({ message: "Database error", error: selectErr });
+        }
+
+        res.json({
+          message: "Vehicle updated successfully!",
+          guest: rows[0],
+        });
+      });
+    }
+  );
+});
+
+// מחיקת רכב ממספר קבלן לפי GuestID
+router.delete("/delete/:GuestID", (req, res) => {
+  const guestId = req.params.GuestID;
+
+  if (!guestId) {
+    return res.status(400).json({ message: "GuestID is required" });
+  }
+
+  const query = `
+    DELETE FROM guests
+    WHERE GuestID = ?
+  `;
+
+  db.query(query, [guestId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (results.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Vehicle not found or already deleted" });
+    }
+
+    res.json({ message: "Vehicle deleted successfully" });
+  });
+});
+
+// הוספת רכב חדש לקבלן קיים
+// הוספת רכב חדש
+router.post("/addVehicle", (req, res) => {
+  const { GuestNumber, CarNumber, GuestName, GuestPhone, StartDate, EndDate } =
+    req.body;
+
+  if (
+    !GuestNumber ||
+    !CarNumber ||
+    !GuestName ||
+    !GuestPhone ||
+    !StartDate ||
+    !EndDate
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
+
+  const parsedStartDate = new Date(StartDate).toISOString();
+  const parsedEndDate = new Date(EndDate).toISOString();
+
+  const insertQuery = `
+    INSERT INTO guests (GuestNumber, CarNumber, GuestName, GuestPhone, StartDate, EndDate, IsActive)
+    VALUES (?, ?, ?, ?, ?, ?, 1)
+  `;
+
+  db.query(
+    insertQuery,
+    [
+      GuestNumber,
       CarNumber,
       GuestName,
       GuestPhone,
       parsedStartDate,
       parsedEndDate,
-      guestNumber,
     ],
     (err, results) => {
       if (err) {
         return res.status(500).json({ message: "Database error", error: err });
       }
 
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: "Guest not found!" });
-      }
-
-      res.json({ message: "Guest updated successfully!" });
+      res.json({
+        message: "Vehicle added successfully!",
+        id: results.insertId,
+      });
     }
   );
 });
@@ -157,70 +290,39 @@ router.post("/check", (req, res) => {
     });
   }
 
-  // שלב 1: עדכון אורחים שפג תוקפם
-  const deactivateExpiredQuery = `
-    UPDATE guests
-    SET IsActive = 0
-    WHERE EndDate < CURDATE() AND IsActive != 0
+  // שליפה של כל השורות של הקבלן
+  const contractorQuery = `
+    SELECT * FROM guests
+    WHERE GuestNumber = ?
   `;
 
-  db.query(deactivateExpiredQuery, (deactivateErr) => {
-    if (deactivateErr) {
-      return res.status(500).json({
-        status: "error",
-        message: "Database error during deactivation",
-        error: deactivateErr,
+  db.query(contractorQuery, [contractorNumber], (err, guests) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ status: "error", message: "Database error", error: err });
+    }
+
+    if (guests.length === 0) {
+      return res.json({
+        status: "contractor_not_found",
+        message: "Contractor not found.",
       });
     }
 
-    // שלב 2: שליפה של כל השורות של הקבלן
-    const contractorQuery = `
-      SELECT * FROM guests
-      WHERE GuestNumber = ?
-    `;
-
-    db.query(contractorQuery, [contractorNumber], (err, guests) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ status: "error", message: "Database error" });
-      }
-
-      if (guests.length === 0) {
-        return res.json({
-          status: "contractor_not_found",
-          message: "Contractor not found.",
-        });
-      }
-
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-
-      const matching = guests.find((g) => {
-        const start = new Date(g.StartDate);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(g.EndDate);
-        end.setHours(0, 0, 0, 0);
-        return (
-          String(g.CarNumber) === String(vehicleNumber) &&
-          g.IsActive === 1 &&
-          now >= start &&
-          now <= end
-        );
-      });
-
-      if (!matching) {
-        return res.json({
-          status: "vehicle_not_found",
-          message:
-            "Vehicle not associated with contractor or not active/valid.",
-        });
-      }
-
-      return res.json({ status: "authorized", message: "Access granted." });
+    const matching = guests.find((g) => {
+      return String(g.CarNumber) === String(vehicleNumber) && g.IsActive === 1;
     });
+
+    if (!matching) {
+      return res.json({
+        status: "vehicle_not_found",
+        message: "Vehicle not associated with contractor or not active.",
+      });
+    }
+
+    return res.json({ status: "authorized", message: "Access granted." });
   });
 });
-
 
 module.exports = router;

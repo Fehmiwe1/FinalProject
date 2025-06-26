@@ -108,6 +108,22 @@ p.success {
   color: #7e7975;
 }
 
+.delete-vehicle-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  cursor: pointer;
+  margin-top: 2%;
+}
+
+.delete-vehicle-btn:hover {
+  background-color: #555;
+}
+
 /* Mobile style */
 @media (max-width: 768px) {
   .edit-Report-form {
