@@ -6,26 +6,46 @@ const db = dbSingleton.getConnection();
 
 // קבלת כל אורחים עם עדכון חסומים שפג תוקפם
 router.get("/", (req, res) => {
-  const query = `
-    SELECT 
-      GuestID,
-      GuestNumber,
-      CarNumber,
-      GuestName,
-      GuestPhone,
-      DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
-      DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
-      IsActive
-    FROM guests
+  // חסימת קבלנים שפג תוקפם
+  const blockExpiredQuery = `
+    UPDATE guests
+    SET IsActive = 0
+    WHERE EndDate < CURDATE() AND IsActive = 1
   `;
 
-  db.query(query, (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err });
+  db.query(blockExpiredQuery, (blockErr) => {
+    if (blockErr) {
+      return res
+        .status(500)
+        .json({ message: "Database error", error: blockErr });
     }
-    res.json(results);
+
+    // לאחר עדכון, שליפת כל האורחים
+    const selectQuery = `
+      SELECT 
+        GuestID,
+        GuestNumber,
+        CarNumber,
+        GuestName,
+        GuestPhone,
+        DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
+        DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
+        IsActive
+      FROM guests
+    `;
+
+    db.query(selectQuery, (selectErr, results) => {
+      if (selectErr) {
+        return res
+          .status(500)
+          .json({ message: "Database error", error: selectErr });
+      }
+
+      res.json(results);
+    });
   });
 });
+
 
 // קבלת דוח לפי מזהה (מספר קבלן)
 router.get("/:GuestNumber", (req, res) => {
@@ -125,14 +145,18 @@ router.put("/vehicle/:GuestID", (req, res) => {
 
   const parsedStartDate = new Date(StartDate);
   const parsedEndDate = new Date(EndDate);
+  const now = new Date();
 
   const formattedStartDate = parsedStartDate.toISOString().split("T")[0];
   const formattedEndDate = parsedEndDate.toISOString().split("T")[0];
 
+  // חישוב האם תוקף הפעולה עדיין קיים
+  const isActive = parsedEndDate >= now ? 1 : 0;
+
   const updateQuery = `
     UPDATE guests
     SET CarNumber = ?, GuestName = ?, GuestPhone = ?, 
-        StartDate = ?, EndDate = ?
+        StartDate = ?, EndDate = ?, IsActive = ?
     WHERE GuestID = ?
   `;
 
@@ -144,6 +168,7 @@ router.put("/vehicle/:GuestID", (req, res) => {
       GuestPhone,
       formattedStartDate,
       formattedEndDate,
+      isActive,
       guestId,
     ],
     (err, results) => {
@@ -186,6 +211,7 @@ router.put("/vehicle/:GuestID", (req, res) => {
     }
   );
 });
+
 
 // מחיקת רכב ממספר קבלן לפי GuestID
 router.delete("/delete/:GuestID", (req, res) => {
