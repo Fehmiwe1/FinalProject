@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "../../assets/styles/CommonMKM-styles/WorkArrangement.css";
+import { useNavigate } from "react-router-dom";
 
 function WorkArrangement() {
   const [assignments, setAssignments] = useState([]);
   const [weeks, setWeeks] = useState([[], []]);
   const [guardWeekView, setGuardWeekView] = useState(0);
   const [permissions, setPermissions] = useState(null);
+  const navigate = useNavigate();
 
   const userRole = Cookies.get("userRole");
   const roles = ["guard", "moked", "kabat"];
@@ -275,6 +277,13 @@ function WorkArrangement() {
             {renderTable(weeks[1], "שבוע שני")}
           </>
         )}
+
+        <button
+          className="myShiftsButton"
+          onClick={() => navigate("/myShifts")}
+        >
+          המשמרות שלי
+        </button>
       </main>
     </div>
   );
