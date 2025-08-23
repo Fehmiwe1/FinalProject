@@ -272,6 +272,7 @@ function RequestsManagement() {
               <tr>
                 <th>שם עובד</th>
                 <th>בקשה</th>
+                <th>תאריך בקשה</th>
                 <th>סטטוס</th>
               </tr>
             </thead>
