@@ -9,11 +9,16 @@ function RequestsManagement() {
   const [msg, setMsg] = useState("");
   const [showHistory, setShowHistory] = useState(false);
 
+  // מסירה/החלפה
+  const [shiftRequests, setShiftRequests] = useState([]);
+  const [showShiftHistory, setShowShiftHistory] = useState(false);
+
   const dontShow = Cookies.get("eventDescription");
 
   useEffect(() => {
     fetchEmployees();
     fetchRequests();
+    fetchShiftRequests();
   }, []);
 
   const fetchEmployees = async () => {
@@ -32,6 +37,15 @@ function RequestsManagement() {
       setRequests(res.data);
     } catch (error) {
       console.error("שגיאה בטעינת בקשות חופשה/מחלה:", error);
+    }
+  };
+
+  const fetchShiftRequests = async () => {
+    try {
+      const res = await axios.get("/employeeRequests/shiftRequests");
+      setShiftRequests(res.data || []);
+    } catch (error) {
+      console.error("שגיאה בטעינת בקשות מסירה/החלפה:", error);
     }
   };
 
@@ -66,6 +80,21 @@ function RequestsManagement() {
       .catch((error) => console.error("שגיאה בעדכון סטטוס חופשה:", error));
   };
 
+  // עדכון סטטוס למסירה/החלפה
+  const handleShiftStatusUpdate = (id, status) => {
+    axios
+      .put("/employeeRequests/updateShiftStatus", { id, status })
+      .then(() => {
+        // עדכון לוקלי: מעביר מרשימת הממתינים להיסטוריה ע"י שינוי הסטטוס
+        setShiftRequests((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, status } : r))
+        );
+      })
+      .catch((error) =>
+        console.error("שגיאה בעדכון סטטוס מסירה/החלפה:", error)
+      );
+  };
+
   const downloadPDFFile = async (url, filename) => {
     try {
       const response = await fetch(url);
@@ -97,19 +126,32 @@ function RequestsManagement() {
     .filter((req) => req.requestType === "חופשה" && req.status === "ממתין")
     .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
 
-    const sickRequests = requests
-      .filter((req) => {
-        if (req.requestType !== "מחלה") return false;
+  const sickRequests = requests
+    .filter((req) => {
+      if (req.requestType !== "מחלה") return false;
 
-        const requestDate = new Date(req.requestDate);
-        const today = new Date();
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(today.getMonth() - 1);
+      const requestDate = new Date(req.requestDate);
+      const today = new Date();
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(today.getMonth() - 1);
 
-        return requestDate >= oneMonthAgo && requestDate <= today;
-      })
-      .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
-  
+      return requestDate >= oneMonthAgo && requestDate <= today;
+    })
+    .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
+
+  // מסירה/החלפה - חלוקה לממתינים והיסטוריה
+  const pendingShiftRequests = (shiftRequests || [])
+    .filter((r) => (r.status || "ממתין") === "ממתין")
+    .sort(
+      (a, b) => new Date(b.requestDate || 0) - new Date(a.requestDate || 0)
+    );
+
+  const historyShiftRequests = (shiftRequests || [])
+    .filter((r) => (r.status || "ממתין") !== "ממתין")
+    .sort(
+      (a, b) => new Date(b.requestDate || 0) - new Date(a.requestDate || 0)
+    );
+
   return (
     <div className="requestsManagement">
       <div className="requestsManagement-container">
@@ -119,6 +161,7 @@ function RequestsManagement() {
           </form>
           {msg && <div className="error-message">{msg}</div>}
 
+          {/* בקשות חופשה */}
           <h2 className="titleH2">בקשות חופשה</h2>
           <button
             className="history-toggle-btn"
@@ -147,7 +190,6 @@ function RequestsManagement() {
                     <td>{formatDateToHebrew(req.requestDate)}</td>
                     <td>{formatDateToHebrew(req.fromDate)}</td>
                     <td>{formatDateToHebrew(req.toDate)}</td>
-
                     <td>
                       {req.status === "ממתין" && (
                         <>
@@ -179,6 +221,7 @@ function RequestsManagement() {
               )}
             </tbody>
           </table>
+
           {showHistory && (
             <>
               <h3 className="titleH3">היסטוריית בקשות חופשה</h3>
@@ -218,6 +261,7 @@ function RequestsManagement() {
             </>
           )}
 
+          {/* בקשות מחלה */}
           <h2 className="titleH2">בקשות מחלה</h2>
           <table className="requestsNotifications-table">
             <thead>
@@ -235,7 +279,6 @@ function RequestsManagement() {
                       {req.firstName} {req.lastName}
                     </td>
                     <td>{formatDateToHebrew(req.requestDate)}</td>
-
                     <td>
                       {req.filePath && (
                         <div className="file-actions">
@@ -266,6 +309,120 @@ function RequestsManagement() {
             </tbody>
           </table>
 
+          {/* מסירה/החלפה */}
+          <h2 className="titleH2">בקשות מסירת והחלפת משמרת</h2>
+          <button
+            className="history-toggle-btn"
+            onClick={() => setShowShiftHistory(!showShiftHistory)}
+          >
+            {showShiftHistory ? "הסתר היסטוריה" : "הצג היסטוריה"}
+          </button>
+
+          {/* ממתינים למסירה/החלפה */}
+          <table className="requestsNotifications-table">
+            <thead>
+              <tr>
+                <th>שם עובד</th>
+                <th>תאריך בקשה</th>
+                <th>פרטי משמרת</th>
+                <th>עובד יעד</th>
+                <th>סטטוס</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingShiftRequests.length > 0 ? (
+                pendingShiftRequests.map((req) => (
+                  <tr key={`shift-pending-${req.id}`}>
+                    <td>
+                      {req.fromFirstName} {req.fromLastName}
+                    </td>
+                    <td>{formatDateToHebrew(req.requestDate)}</td>
+                    <td>
+                      {req.shiftDate ? formatDateToHebrew(req.shiftDate) : "-"}
+                      {req.shiftType ? `  ${req.shiftType}` : ""}
+                      {req.location ? `  ${req.location}` : ""}
+                    </td>
+                    <td>
+                      {req.toFirstName || req.toLastName
+                        ? `${req.toFirstName || ""} ${
+                            req.toLastName || ""
+                          }`.trim()
+                        : "-"}
+                    </td>
+                    <td>
+                      <button
+                        className="approve-btn"
+                        onClick={() => handleShiftStatusUpdate(req.id, "אושר")}
+                      >
+                        אישור
+                      </button>
+                      <button
+                        className="reject-btn"
+                        onClick={() => handleShiftStatusUpdate(req.id, "סורב")}
+                      >
+                        דחייה
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">אין בקשות ממתינות למסירה/החלפה.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* היסטוריה למסירה/החלפה */}
+          {showShiftHistory && (
+            <>
+              <h3 className="titleH3">היסטוריית בקשות מסירה/החלפה</h3>
+              <table className="requestsNotifications-table">
+                <thead>
+                  <tr>
+                    <th>שם עובד</th>
+                    <th>תאריך בקשה</th>
+                    <th>פרטי משמרת</th>
+                    <th>עובד יעד</th>
+                    <th>סטטוס</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyShiftRequests.length > 0 ? (
+                    historyShiftRequests.map((req) => (
+                      <tr key={`shift-history-${req.id}`}>
+                        <td>
+                          {req.fromFirstName} {req.fromLastName}
+                        </td>
+                        <td>{formatDateToHebrew(req.requestDate)}</td>
+                        <td>
+                          {req.shiftDate
+                            ? formatDateToHebrew(req.shiftDate)
+                            : "-"}
+                          {req.shiftType ? `  ${req.shiftType}` : ""}
+                          {req.location ? `  ${req.location}` : ""}
+                        </td>
+                        <td>
+                          {req.toFirstName || req.toLastName
+                            ? `${req.toFirstName || ""} ${
+                                req.toLastName || ""
+                              }`.trim()
+                            : "-"}
+                        </td>
+                        <td>{req.status || "ממתין"}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5">אין היסטוריית בקשות למסירה/החלפה.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </>
+          )}
+
+          {/* עובדים חדשים */}
           <h2 className="titleH2">עובדים חדשים</h2>
           <table className="requestsNotifications-table">
             <thead>

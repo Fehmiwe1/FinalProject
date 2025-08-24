@@ -311,4 +311,68 @@ router.get("/shiftRequestsShow", (req, res) => {
   });
 });
 
+/* -------- GET: בקשות מסירה/החלפה (למנהל) -------- */
+router.get("/shiftRequests", (req, res) => {
+  const sql = `
+    SELECT
+      er.id,
+      er.request_type     AS requestType,
+      COALESCE(er.status,'ממתין') AS status,
+      DATE_FORMAT(er.request_date, '%Y-%m-%d') AS requestDate,
+      CASE 
+        WHEN er.shift_date IS NULL THEN NULL
+        ELSE DATE_FORMAT(er.shift_date, '%Y-%m-%d')
+      END AS shiftDate,
+      er.shift_type       AS shiftType,
+      er.location,
+      er.ID_employee      AS fromEmployeeId,
+      uf.firstName        AS fromFirstName, 
+      uf.lastName         AS fromLastName,
+      er.to_employee_id   AS toEmployeeId,
+      ut.firstName        AS toFirstName,   
+      ut.lastName         AS toLastName,
+      er.reason
+    FROM employee_requests er
+    LEFT JOIN users uf ON uf.ID = er.ID_employee
+    LEFT JOIN users ut ON ut.ID = er.to_employee_id
+    WHERE er.request_type IN ('מסירה','החלפה')
+    ORDER BY er.request_date DESC, er.id DESC
+  `;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("DB error /employeeRequests/shiftRequests:", err);
+      return res.status(500).json({ message: "DB error", error: err });
+    }
+    res.json(rows);
+  });
+});
+
+
+// עדכון סטטוס של בקשת מסירה/החלפה (מנהל)
+router.put("/updateShiftStatus", (req, res) => {
+  const { id, status } = req.body;
+
+  if (!id || !["אושר", "סורב"].includes(status)) {
+    return res.status(400).json({ message: "פרטים לא תקינים" });
+  }
+
+  const query = `
+    UPDATE employee_requests 
+    SET status = ?
+    WHERE id = ? 
+      AND request_type IN ('מסירה','החלפה')
+  `;
+
+  db.query(query, [status, id], (err, result) => {
+    if (err) {
+      console.error("שגיאה בעדכון סטטוס מסירה/החלפה:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    res.json({ message: "סטטוס עודכן בהצלחה" });
+  });
+});
+
+
+
 module.exports = router;
