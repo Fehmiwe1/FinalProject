@@ -93,3 +93,51 @@
   background-color: #3b4a59;
   transition: background-color 0.3s ease;
 }
+
+/* ----- H3 section titles (בקשות חופשה/מחלה + מסירה/החלפה) ----- */
+.myRequests-body-h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 36px 0 14px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* צבע קו דקורטיבי משמאל לטקסט */
+.myRequests-body-h3::before {
+  content: "";
+  width: 8px;
+  height: 28px;
+  border-radius: 6px;
+
+}
+
+/* קו עדין שנמשך משמאל לכותרת */
+.myRequests-body-h3::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* רווח גדול יותר בין הסקשנים */
+.myRequests-body section + section .myRequests-body-h3 {
+  margin-top: 44px;
+}
+
+/* התאמה למסכים קטנים */
+@media (max-width: 768px) {
+  .myRequests-body h3 {
+    font-size: 1.9rem;
+    gap: 10px;
+  }
+  .myRequests-body h3::before {
+    height: 24px;
+    width: 6px;
+  }
+}
