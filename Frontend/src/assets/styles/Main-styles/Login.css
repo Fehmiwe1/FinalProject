@@ -193,14 +193,16 @@
 .signup-modal {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;   /* במקום center */
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  width: 100%;
+  height: 100%;              /* במקום 100vh */
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
+  overflow-y: auto;          /* גלילה אם חורג */
+  padding: 40px 0;           /* רווח מלמעלה ולמטה */
 }
 
 .signup-h3 {
@@ -330,6 +332,132 @@
   font-size: 1.2rem;
 }
 
+
+/* ===== Policies (תקנון ונהלים) ===== */
+
+/* עטיפת הסעיף בתוך טופס ההרשמה */
+.policies-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 2px solid #34495e; /* תואם לגבולות הקיימים */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  direction: rtl;
+}
+
+/* כותרת + כפתור פתיחת הנהלים */
+.policies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ecf0f1;
+  font-weight: 700;
+  font-size: 1.1rem;
+  gap: 10px;
+}
+
+/* כפתור "הצג נהלים" – תואם לכפתורים קיימים */
+.policies-open-btn {
+  padding: 8px 12px;
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #34495e;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color .3s ease, transform .3s ease, box-shadow .3s ease;
+  font-weight: bolder;
+  text-transform: uppercase;
+}
+.policies-open-btn:hover {
+  background-color: #555;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 200, 199, 0.4);
+}
+
+/* צ'קבוקס האישור */
+.policies-consent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ecf0f1;
+  font-size: 1rem;
+}
+.policies-consent input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #555; /* צבע סימון כהה תואם */
+}
+
+/* מודאל הנהלים משתמש באותה מעטפת modal קיימת (.signup-modal)
+   רק גוף הפנים מותאם מעט */
+.policies-content {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 2px solid #34495e;
+  border-radius: 8px;
+  padding: 24px;
+  width: 720px;               /* רחב יותר לקריאה נוחה */
+  max-width: 92vw;            /* רספונסיבי */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 15px 25px rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+  position: relative;
+  direction: rtl;
+}
+
+/* טייטל */
+.policies-content h2 {
+  text-align: center;
+  color: #ecf0f1;
+  font-size: 2.2rem;
+  margin: 0 0 6px 0;
+}
+
+/* אזור טקסט הנגלל של הנהלים */
+.policies-scroll {
+  max-height: 320px;
+  font-size: 1.5rem;
+  overflow-y: auto;
+  padding: 12px;
+  border: 2px solid #34495e;
+  border-radius: 8px;
+  background-color: rgba(0,0,0,0.35);
+  color: #ecf0f1;
+  line-height: 1.6;
+}
+
+/* רשימה ממוספרת */
+.policies-scroll ol {
+  margin: 0;
+  padding-inline-start: 22px; /* מרווח סימונים */
+}
+.policies-scroll li {
+  margin-bottom: 10px;
+}
+
+/* כפתורי הפעולה בתחתית המודאל */
+.policies-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* שימוש בכפתור הכללי שלך (signup-btn) גם כאן, עם התאמה קטנה אם צריך */
+.policies-actions .signup-btn {
+  width: auto;                 /* לא 100%, רק תוכן */
+  padding: 10px 16px;
+  margin: 0;                   /* בלי מרווח עליון גדול */
+}
+
+/* התאמות RTL כלליות למודאלים */
+.signup-modal, .policies-content, .signup-modal-content {
+  direction: rtl;
+}
+
+
 /* Responsive Design */
 @media (max-width: 600px) {
   .LoginP {
@@ -347,5 +475,13 @@
 
   .signup-modal-content {
     width: 90%;
+  }
+
+  .policies-content {
+    width: 90vw;
+    padding: 18px;
+  }
+  .policies-scroll {
+    max-height: 260px;
   }
 }

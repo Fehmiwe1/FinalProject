@@ -30,7 +30,6 @@ function MainPageManager() {
 
   const navigate = useNavigate();
 
-  const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
   const shifts = ["בוקר", "ערב", "לילה"];
   const Guardshifts = ["בוקר", "ערב", "לילה"];
   const positions = [
@@ -43,13 +42,49 @@ function MainPageManager() {
     "הפסקות",
   ];
 
+  // ---------- עוזרים לתאריכים (לוקאליים, ללא UTC) ----------
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  // מפתח תאריך לוגי 'YYYY-MM-DD' מתוך אובייקט Date לוקאלי
+  const toKey = (d) =>
+    `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+  // המרה מ'YYYY-MM-DD' ל-DD/MM/YYYY
+  const formatDateToHebrew = (dateKey) => {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    return `${pad2(d)}/${pad2(m)}/${y}`;
+  };
+
+  // יצירת אובייקט Date לוקאלי מתוך 'YYYY-MM-DD'
+  const keyToLocalDate = (dateKey) => {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    return new Date(y, m - 1, d); // לוקאלי
+  };
+
+  // שם יום (א,ב,ג,ד,ה,ו,ש) מתוך מפתח תאריך
+  const dayNameFromKey = (dateKey) => {
+    const d = keyToLocalDate(dateKey);
+    const names = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
+    return names[d.getDay()];
+  };
+
+  // שם יום מלא (ראשון...שבת) לפי אינדקס עמודה (0..6) בטבלה
+  const fullDayNameByIndex = (idx) =>
+    ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][idx];
+
+  // ---------- יצירת שבועות החל מ-2025-06-01 ----------
   useEffect(() => {
     const generateWeeks = () => {
-      const base = new Date("2025-06-01");
+      // חשוב: Date(שנה, חודש-אינדקס, יום) יוצר לוקאלית (ללא UTC)
+      const base = new Date(2025, 5, 1); // 01/06/2025
+      base.setHours(0, 0, 0, 0);
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const diffDays = Math.floor((today - base) / (1000 * 60 * 60 * 24));
+
+      const diffDays = Math.floor((today - base) / 86400000); // 1000*60*60*24
       const periodIndex = Math.floor(diffDays / 14);
+
       const startOfPeriod = new Date(base);
       startOfPeriod.setDate(base.getDate() + periodIndex * 14);
 
@@ -57,7 +92,7 @@ function MainPageManager() {
       for (let i = 0; i < 14; i++) {
         const d = new Date(startOfPeriod);
         d.setDate(startOfPeriod.getDate() + i);
-        dates[i < 7 ? 0 : 1].push(d.toISOString().split("T")[0]);
+        dates[i < 7 ? 0 : 1].push(toKey(d)); // שומרים כמפתח 'YYYY-MM-DD'
       }
       setWeeks(dates);
     };
@@ -78,10 +113,7 @@ function MainPageManager() {
           axios.get("/employeeRequests/pendingAlerts"),
           axios.get("/employeeRequests/pendingSickLeaves"),
         ]);
-
-        // איחוד של שתי הרשימות
         const combinedAlerts = [...generalRes.data, ...sickLeaveRes.data];
-
         setAlerts(combinedAlerts);
       } catch (error) {
         console.error("שגיאה בטעינת בקשות:", error);
@@ -93,20 +125,29 @@ function MainPageManager() {
     generateWeeks();
   }, []);
 
+  // משימות – טעינה חד-פעמית
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await axios.get("/employeeNotifications/tasks");
+        setTasks(res.data);
+      } catch (error) {
+        console.error("שגיאה בטעינת משימות:", error);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  // טעינת סידורים לפי תצוגה נבחרת
   useEffect(() => {
     const fetchAssignments = async () => {
       if (!showGuards && !showMoked && !showKabat) return;
       try {
         let url = "";
-        if (showKabat) {
-          url = "/createSchedule/allKabatAssignments";
-        } else if (showMoked) {
-          url = "/createSchedule/allMokedAssignments";
-        } else if (showGuards) {
-          url = "/createSchedule/allGuardAssignments";
-        } else {
-          return;
-        }
+        if (showKabat) url = "/createSchedule/allKabatAssignments";
+        else if (showMoked) url = "/createSchedule/allMokedAssignments";
+        else if (showGuards) url = "/createSchedule/allGuardAssignments";
+        else return;
 
         const res = await axios.get(url, { withCredentials: true });
         setAssignments(res.data);
@@ -119,8 +160,7 @@ function MainPageManager() {
   }, [showGuards, showMoked, showKabat]);
 
   const getGuardCount = (shiftType, position, dayIdx) => {
-    const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-    const dayName = days[dayIdx];
+    const dayName = fullDayNameByIndex(dayIdx);
 
     if (position === "ראשי") {
       if (shiftType === "בוקר") return dayName === "שבת" ? 3 : 4;
@@ -143,13 +183,6 @@ function MainPageManager() {
     }
     return 1;
   };
-  const formatDateToHebrew = (dateStr) => {
-    const d = new Date(dateStr);
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
 
   const renderTable = (week, title) => {
     return (
@@ -159,28 +192,25 @@ function MainPageManager() {
           <thead>
             <tr>
               <th>משמרת / תאריך</th>
-              {week.map((date, i) => {
-                const d = new Date(date);
-                return (
-                  <th key={i}>
-                    יום {dayNames[d.getDay()]}
-                    <br />
-                    {formatDateToHebrew(date)}
-                  </th>
-                );
-              })}
+              {week.map((dateKey, i) => (
+                <th key={i}>
+                  יום {dayNameFromKey(dateKey)}
+                  <br />
+                  {formatDateToHebrew(dateKey)}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {shifts.map((shift) => (
               <tr key={shift}>
                 <td>{shift}</td>
-                {week.map((date) => {
+                {week.map((dateKey) => {
                   const assigned = assignments.filter(
-                    (a) => a.date === date && a.shift === shift
+                    (a) => a.date === dateKey && a.shift === shift
                   );
                   return (
-                    <td key={`${date}-${shift}`}>
+                    <td key={`${dateKey}-${shift}`}>
                       {assigned.length > 0
                         ? assigned
                             .map((a) => `${a.firstName} ${a.lastName}`)
@@ -198,11 +228,6 @@ function MainPageManager() {
   };
 
   const renderGuardView = (weekIndex) => {
-    const guardsMap = {};
-    assignments.forEach((g) => {
-      guardsMap[g.id] = `${g.firstName} ${g.lastName}`;
-    });
-
     return (
       <div className="guard-schedule-grid">
         <h3 className="title">
@@ -226,16 +251,13 @@ function MainPageManager() {
           <thead>
             <tr>
               <th>עמדה / תאריך</th>
-              {weeks[weekIndex].map((date, i) => {
-                const d = new Date(date);
-                return (
-                  <th key={i}>
-                    יום {dayNames[d.getDay()]}
-                    <br />
-                    {formatDateToHebrew(date)}
-                  </th>
-                );
-              })}
+              {weeks[weekIndex].map((dateKey, i) => (
+                <th key={i}>
+                  יום {dayNameFromKey(dateKey)}
+                  <br />
+                  {formatDateToHebrew(dateKey)}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -245,17 +267,17 @@ function MainPageManager() {
                   <td>
                     {position} - {shiftType}
                   </td>
-                  {weeks[weekIndex].map((date, i) => {
+                  {weeks[weekIndex].map((dateKey, i) => {
                     const count = getGuardCount(shiftType, position, i);
                     const assigned = assignments.filter(
                       (a) =>
-                        a.date === date &&
+                        a.date === dateKey &&
                         a.shift === shiftType &&
                         (a.location === position || a.role === position)
                     );
 
                     return (
-                      <td key={`${date}-${position}-${shiftType}`}>
+                      <td key={`${dateKey}-${position}-${shiftType}`}>
                         {[...Array(count)].map((_, idx) => {
                           const a = assigned[idx];
                           return (
@@ -276,6 +298,7 @@ function MainPageManager() {
     );
   };
 
+  // הבאת עובדים לפי תפקיד עבור שליחת משימה
   useEffect(() => {
     const fetchTaskEmployees = async () => {
       if (!taskRole) return;
@@ -340,17 +363,6 @@ function MainPageManager() {
     `${emp.firstName} ${emp.lastName}`.includes(taskSearch)
   );
 
-  const fetchTasks = async () => {
-    try {
-      const res = await axios.get("/employeeNotifications/tasks");
-      setTasks(res.data);
-    } catch (error) {
-      console.error("שגיאה בטעינת משימות:", error);
-    }
-  };
-
-  fetchTasks();
-
   return (
     <div className="mainPageManager">
       <div className="mainPageManager-container">
@@ -374,6 +386,7 @@ function MainPageManager() {
               ))}
             </tbody>
           </table>
+
           {tasks.length > 0 && (
             <>
               <h2>משימות עובדים</h2>

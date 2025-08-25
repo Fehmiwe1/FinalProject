@@ -3,7 +3,9 @@ const router = express.Router();
 const dbSingleton = require("../dbSingleton");
 const db = dbSingleton.getConnection();
 
-// עוזר: מציאת userId בצורה חסינה (Session -> Cookie -> Body)
+/**
+ * עוזר: מציאת userId בצורה חסינה (Session -> Cookie -> Body)
+ */
 function resolveUserId(req) {
   const fromSession = req.session?.user?.id;
   const fromCookie =
@@ -14,17 +16,25 @@ function resolveUserId(req) {
   );
 }
 
+/* ===========================
+   בקשות מסירה / החלפה
+   =========================== */
+
 // --- בקשת מסירה ---
 router.post("/requestGive", (req, res) => {
-  // אם יש לך פונקציית עזר resolveUserId – השתמש בה; אחרת קרא מה-session
   const fromEmployeeId =
     (req.session && req.session.user && req.session.user.id) ||
     req.body?.fromEmployeeId ||
     req.cookies?.userId ||
     null;
 
-  const { date, shift, location = null, note = "", toEmployeeId = null } =
-    req.body || {};
+  const {
+    date,
+    shift,
+    location = null,
+    note = "",
+    toEmployeeId = null,
+  } = req.body || {};
 
   console.log("🔔 /requestGive called");
   console.log("session.user:", req.session?.user);
@@ -40,7 +50,6 @@ router.post("/requestGive", (req, res) => {
     return res.status(400).json({ message: "date ו-shift נדרשים" });
   }
 
-  // אם נבחר עובד יעד למסירה – נכניס עמודה to_employee_id, אחרת בלי
   const hasTarget = !!toEmployeeId;
 
   const sql = hasTarget
@@ -89,7 +98,6 @@ router.post("/requestSwap", (req, res) => {
     note = "",
   } = req.body || {};
 
-  // לוגים לדיבוג
   console.log("🔔 /requestSwap called");
   console.log("session.user:", req.session?.user);
   console.log("cookies.userId:", req.cookies?.userId);
@@ -100,7 +108,6 @@ router.post("/requestSwap", (req, res) => {
   if (!date || !shift)
     return res.status(400).json({ message: "date ו-shift נדרשים" });
 
-  // וידוא מזהה עובד היעד – ננסה לאסוף מאופנים שונים שנפוצים ב-FE
   const targetEmployeeId =
     toEmployeeId ??
     req.body?.targetEmployeeId ??
@@ -143,7 +150,10 @@ router.post("/requestSwap", (req, res) => {
   );
 });
 
-// אישור/דחיית בקשה (מסירה/החלפה) — מעדכן סטטוס בטבלה לפי ENUM שלך: 'אישור'/'דחיה'
+/* ===========================
+   אישור/דחייה
+   =========================== */
+
 router.put("/requests/:id/approve", (req, res) => {
   const { id } = req.params;
   db.query(
@@ -168,7 +178,10 @@ router.put("/requests/:id/decline", (req, res) => {
   );
 });
 
-// שליפת פרטי המשתמש + כל המשמרות שלו לפי ה-ID שב-sessions
+/* ===========================
+   "אני" + כל המשמרות שלי
+   =========================== */
+
 router.get("/me", async (req, res) => {
   const sessUser = req.session?.user;
   if (!sessUser || !sessUser.id) {
@@ -181,9 +194,8 @@ router.get("/me", async (req, res) => {
       SELECT 
         DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
         s.ShiftType AS shift,
-        -- אם ה-Role הוא אחד התפקידים המיוחדים, נציג אותו כעמדה; אחרת מיקום המשמרת
         CASE
-          WHEN esa.Role IN ('סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות') THEN esa.Role
+          WHEN esa.Role IN ('סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות','מוקד','קבט') THEN esa.Role
           ELSE s.Location
         END AS location,
         esa.Role AS role,
@@ -204,11 +216,279 @@ router.get("/me", async (req, res) => {
       firstName: sessUser.firstName,
       lastName: sessUser.lastName,
       role: sessUser.role,
-      assignments: rows, // <<< כל המשמרות של המשתמש
+      assignments: rows,
     });
   } catch (err) {
     console.error("❌ שגיאה בשליפת המשמרות שלי:", err);
     return res.status(500).json({ message: "Database error", error: err });
+  }
+});
+
+/* ===========================
+   מועמדים להחלפה/מסירה — לפי תפקיד
+   =========================== */
+
+/**
+ * מועמדים למאבטח (Guard)
+ * query: date=YYYY-MM-DD, shift=בוקר|ערב|לילה, location=עמדה/סיור (חובה)
+ */
+router.get("/candidates/guard", async (req, res) => {
+  try {
+    const meId =
+      resolveUserId(req) ||
+      req.session?.user?.id ||
+      req.cookies?.userId ||
+      null;
+    if (!meId) return res.status(401).json({ message: "Not logged in" });
+
+    const date = (req.query.date || "").trim();
+    const shift = (req.query.shift || "").trim();
+    const rawLocation = (req.query.location || "").trim();
+    const clientLoc = rawLocation.replace(/["׳״']/g, "").replace(/\s+/g, "");
+
+    if (!date || !shift || !clientLoc) {
+      return res.status(400).json({ message: "date, shift, location נדרשים" });
+    }
+
+    const [rows] = await db.promise().query(
+      `
+      SELECT 
+        u.id AS employeeId,
+        u.firstName, u.lastName,
+        DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+        s.ShiftType AS shift,
+        CASE
+          WHEN esa.Role IN ('סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות') THEN esa.Role
+          ELSE s.Location
+        END AS location,
+        REPLACE(REPLACE(REPLACE(
+          CASE
+            WHEN esa.Role IN ('סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות') THEN esa.Role
+            ELSE s.Location
+          END
+        ,'"',''), '״',''), '׳','') AS loc_no_quotes,
+        REPLACE(REPLACE(REPLACE(REPLACE(
+          REGEXP_REPLACE(
+            CASE
+              WHEN esa.Role IN ('סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות') THEN esa.Role
+              ELSE s.Location
+            END
+          ,'\\s+','')
+        ,'"',''),'״',''),'׳',''),' ','') AS loc_cmp
+      FROM employee_shift_assignment esa
+      JOIN shift s ON s.ID = esa.Shift_ID
+      JOIN users u ON u.id = esa.Employee_ID
+      WHERE s.Date = ?
+        AND s.ShiftType = ?
+        AND u.id <> ?
+        AND esa.Role IN ('מאבטח','סייר רכוב','סייר א','סייר ב','סייר ג','הפסקות')
+      HAVING 
+         loc_cmp = ?
+         OR INSTR(loc_cmp, ?) > 0
+         OR INSTR(?, loc_cmp) > 0
+      ORDER BY u.lastName, u.firstName
+      `,
+      [date, shift, meId, clientLoc, clientLoc, clientLoc]
+    );
+
+    res.json(rows || []);
+  } catch (err) {
+    console.error("❌ /candidates/guard error:", err);
+    res.status(500).json({ message: "Database error", error: err });
+  }
+});
+
+/**
+ * מועמדים למוקד (Moked)
+ * query: date=YYYY-MM-DD, shift=בוקר|ערב|לילה, purpose=swap|give
+ * swap  -> מי שכבר משובץ "מוקד" באותו יום/משמרת (להחלפה)
+ * give  -> כל עובדי "מוקד" שלא משובצים באותו יום/משמרת (יכולים לקחת)
+ */
+router.get("/candidates/moked", async (req, res) => {
+  try {
+    const meId =
+      resolveUserId(req) ||
+      req.session?.user?.id ||
+      req.cookies?.userId ||
+      null;
+    if (!meId) return res.status(401).json({ message: "Not logged in" });
+
+    const date = (req.query.date || "").trim();
+    const shift = (req.query.shift || "").trim();
+    const purpose = (req.query.purpose || "swap").trim().toLowerCase();
+
+    if (!date || !shift) {
+      return res.status(400).json({ message: "date ו‑shift נדרשים" });
+    }
+
+    if (purpose === "give") {
+      // עובדים בתפקיד מוקד שאינם משובצים באותו יום/משמרת
+      const [rows] = await db.promise().query(
+        `
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          ? AS date,
+          ? AS shift,
+          'מוקד' AS role
+        FROM users u
+        WHERE u.role = 'moked'
+          AND u.id <> ?
+          AND u.id NOT IN (
+            SELECT esa.Employee_ID
+            FROM employee_shift_assignment esa
+            JOIN shift s ON s.ID = esa.Shift_ID
+            WHERE s.Date = ? AND s.ShiftType = ? AND esa.Role = 'מוקד'
+          )
+        ORDER BY u.lastName, u.firstName
+        `,
+        [date, shift, meId, date, shift]
+      );
+      return res.json(rows || []);
+    }
+
+    // purpose = swap -> גם משובצים וגם לא משובצים (איחוד)
+    const [rows] = await db.promise().query(
+      `
+      (
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+          s.ShiftType AS shift,
+          'מוקד' AS role
+        FROM employee_shift_assignment esa
+        JOIN shift s ON s.ID = esa.Shift_ID
+        JOIN users u ON u.id = esa.Employee_ID
+        WHERE s.Date = ?
+          AND s.ShiftType = ?
+          AND esa.Role = 'מוקד'
+          AND u.id <> ?
+      )
+      UNION
+      (
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          ? AS date,
+          ? AS shift,
+          'מוקד' AS role
+        FROM users u
+        WHERE u.role = 'moked'
+          AND u.id <> ?
+          AND u.id NOT IN (
+            SELECT esa.Employee_ID
+            FROM employee_shift_assignment esa
+            JOIN shift s ON s.ID = esa.Shift_ID
+            WHERE s.Date = ? AND s.ShiftType = ? AND esa.Role = 'מוקד'
+          )
+      )
+      ORDER BY lastName, firstName
+      `,
+      [date, shift, meId, date, shift, meId, date, shift]
+    );
+
+    res.json(rows || []);
+  } catch (err) {
+    console.error("❌ /candidates/moked error:", err);
+    res.status(500).json({ message: "Database error", error: err });
+  }
+});
+
+/**
+ * מועמדים לקבט (Kabat)
+ * query: date=YYYY-MM-DD, shift=בוקר|ערב|לילה, purpose=swap|give
+ * swap  -> מי שכבר משובץ "קבט" באותו יום/משמרת (להחלפה)
+ * give  -> כל עובדי "קבט" שלא משובצים באותו יום/משמרת (יכולים לקחת)
+ */
+router.get("/candidates/kabat", async (req, res) => {
+  try {
+    const meId =
+      resolveUserId(req) ||
+      req.session?.user?.id ||
+      req.cookies?.userId ||
+      null;
+    if (!meId) return res.status(401).json({ message: "Not logged in" });
+
+    const date = (req.query.date || "").trim();
+    const shift = (req.query.shift || "").trim();
+    const purpose = (req.query.purpose || "swap").trim().toLowerCase();
+
+    if (!date || !shift) {
+      return res.status(400).json({ message: "date ו‑shift נדרשים" });
+    }
+
+    if (purpose === "give") {
+      // עובדים בתפקיד קבט שאינם משובצים באותו יום/משמרת
+      const [rows] = await db.promise().query(
+        `
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          ? AS date,
+          ? AS shift,
+          'קבט' AS role
+        FROM users u
+        WHERE u.role = 'kabat'
+          AND u.id <> ?
+          AND u.id NOT IN (
+            SELECT esa.Employee_ID
+            FROM employee_shift_assignment esa
+            JOIN shift s ON s.ID = esa.Shift_ID
+            WHERE s.Date = ? AND s.ShiftType = ? AND esa.Role = 'קבט'
+          )
+        ORDER BY u.lastName, u.firstName
+        `,
+        [date, shift, meId, date, shift]
+      );
+      return res.json(rows || []);
+    }
+
+    // purpose = swap -> גם משובצים וגם לא משובצים (איחוד)
+    const [rows] = await db.promise().query(
+      `
+      (
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          DATE_FORMAT(s.Date, '%Y-%m-%d') AS date,
+          s.ShiftType AS shift,
+          'קבט' AS role
+        FROM employee_shift_assignment esa
+        JOIN shift s ON s.ID = esa.Shift_ID
+        JOIN users u ON u.id = esa.Employee_ID
+        WHERE s.Date = ?
+          AND s.ShiftType = ?
+          AND esa.Role = 'קבט'
+          AND u.id <> ?
+      )
+      UNION
+      (
+        SELECT 
+          u.id AS employeeId,
+          u.firstName, u.lastName,
+          ? AS date,
+          ? AS shift,
+          'קבט' AS role
+        FROM users u
+        WHERE u.role = 'kabat'
+          AND u.id <> ?
+          AND u.id NOT IN (
+            SELECT esa.Employee_ID
+            FROM employee_shift_assignment esa
+            JOIN shift s ON s.ID = esa.Shift_ID
+            WHERE s.Date = ? AND s.ShiftType = ? AND esa.Role = 'קבט'
+          )
+      )
+      ORDER BY lastName, firstName
+      `,
+      [date, shift, meId, date, shift, meId, date, shift]
+    );
+
+    res.json(rows || []);
+  } catch (err) {
+    console.error("❌ /candidates/kabat error:", err);
+    res.status(500).json({ message: "Database error", error: err });
   }
 });
 

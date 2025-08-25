@@ -324,6 +324,7 @@ function RequestsManagement() {
               <tr>
                 <th>שם עובד</th>
                 <th>תאריך בקשה</th>
+                <th>סוג בקשה</th> {/* ✅ חדש */}
                 <th>פרטי משמרת</th>
                 <th>עובד יעד</th>
                 <th>סטטוס</th>
@@ -337,6 +338,7 @@ function RequestsManagement() {
                       {req.fromFirstName} {req.fromLastName}
                     </td>
                     <td>{formatDateToHebrew(req.requestDate)}</td>
+                    <td>{req.requestType}</td> {/* ✅ הצגה */}
                     <td>
                       {req.shiftDate ? formatDateToHebrew(req.shiftDate) : "-"}
                       {req.shiftType ? `  ${req.shiftType}` : ""}
@@ -367,7 +369,8 @@ function RequestsManagement() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">אין בקשות ממתינות למסירה/החלפה.</td>
+                  <td colSpan="6">אין בקשות ממתינות למסירה/החלפה.</td>{" "}
+                  {/* ✅ עדכון colspan */}
                 </tr>
               )}
             </tbody>
@@ -382,6 +385,7 @@ function RequestsManagement() {
                   <tr>
                     <th>שם עובד</th>
                     <th>תאריך בקשה</th>
+                    <th>סוג בקשה</th> {/* ✅ חדש */}
                     <th>פרטי משמרת</th>
                     <th>עובד יעד</th>
                     <th>סטטוס</th>
@@ -395,6 +399,7 @@ function RequestsManagement() {
                           {req.fromFirstName} {req.fromLastName}
                         </td>
                         <td>{formatDateToHebrew(req.requestDate)}</td>
+                        <td>{req.requestType}</td> {/* ✅ הצגה */}
                         <td>
                           {req.shiftDate
                             ? formatDateToHebrew(req.shiftDate)
@@ -414,7 +419,8 @@ function RequestsManagement() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5">אין היסטוריית בקשות למסירה/החלפה.</td>
+                      <td colSpan="6">אין היסטוריית בקשות למסירה/החלפה.</td>{" "}
+                      {/* ✅ עדכון colspan */}
                     </tr>
                   )}
                 </tbody>

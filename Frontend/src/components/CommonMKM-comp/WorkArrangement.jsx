@@ -16,15 +16,19 @@ function WorkArrangement() {
     lastName: null,
     role: null,
   });
-  const [myAssignments, setMyAssignments] = useState([]); // <<< המשמרות שלי ישירות מהשרת
+  const [myAssignments, setMyAssignments] = useState([]); // המשמרות שלי מהשרת
 
-  // UI: "המשמרות שלי" — צד ימין (drawer)
+  // Drawer
   const [myShiftsOpen, setMyShiftsOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null); // 'give' | 'swap' | null
-  const [selectedAssignment, setSelectedAssignment] = useState(null); // השורה שנבחרה לפעולה
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [swapCandidatesOpen, setSwapCandidatesOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState({ type: "", text: "" });
+
+  // מועמדים מהשרת (למסירה/החלפה)
+  const [candidates, setCandidates] = useState([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(false);
 
   const navigate = useNavigate();
 
@@ -35,6 +39,8 @@ function WorkArrangement() {
   const dayNames = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
   const shifts = ["בוקר", "ערב", "לילה"];
   const Guardshifts = ["בוקר", "ערב", "לילה"];
+
+  // positions לפי הבקשה
   const positions = [
     "ראשי",
     "נשר",
@@ -43,7 +49,15 @@ function WorkArrangement() {
     "סייר ב",
     "סייר ג",
     "הפסקות",
+    "מוקד",
+    "קבט",
   ];
+  // ב‑Grid של מאבטחים נציג רק את עמדות המאבטח
+  const guardPositions = positions.filter((p) => p !== "מוקד" && p !== "קבט");
+
+  const roleLabel = (r) =>
+    r === "guard" ? "מאבטח" : r === "moked" ? "מוקד" : "קבט";
+  const roleHeb = roleLabel(selectedRole);
 
   // ---------- Dates generator (bi-weekly windows) ----------
   useEffect(() => {
@@ -93,44 +107,25 @@ function WorkArrangement() {
     };
     setMe(fromCookies);
 
-    // אם חסר משהו — נביא מהשרת את המשתמש + המשמרות שלו
-    if (
-      !fromCookies.userId ||
-      !fromCookies.firstName ||
-      !fromCookies.lastName
-    ) {
-      (async () => {
-        try {
-          const r = await axios.get("/employeeShiftRequests/me", {
-            withCredentials: true,
-          });
-          if (r?.data) {
-            setMe((prev) => ({
-              ...prev,
-              userId: r.data.userId ?? prev.userId,
-              firstName: r.data.firstName ?? prev.firstName,
-              lastName: r.data.lastName ?? prev.lastName,
-              role: r.data.role ?? prev.role,
-            }));
-            setMyAssignments(r.data.assignments || []);
-          }
-        } catch (e) {
-          // לא קריטי – נ fallback לשמות בקבצי המשימות
+    (async () => {
+      try {
+        const r = await axios.get("/employeeShiftRequests/me", {
+          withCredentials: true,
+        });
+        if (r?.data) {
+          setMe((prev) => ({
+            ...prev,
+            userId: r.data.userId ?? prev.userId,
+            firstName: r.data.firstName ?? prev.firstName,
+            lastName: r.data.lastName ?? prev.lastName,
+            role: r.data.role ?? prev.role,
+          }));
+          setMyAssignments(r.data.assignments || []);
         }
-      })();
-    } else {
-      // גם אם יש קוקיז, נשלים משמרות שלי מהשרת כדי להיות מדויקים
-      (async () => {
-        try {
-          const r = await axios.get("/employeeShiftRequests/me", {
-            withCredentials: true,
-          });
-          if (r?.data?.assignments) setMyAssignments(r.data.assignments);
-        } catch (e) {
-          // שקט
-        }
-      })();
-    }
+      } catch (e) {
+        // לא קריטי
+      }
+    })();
   }, []);
 
   // ---------- Assignments ----------
@@ -157,9 +152,10 @@ function WorkArrangement() {
   // ---------- Helpers ----------
   const formatDateToHebrew = (dateStr) => {
     const d = new Date(dateStr);
-    return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}/${d.getFullYear()}`;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   };
 
   const getGuardCount = (shiftType, position, dayIdx) => {
@@ -187,10 +183,11 @@ function WorkArrangement() {
     return 1;
   };
 
-  // האם השורה היא של המשתמש
+  // <<< תיקון לוגיקת "זה שלי?"
   const isMine = (a) => {
     if (!a) return false;
 
+    // 1) לפי מזהה עובד (חובה לכל התפקידים)
     const myId = me.userId ? String(me.userId).trim() : null;
     const candIds = [
       a.employeeId,
@@ -207,7 +204,9 @@ function WorkArrangement() {
 
     if (myId && candIds.some((id) => id === myId)) return true;
 
-    // fallback לפי שמות
+    // 2) Fallback לפי שם — רק במאבטח, כדי לא ליצור "מוקד/קבט (אני)" בטעות
+    if (selectedRole !== "guard") return false;
+
     const norm = (s) =>
       String(s || "")
         .trim()
@@ -221,30 +220,66 @@ function WorkArrangement() {
     return false;
   };
 
-  // המשמרות של המשתמש (Guard בלבד) — קודם כל מהשרת, ואם אין נפלטר מקומי
-  const myGuardAssignments = useMemo(() => {
-    if (selectedRole !== "guard") return [];
-    if (myAssignments && myAssignments.length > 0) return myAssignments;
-    return (assignments || []).filter(isMine);
-  }, [
-    myAssignments,
-    assignments,
-    selectedRole,
-    me.userId,
-    me.firstName,
-    me.lastName,
-  ]);
+  const getPositionOf = (a) => {
+    if (!a) return null;
+    if (positions.includes(a.location)) return a.location;
+    if (positions.includes(a.role)) return a.role;
+    return a.location || a.role || null;
+  };
 
-  // מועמדים להחלפה — שומרים אחרים באותו יום+משמרת (לא כולל אותי)
-  const swapCandidates = useMemo(() => {
-    if (!selectedAssignment) return [];
-    return (assignments || []).filter(
-      (a) =>
-        a.date === selectedAssignment.date &&
-        a.shift === selectedAssignment.shift &&
-        !isMine(a)
-    );
-  }, [assignments, selectedAssignment]);
+  const myRoleAssignments = useMemo(
+    () => (assignments || []).filter(isMine),
+    [assignments, me.userId, me.firstName, me.lastName, selectedRole]
+  );
+
+  // ---------- שליפת מועמדים מהשרת ----------
+  const fetchCandidates = async (assignment, role, action) => {
+    if (!assignment) {
+      setCandidates([]);
+      return;
+    }
+    try {
+      setLoadingCandidates(true);
+
+      if (role === "guard") {
+        const loc = (assignment.location || assignment.role || "ראשי")
+          .replace(/["׳״']/g, "")
+          .replace(/\s+/g, "");
+
+        const res = await axios.get("/employeeShiftRequests/candidates/guard", {
+          params: {
+            date: assignment.date,
+            shift: assignment.shift,
+            location: loc,
+          },
+          withCredentials: true,
+        });
+        setCandidates(Array.isArray(res.data) ? res.data : []);
+      } else if (role === "moked" || role === "kabat") {
+        const res = await axios.get(
+          `/employeeShiftRequests/candidates/${
+            role === "moked" ? "moked" : "kabat"
+          }`,
+          {
+            params: {
+              date: assignment.date,
+              shift: assignment.shift,
+              purpose: action === "give" ? "give" : "swap",
+            },
+            withCredentials: true,
+          }
+        );
+        setCandidates(Array.isArray(res.data) ? res.data : []);
+      } else {
+        setCandidates([]);
+      }
+    } catch (e) {
+      console.error("fetchCandidates error:", e);
+      setCandidates([]);
+    } finally {
+      setLoadingCandidates(false);
+    }
+  };
 
   // ---------- Actions ----------
   const openMyShifts = () => {
@@ -252,23 +287,32 @@ function WorkArrangement() {
     setSelectedAction(null);
     setSelectedAssignment(null);
     setSwapCandidatesOpen(false);
+    setCandidates([]);
   };
   const closeMyShifts = () => {
     setMyShiftsOpen(false);
     setSelectedAction(null);
     setSelectedAssignment(null);
     setSwapCandidatesOpen(false);
+    setCandidates([]);
   };
 
   const chooseAction = (assignment, action) => {
     setSelectedAssignment(assignment);
     setSelectedAction(action); // 'give' | 'swap'
-    if (action === "swap" || action === "give") {
-      setSwapCandidatesOpen(true);
-    } else {
-      setSwapCandidatesOpen(false);
-    }
+    setSwapCandidatesOpen(true);
+    setCandidates([]);
+    fetchCandidates(assignment, selectedRole, action);
   };
+
+  // כשמשתנה role/assignment/action בזמן שה‑drawer פתוח — רענון מועמדים
+  useEffect(() => {
+    if (!myShiftsOpen) return;
+    if (!selectedAssignment) return;
+    if (!selectedAction) return;
+    fetchCandidates(selectedAssignment, selectedRole, selectedAction);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRole, selectedAssignment, selectedAction, myShiftsOpen]);
 
   const sendGiveRequest = async (target) => {
     if (!selectedAssignment || !target) return;
@@ -280,7 +324,7 @@ function WorkArrangement() {
           fromEmployeeId: me.userId ?? null,
           fromFirstName: me.firstName ?? null,
           fromLastName: me.lastName ?? null,
-          // יעד (אופציונלי – השרת יכול להתעלם אם לא תומך)
+
           toEmployeeId:
             target.employeeId ??
             target.id ??
@@ -290,11 +334,13 @@ function WorkArrangement() {
           toFirstName: target.firstName ?? null,
           toLastName: target.lastName ?? null,
 
-          role: "guard",
+          role: selectedRole, // 'guard' | 'moked' | 'kabat'
           date: selectedAssignment.date,
           shift: selectedAssignment.shift,
           location:
-            selectedAssignment.location ?? selectedAssignment.role ?? "ראשי",
+            selectedRole === "guard"
+              ? getPositionOf(selectedAssignment) || "ראשי"
+              : roleHeb, // "מוקד"/"קבט"
           note: "",
         },
         { withCredentials: true }
@@ -303,6 +349,7 @@ function WorkArrangement() {
       setSelectedAction(null);
       setSelectedAssignment(null);
       setSwapCandidatesOpen(false);
+      setCandidates([]);
     } catch (e) {
       console.error(e);
       setToast({ type: "error", text: "שליחת בקשת מסירה נכשלה." });
@@ -319,19 +366,23 @@ function WorkArrangement() {
         "/employeeShiftRequests/requestSwap",
         {
           fromEmployeeId: me.userId ?? null,
+
           toEmployeeId:
             target.employeeId ??
             target.id ??
             target.ID ??
             target.Employee_ID ??
             null,
-          toFirstName: target.firstName ?? null, // נשמור שמות לפולבאק בשרת
+          toFirstName: target.firstName ?? null,
           toLastName: target.lastName ?? null,
-          role: "guard",
+
+          role: selectedRole,
           date: selectedAssignment.date,
           shift: selectedAssignment.shift,
           location:
-            selectedAssignment.location ?? selectedAssignment.role ?? "ראשי",
+            selectedRole === "guard"
+              ? getPositionOf(selectedAssignment) || "ראשי"
+              : roleHeb,
           note: "",
         },
         { withCredentials: true }
@@ -340,6 +391,7 @@ function WorkArrangement() {
       setSelectedAction(null);
       setSelectedAssignment(null);
       setSwapCandidatesOpen(false);
+      setCandidates([]);
     } catch (e) {
       console.error(e);
       setToast({ type: "error", text: "שליחת בקשת החלפה נכשלה." });
@@ -378,12 +430,30 @@ function WorkArrangement() {
                 return (
                   <td key={`${date}-${shift}`}>
                     {assigned.map((a, idx) => {
-                      const meMark = isMine(a) ? " (אני)" : "";
+                      const mine = isMine(a);
+                      const label =
+                        (a.firstName && a.lastName
+                          ? `${a.firstName} ${a.lastName}`
+                          : a.employeeName) + (mine ? " (אני)" : "");
                       return (
-                        <div key={idx}>
-                          {(a.firstName && a.lastName
-                            ? `${a.firstName} ${a.lastName}`
-                            : a.employeeName) + meMark}
+                        <div key={idx} className={`slot ${mine ? "mine" : ""}`}>
+                          {label}
+                          {mine && (
+                            <div className="slot-actions">
+                              <button
+                                className="mini-btn combined"
+                                onClick={() => {
+                                  setMyShiftsOpen(true);
+                                  setSelectedAssignment(a);
+                                  setSelectedAction(null);
+                                  setSwapCandidatesOpen(false);
+                                  setCandidates([]);
+                                }}
+                              >
+                                החלפה/מסירה
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -419,7 +489,7 @@ function WorkArrangement() {
           </tr>
         </thead>
         <tbody>
-          {positions.map((position) =>
+          {guardPositions.map((position) =>
             Guardshifts.map((shiftType) => (
               <tr key={`${position}-${shiftType}`}>
                 <td>
@@ -443,7 +513,6 @@ function WorkArrangement() {
                           (a.firstName && a.lastName
                             ? `${a.firstName} ${a.lastName}`
                             : a?.employeeName || "—");
-
                         const mine = a && isMine(a);
 
                         return (
@@ -459,6 +528,9 @@ function WorkArrangement() {
                                   onClick={() => {
                                     setMyShiftsOpen(true);
                                     setSelectedAssignment(a);
+                                    setSelectedAction(null);
+                                    setSwapCandidatesOpen(false);
+                                    setCandidates([]);
                                   }}
                                 >
                                   החלפה/מסירה
@@ -509,7 +581,7 @@ function WorkArrangement() {
                     ? "מאבטח"
                     : role === "moked"
                     ? "מוקד"
-                    : 'קב"ט'}
+                    : "קבט"}
                 </button>
               ))}
           </aside>
@@ -549,14 +621,14 @@ function WorkArrangement() {
           <div className="drawer-backdrop" onClick={closeMyShifts}>
             <aside className="drawer" onClick={(e) => e.stopPropagation()}>
               <header className="drawer-header">
-                <h3>המשמרות שלי (מאבטח)</h3>
+                <h3>המשמרות שלי ({roleHeb})</h3>
                 <button className="close" onClick={closeMyShifts}>
                   ×
                 </button>
               </header>
 
               <div className="drawer-body">
-                {myGuardAssignments.length === 0 ? (
+                {myRoleAssignments.length === 0 ? (
                   <p>לא נמצאו משמרות עבורך בטווח הנוכחי.</p>
                 ) : (
                   <table className="myshifts-table">
@@ -564,18 +636,23 @@ function WorkArrangement() {
                       <tr>
                         <th>תאריך</th>
                         <th>יום</th>
-                        <th>עמדה</th>
+                        <th>{selectedRole === "guard" ? "עמדה" : "תפקיד"}</th>
                         <th>משמרת</th>
                         <th>פעולה</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {myGuardAssignments
+                      {myRoleAssignments
+                        .slice()
                         .sort((a, b) =>
                           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
                         )
                         .map((a, i) => {
                           const d = new Date(a.date);
+                          const pos =
+                            selectedRole === "guard"
+                              ? getPositionOf(a) || "ראשי"
+                              : roleHeb;
                           return (
                             <tr
                               key={i}
@@ -585,7 +662,7 @@ function WorkArrangement() {
                             >
                               <td>{formatDateToHebrew(a.date)}</td>
                               <td>{dayNames[d.getDay()]}</td>
-                              <td>{a.location || a.role || "ראשי"}</td>
+                              <td>{pos}</td>
                               <td>{a.shift}</td>
                               <td className="row-actions">
                                 <button
@@ -618,17 +695,25 @@ function WorkArrangement() {
                   </table>
                 )}
 
-                {/* GIVE: רשימת עובדים שניתן למסור אליהם */}
+                {/* GIVE */}
                 {selectedAction === "give" && selectedAssignment && (
                   <div className="swap-candidates">
-                    <h4>עובדים שאפשר למסור אליהם (אותו יום ומשמרת)</h4>
+                    <h4>
+                      עובדים שאפשר למסור אליהם (אותו יום ומשמרת
+                      {selectedRole === "guard"
+                        ? " ובאותה עמדה"
+                        : ` ו${roleHeb}`}{" "}
+                      )
+                    </h4>
                     {swapCandidatesOpen && (
                       <>
-                        {swapCandidates.length === 0 ? (
+                        {loadingCandidates ? (
+                          <p>טוען מועמדים...</p>
+                        ) : candidates.length === 0 ? (
                           <p>לא נמצאו מועמדים מתאימים.</p>
                         ) : (
                           <ul className="candidates-list">
-                            {swapCandidates.map((c, idx) => (
+                            {candidates.map((c, idx) => (
                               <li key={idx} className="candidate">
                                 <div className="candidate-main">
                                   <span className="name">
@@ -637,8 +722,10 @@ function WorkArrangement() {
                                       : c.employeeName}
                                   </span>
                                   <span className="meta">
-                                    {c.location || c.role || "עמדה"} ·{" "}
-                                    {formatDateToHebrew(c.date)} · {c.shift}
+                                    {(selectedRole === "guard"
+                                      ? getPositionOf(c)
+                                      : roleHeb) || "עמדה"}{" "}
+                                    · {formatDateToHebrew(c.date)} · {c.shift}
                                   </span>
                                 </div>
                                 <div className="candidate-actions">
@@ -659,16 +746,25 @@ function WorkArrangement() {
                   </div>
                 )}
 
+                {/* SWAP */}
                 {selectedAction === "swap" && selectedAssignment && (
                   <div className="swap-candidates">
-                    <h4>מועמדים להחלפה (אותו יום ומשמרת)</h4>
+                    <h4>
+                      מועמדים להחלפה (אותו יום ומשמרת
+                      {selectedRole === "guard"
+                        ? " ובאותה עמדה"
+                        : ` ו${roleHeb}`}{" "}
+                      )
+                    </h4>
                     {swapCandidatesOpen && (
                       <>
-                        {swapCandidates.length === 0 ? (
+                        {loadingCandidates ? (
+                          <p>טוען מועמדים...</p>
+                        ) : candidates.length === 0 ? (
                           <p>לא נמצאו מועמדים מתאימים.</p>
                         ) : (
                           <ul className="candidates-list">
-                            {swapCandidates.map((c, idx) => (
+                            {candidates.map((c, idx) => (
                               <li key={idx} className="candidate">
                                 <div className="candidate-main">
                                   <span className="name">
@@ -677,8 +773,10 @@ function WorkArrangement() {
                                       : c.employeeName}
                                   </span>
                                   <span className="meta">
-                                    {c.location || c.role || "עמדה"} ·{" "}
-                                    {formatDateToHebrew(c.date)} · {c.shift}
+                                    {(selectedRole === "guard"
+                                      ? getPositionOf(c)
+                                      : roleHeb) || "עמדה"}{" "}
+                                    · {formatDateToHebrew(c.date)} · {c.shift}
                                   </span>
                                 </div>
                                 <div className="candidate-actions">
