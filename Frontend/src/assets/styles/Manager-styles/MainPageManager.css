@@ -113,14 +113,13 @@ requests-nav-button:hover {
   margin-bottom: 15px;
 }
 
-.task-form-group label {
+.task-form-group-label {
   display: block;
   margin-bottom: 5px;
 }
 
-.task-form-group input,
-.task-form-group textarea,
-.task-form-group select {
+.task-form-group-input,
+.task-form-group-select {
   width: 100%;
   padding: 8px;
   background-color: #333;
@@ -128,6 +127,17 @@ requests-nav-button:hover {
   color: #fff;
   border-radius: 6px;
 }
+
+.task-form-group-textarea {
+  width: 300px;    /* תיבת טקסט רחבה יותר */
+  max-width: 100%; /* שמירה על התאמה למסכים קטנים */
+  padding: 15px;
+  background-color: #333;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 6px;
+}
+
 
 .task-submit-button {
   background-color: #3e556b;

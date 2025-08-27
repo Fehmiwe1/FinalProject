@@ -514,6 +514,7 @@ function MainPageManager() {
                 <div className="task-form-group">
                   <label>בחר תפקיד:</label>
                   <select
+                    className="task-form-group-select"
                     value={taskRole}
                     onChange={(e) => {
                       setTaskRole(e.target.value);
@@ -528,8 +529,9 @@ function MainPageManager() {
                   </select>
                 </div>
                 <div className="task-form-group">
-                  <label>בחר עובד:</label>
+                  <label className="task-form-group-label">בחר עובד:</label>
                   <input
+                    className="task-form-group-input"
                     list="employeeOptions"
                     value={taskSearch}
                     onChange={(e) => {
@@ -553,16 +555,18 @@ function MainPageManager() {
                   </datalist>
                 </div>
                 <div className="task-form-group">
-                  <label>תאריך משימה:</label>
+                  <label className="task-form-group-label">תאריך משימה:</label>
                   <input
+                    className="task-form-group-input"
                     type="date"
                     value={taskDate}
                     onChange={(e) => setTaskDate(e.target.value)}
                   />
                 </div>
                 <div className="task-form-group">
-                  <label>תיאור משימה:</label>
+                  <label className="task-form-group-label">תיאור משימה:</label>
                   <textarea
+                    className="task-form-group-textarea"
                     value={taskDescription}
                     onChange={(e) => setTaskDescription(e.target.value)}
                   />
