@@ -107,14 +107,24 @@ function EmployeeConstraints() {
                   (x) => x.availability === "יכול חלקית"
                 );
 
+                const hasConstraints = red.length > 0 || yellow.length > 0;
+
                 return (
                   <td key={`${dateStr}|${shift}`}>
-                    <select className="combo-box" value="">
+                    <select
+                      className={`combo-box ${
+                        hasConstraints ? "" : "no-constraints"
+                      }`}
+                      value=""
+                      aria-label={
+                        hasConstraints ? "צפייה באילוצים" : "אין אילוצים"
+                      }
+                    >
                       <option value="" disabled>
-                        צפייה באילוצים
+                        {hasConstraints ? "צפייה באילוצים" : "אין אילוצים"}
                       </option>
 
-                      {red.length > 0 && (
+                      {hasConstraints && red.length > 0 && (
                         <optgroup label="❌ לא יכולים" className="red-group">
                           {red.map((emp, idx) => (
                             <option
@@ -128,7 +138,7 @@ function EmployeeConstraints() {
                         </optgroup>
                       )}
 
-                      {yellow.length > 0 && (
+                      {hasConstraints && yellow.length > 0 && (
                         <optgroup
                           label="⚠️ יכולים חלקית"
                           className="yellow-group"
@@ -143,10 +153,6 @@ function EmployeeConstraints() {
                             </option>
                           ))}
                         </optgroup>
-                      )}
-
-                      {red.length === 0 && yellow.length === 0 && (
-                        <option disabled>אין אילוצים</option>
                       )}
                     </select>
                   </td>

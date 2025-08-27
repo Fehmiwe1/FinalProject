@@ -170,3 +170,7 @@
   color: #ff4d4f;
   font-weight: bold;
 }
+
+.combo-box.no-constraints {
+  opacity: 0.8;
+}
