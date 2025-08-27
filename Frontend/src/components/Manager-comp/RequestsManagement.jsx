@@ -333,7 +333,14 @@ function RequestsManagement() {
             <tbody>
               {pendingShiftRequests.length > 0 ? (
                 pendingShiftRequests.map((req) => (
-                  <tr key={`shift-pending-${req.id}`}>
+                  <tr
+                    key={`shift-pending-${req.id}`}
+                    className={
+                      req.requestType === "מסירה"
+                        ? "shift-row-give"
+                        : "shift-row-exchange"
+                    }
+                  >
                     <td>
                       {req.fromFirstName} {req.fromLastName}
                     </td>
@@ -394,7 +401,14 @@ function RequestsManagement() {
                 <tbody>
                   {historyShiftRequests.length > 0 ? (
                     historyShiftRequests.map((req) => (
-                      <tr key={`shift-history-${req.id}`}>
+                      <tr
+                        key={`shift-history-${req.id}`}
+                        className={
+                          req.requestType === "מסירה"
+                            ? "shift-row-give"
+                            : "shift-row-exchange"
+                        }
+                      >
                         <td>
                           {req.fromFirstName} {req.fromLastName}
                         </td>

@@ -166,6 +166,26 @@
   }
 }
 
+
+/* שורות למסירה */
+.shift-row-give {
+  background-color: rgba(11, 31, 46, 0.15); /* אדמדם בהיר */
+}
+
+.shift-row-give:hover {
+  background-color: rgba(52, 152, 219, 0.25); /* כהה יותר בריחוף */
+}
+
+/* שורות להחלפה */
+.shift-row-exchange {
+  background-color: rgba(52, 152, 219, 0.15); /* כחול בהיר */
+}
+
+.shift-row-exchange:hover {
+  background-color: rgba(52, 152, 219, 0.25); /* כהה יותר בריחוף */
+}
+
+
 @media (max-width: 768px) {
   .titleH2 {
     font-size: 2rem;
