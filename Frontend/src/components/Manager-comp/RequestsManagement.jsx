@@ -12,6 +12,8 @@ function RequestsManagement() {
   // מסירה/החלפה
   const [shiftRequests, setShiftRequests] = useState([]);
   const [showShiftHistory, setShowShiftHistory] = useState(false);
+  const [shiftFilter, setShiftFilter] = useState("all"); 
+
 
   const dontShow = Cookies.get("eventDescription");
 
@@ -311,6 +313,20 @@ function RequestsManagement() {
 
           {/* מסירה/החלפה */}
           <h2 className="titleH2">בקשות מסירת והחלפת משמרת</h2>
+
+          <div className="shift-filter">
+            <label className="shift-filter-label">סינון לפי סוג בקשה: </label>
+            <select
+              className="shift-filter-select"
+              value={shiftFilter}
+              onChange={(e) => setShiftFilter(e.target.value)}
+            >
+              <option value="all">הכל</option>
+              <option value="מסירה">מסירה</option>
+              <option value="החלפה">החלפה</option>
+            </select>
+          </div>
+
           <button
             className="history-toggle-btn"
             onClick={() => setShowShiftHistory(!showShiftHistory)}
@@ -324,60 +340,75 @@ function RequestsManagement() {
               <tr>
                 <th>שם עובד</th>
                 <th>תאריך בקשה</th>
-                <th>סוג בקשה</th> {/* ✅ חדש */}
+                <th>סוג בקשה</th>
                 <th>פרטי משמרת</th>
                 <th>עובד יעד</th>
                 <th>סטטוס</th>
               </tr>
             </thead>
             <tbody>
-              {pendingShiftRequests.length > 0 ? (
-                pendingShiftRequests.map((req) => (
-                  <tr
-                    key={`shift-pending-${req.id}`}
-                    className={
-                      req.requestType === "מסירה"
-                        ? "shift-row-give"
-                        : "shift-row-exchange"
-                    }
-                  >
-                    <td>
-                      {req.fromFirstName} {req.fromLastName}
-                    </td>
-                    <td>{formatDateToHebrew(req.requestDate)}</td>
-                    <td>{req.requestType}</td> {/* ✅ הצגה */}
-                    <td>
-                      {req.shiftDate ? formatDateToHebrew(req.shiftDate) : "-"}
-                      {req.shiftType ? `  ${req.shiftType}` : ""}
-                      {req.location ? `  ${req.location}` : ""}
-                    </td>
-                    <td>
-                      {req.toFirstName || req.toLastName
-                        ? `${req.toFirstName || ""} ${
-                            req.toLastName || ""
-                          }`.trim()
-                        : "-"}
-                    </td>
-                    <td>
-                      <button
-                        className="approve-btn"
-                        onClick={() => handleShiftStatusUpdate(req.id, "אושר")}
-                      >
-                        אישור
-                      </button>
-                      <button
-                        className="reject-btn"
-                        onClick={() => handleShiftStatusUpdate(req.id, "סורב")}
-                      >
-                        דחייה
-                      </button>
-                    </td>
-                  </tr>
-                ))
+              {pendingShiftRequests.filter(
+                (req) =>
+                  shiftFilter === "all" || req.requestType === shiftFilter
+              ).length > 0 ? (
+                pendingShiftRequests
+                  .filter(
+                    (req) =>
+                      shiftFilter === "all" || req.requestType === shiftFilter
+                  )
+                  .map((req) => (
+                    <tr
+                      key={`shift-pending-${req.id}`}
+                      className={
+                        req.requestType === "מסירה"
+                          ? "shift-row-give"
+                          : "shift-row-exchange"
+                      }
+                    >
+                      <td>
+                        {req.fromFirstName} {req.fromLastName}
+                      </td>
+                      <td>{formatDateToHebrew(req.requestDate)}</td>
+                      <td>{req.requestType}</td>
+                      <td>
+                        {req.shiftDate
+                          ? formatDateToHebrew(req.shiftDate)
+                          : "-"}
+                        {req.shiftType ? `  ${req.shiftType}` : ""}
+                        {req.location ? `  ${req.location}` : ""}
+                      </td>
+                      <td>
+                        {req.toFirstName || req.toLastName
+                          ? `${req.toFirstName || ""} ${
+                              req.toLastName || ""
+                            }`.trim()
+                          : "-"}
+                      </td>
+                      <td>
+                        <button
+                          className="approve-btn"
+                          onClick={() =>
+                            handleShiftStatusUpdate(req.id, "אושר")
+                          }
+                        >
+                          אישור
+                        </button>
+                        <button
+                          className="reject-btn"
+                          onClick={() =>
+                            handleShiftStatusUpdate(req.id, "סורב")
+                          }
+                        >
+                          דחייה
+                        </button>
+                      </td>
+                    </tr>
+                  ))
               ) : (
                 <tr>
-                  <td colSpan="6">אין בקשות ממתינות למסירה/החלפה.</td>{" "}
-                  {/* ✅ עדכון colspan */}
+                  <td colSpan="6">
+                    אין בקשות ממתינות למסירה/החלפה בתצוגה הנוכחית.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -392,49 +423,59 @@ function RequestsManagement() {
                   <tr>
                     <th>שם עובד</th>
                     <th>תאריך בקשה</th>
-                    <th>סוג בקשה</th> {/* ✅ חדש */}
+                    <th>סוג בקשה</th>
                     <th>פרטי משמרת</th>
                     <th>עובד יעד</th>
                     <th>סטטוס</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {historyShiftRequests.length > 0 ? (
-                    historyShiftRequests.map((req) => (
-                      <tr
-                        key={`shift-history-${req.id}`}
-                        className={
-                          req.requestType === "מסירה"
-                            ? "shift-row-give"
-                            : "shift-row-exchange"
-                        }
-                      >
-                        <td>
-                          {req.fromFirstName} {req.fromLastName}
-                        </td>
-                        <td>{formatDateToHebrew(req.requestDate)}</td>
-                        <td>{req.requestType}</td> {/* ✅ הצגה */}
-                        <td>
-                          {req.shiftDate
-                            ? formatDateToHebrew(req.shiftDate)
-                            : "-"}
-                          {req.shiftType ? `  ${req.shiftType}` : ""}
-                          {req.location ? `  ${req.location}` : ""}
-                        </td>
-                        <td>
-                          {req.toFirstName || req.toLastName
-                            ? `${req.toFirstName || ""} ${
-                                req.toLastName || ""
-                              }`.trim()
-                            : "-"}
-                        </td>
-                        <td>{req.status || "ממתין"}</td>
-                      </tr>
-                    ))
+                  {historyShiftRequests.filter(
+                    (req) =>
+                      shiftFilter === "all" || req.requestType === shiftFilter
+                  ).length > 0 ? (
+                    historyShiftRequests
+                      .filter(
+                        (req) =>
+                          shiftFilter === "all" ||
+                          req.requestType === shiftFilter
+                      )
+                      .map((req) => (
+                        <tr
+                          key={`shift-history-${req.id}`}
+                          className={
+                            req.requestType === "מסירה"
+                              ? "shift-row-give"
+                              : "shift-row-exchange"
+                          }
+                        >
+                          <td>
+                            {req.fromFirstName} {req.fromLastName}
+                          </td>
+                          <td>{formatDateToHebrew(req.requestDate)}</td>
+                          <td>{req.requestType}</td>
+                          <td>
+                            {req.shiftDate
+                              ? formatDateToHebrew(req.shiftDate)
+                              : "-"}
+                            {req.shiftType ? `  ${req.shiftType}` : ""}
+                            {req.location ? `  ${req.location}` : ""}
+                          </td>
+                          <td>
+                            {req.toFirstName || req.toLastName
+                              ? `${req.toFirstName || ""} ${
+                                  req.toLastName || ""
+                                }`.trim()
+                              : "-"}
+                          </td>
+                          <td>{req.status || "ממתין"}</td>
+                        </tr>
+                      ))
                   ) : (
                     <tr>
-                      <td colSpan="6">אין היסטוריית בקשות למסירה/החלפה.</td>{" "}
-                      {/* ✅ עדכון colspan */}
+                      <td colSpan="6">
+                        אין היסטוריה לתצוגה לפי הסינון הנוכחי.
+                      </td>
                     </tr>
                   )}
                 </tbody>
