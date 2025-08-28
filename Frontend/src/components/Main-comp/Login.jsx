@@ -15,6 +15,10 @@ function Login() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
 
+  // זמינות שם משתמש (onBlur)
+  const [usernameStatus, setUsernameStatus] = useState(null); // 'ok' | 'taken' | null
+  const [checkingUsername, setCheckingUsername] = useState(false);
+
   // נהלים — גרסת התקנון (עדכן כשאתה משנה טקסט נהלים)
   const POLICIES_VERSION = "v1.0 - 2025-08-25";
 
@@ -54,6 +58,25 @@ function Login() {
     /\d/.test(password) &&
     /^[a-zA-Z0-9]+$/.test(password);
   const isHebrewText = (text) => /^[\u0590-\u05FF\s]+$/.test(text);
+
+  // ======== Username availability (onBlur) ========
+  const checkUsernameAvailability = async (u) => {
+    if (!u || !isValidUsername(u)) {
+      setUsernameStatus(null);
+      return;
+    }
+    try {
+      setCheckingUsername(true);
+      const res = await axios.get("/users/checkUsername", {
+        params: { username: u },
+      });
+      setUsernameStatus(res.data?.available ? "ok" : "taken");
+    } catch {
+      setUsernameStatus(null);
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
 
   // ======== Login ========
   const handleLogin = async (e) => {
@@ -131,6 +154,13 @@ function Login() {
       return;
     }
 
+    // אם onBlur כבר הציג "taken" — תחסום גם לפני שליחה
+    if (usernameStatus === "taken") {
+      setErrorSingUp("שם משתמש כבר קיים במערכת.");
+      setTimeout(() => setErrorSingUp(null), 2500);
+      return;
+    }
+
     // מכין שדות לאישור נהלים לשליחה לשרת
     const payload = {
       ...newUser,
@@ -140,7 +170,7 @@ function Login() {
     };
 
     try {
-      const response = await axios.post("users/register", payload);
+      const response = await axios.post("/users/register", payload);
 
       if (response.data.message === "User added and notification created!") {
         setSuccessMessage("ההרשמה הצליחה!");
@@ -163,6 +193,7 @@ function Login() {
           policiesVersion: POLICIES_VERSION,
         });
         setPoliciesAccepted(false);
+        setUsernameStatus(null);
 
         setTimeout(() => {
           setShowSignUp(false);
@@ -170,8 +201,12 @@ function Login() {
         }, 2000);
       }
     } catch (err) {
-      setErrorSingUp("אירעה שגיאה ביצירת המשתמש.");
-      setTimeout(() => setErrorSingUp(null), 2000);
+      if (err?.response?.status === 409) {
+        setErrorSingUp("שם משתמש כבר קיים במערכת.");
+      } else {
+        setErrorSingUp("אירעה שגיאה ביצירת המשתמש.");
+      }
+      setTimeout(() => setErrorSingUp(null), 2500);
     }
   };
 
@@ -239,6 +274,7 @@ function Login() {
       policiesVersion: POLICIES_VERSION,
     });
     setPoliciesAccepted(false);
+    setUsernameStatus(null);
     setErrorSingUp(null);
     setSuccessMessage(null);
   };
@@ -351,12 +387,27 @@ function Login() {
                     type="text"
                     id="new-username"
                     value={newUser.username}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, username: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setNewUser({ ...newUser, username: e.target.value });
+                      setUsernameStatus(null); // איפוס אינדיקציה בזמן הקלדה
+                    }}
+                    onBlur={() => checkUsernameAvailability(newUser.username)}
                     required
                   />
                 </div>
+
+                {/* אינדיקציית זמינות שם משתמש */}
+                {checkingUsername && (
+                  <div className="success-message" style={{ opacity: 0.85 }}>
+                    בודק זמינות…
+                  </div>
+                )}
+                {usernameStatus === "taken" && (
+                  <div className="error-message">שם משתמש כבר קיים במערכת.</div>
+                )}
+                {usernameStatus === "ok" && (
+                  <div className="success-message">שם המשתמש פנוי.</div>
+                )}
 
                 <div className="label-input-form">
                   <label className="signup-label" htmlFor="firstName">
@@ -486,7 +537,6 @@ function Login() {
                 {/* ======== תקנון ונהלים ======== */}
                 <div className="policies-section">
                   <div className="policies-header">
-    
                     <button
                       type="button"
                       className="policies-open-btn"
