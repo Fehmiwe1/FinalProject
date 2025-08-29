@@ -1,3 +1,4 @@
+// MainPageMoked.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../../assets/styles/Moked-styles/MainPageMoked.css";
@@ -58,6 +59,13 @@ function MainPageMoked() {
 
     if (contractorNum < 0 || vehicleNum < 0) {
       setErrorMessage("⚠️ מספר קבלן ומספר רכב לא יכולים להיות שליליים.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    // ✅ בדיקה שמספר הרכב בין 7 ל-8 ספרות
+    if (!/^\d{7,8}$/.test(vehicleNumber)) {
+      setErrorMessage("⚠️ מספר רכב חייב להיות בין 7 ל-8 ספרות.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }

@@ -1,3 +1,4 @@
+// CreateGuests.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -20,6 +21,7 @@ function CreateGuests() {
     const updatedVehicles = [...vehicles];
 
     if (name === "GuestPhone" && !/^\d{0,10}$/.test(value)) return;
+    if (name === "CarNumber" && !/^\d{0,8}$/.test(value)) return; // עד 8 ספרות בלבד
 
     updatedVehicles[index][name] = value;
     setVehicles(updatedVehicles);
@@ -62,6 +64,11 @@ function CreateGuests() {
     for (let v of vehicles) {
       if (!v.CarNumber || !v.GuestName || !v.GuestPhone) {
         setError("יש למלא את כל שדות הרכב.");
+        setTimeout(() => setError(""), 3000);
+        return;
+      }
+      if (!/^\d{7,8}$/.test(v.CarNumber)) {
+        setError("מספר רכב חייב להיות בין 7 ל-8 ספרות.");
         setTimeout(() => setError(""), 3000);
         return;
       }
@@ -151,6 +158,9 @@ function CreateGuests() {
                 onChange={(e) => handleVehicleChange(index, e)}
                 className="create-guest-input"
                 required
+                maxLength="8"
+                pattern="\d{7,8}"
+                title="מספר רכב חייב להיות בין 7 ל-8 ספרות"
               />
               <label className="create-guest-label">שם קבלן:</label>
               <input

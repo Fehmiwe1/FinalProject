@@ -63,6 +63,13 @@ function MainPageGuard() {
       return;
     }
 
+    // ✅ בדיקה שמספר הרכב בין 7 ל-8 ספרות
+    if (!/^\d{7,8}$/.test(vehicleNumber)) {
+      setErrorMessage("⚠️ מספר רכב חייב להיות בין 7 ל-8 ספרות.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
     try {
       const response = await axios.post("/guests/check", {
         contractorNumber: contractorNum,

@@ -1,3 +1,4 @@
+// EditGuest.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -30,6 +31,12 @@ function EditGuest() {
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
+
+    // מניעת קלט לא חוקי בזמן ההקלדה
+    if (name === "GuestPhone" && !/^\d{0,10}$/.test(value)) return; // עד 10 ספרות
+    if (name === "CarNumber" && !/^\d{0,8}$/.test(value)) return; // עד 8 ספרות (ולא יותר)
+
+    // לא לאפשר ערכים שליליים במספרים
     if ((name === "CarNumber" || name === "GuestPhone") && Number(value) < 0)
       return;
 
@@ -101,20 +108,22 @@ function EditGuest() {
         setError("יש למלא את כל שדות הרכב.");
         return false;
       }
-      if (!/^[0-9]{1,10}$/.test(v.CarNumber)) {
-        setError("מספר רכב חייב להכיל 1-10 ספרות.");
+      // ✅ מספר רכב: רק ספרות, 7–8 ספרות
+      if (!/^\d{7,8}$/.test(v.CarNumber)) {
+        setError("מספר רכב חייב להיות בין 7 ל-8 ספרות (ספרות בלבד).");
         return false;
       }
-      if (!/^[0-9]{10}$/.test(v.GuestPhone)) {
+      // ✅ טלפון: בדיוק 10 ספרות
+      if (!/^\d{10}$/.test(v.GuestPhone)) {
         setError("מספר טלפון חייב להכיל בדיוק 10 ספרות.");
         return false;
       }
+      // ✅ שם בעברית בלבד
       if (!isHebrewText(v.GuestName)) {
         setError("שם האורח חייב להכיל אותיות בעברית בלבד.");
         return false;
       }
-
-      // 💡 בדיקת טווח תאריכים לכל רכב
+      // ✅ טווח תאריכים לכל רכב
       if (new Date(v.EndDate) < new Date(v.StartDate)) {
         setError(
           `קבלן מספר ${v.GuestNumber} – תאריך סיום לא יכול להיות לפני תאריך התחלה.`
@@ -191,10 +200,13 @@ function EditGuest() {
               <h4>רכב {index + 1}</h4>
               <label>מספר רכב:</label>
               <input
-                type="number"
+                type="text" // טקסט כדי לשלוט על קלט ספרות
                 name="CarNumber"
                 value={vehicle.CarNumber}
                 onChange={(e) => handleChange(index, e)}
+                maxLength="8"
+                pattern="\d{7,8}"
+                title="מספר רכב חייב להיות בין 7 ל-8 ספרות"
               />
               <label>שם אורח:</label>
               <input
@@ -209,6 +221,9 @@ function EditGuest() {
                 name="GuestPhone"
                 value={vehicle.GuestPhone}
                 onChange={(e) => handleChange(index, e)}
+                maxLength="10"
+                pattern="\d{10}"
+                title="יש להזין בדיוק 10 ספרות"
               />
 
               {vehicle.GuestID ? (
