@@ -11,12 +11,19 @@ const formatDateToHebrew = (dateStr) => {
   return `${day}/${month}/${year}`;
 };
 
-function MyRequests() {
-  // חופשות/מחלה
-  const [requests, setRequests] = useState([]);
+// פונקציה שמחזירה className לפי הסטטוס
+const getStatusClass = (status) => {
+  if (!status) return "status-row unknown";
+  const s = status.trim();
+  if (s === "ממתין") return "status-row pending";
+  if (s === "מאושר" || s === "אושר") return "status-row approved";
+  if (s === "סורב") return "status-row rejected";
+  return "status-row unknown";
+};
 
-  // מסירה/החלפה
-  const [shiftRequests, setShiftRequests] = useState([]);
+function MyRequests() {
+  const [requests, setRequests] = useState([]); // חופשה/מחלה
+  const [shiftRequests, setShiftRequests] = useState([]); // מסירה/החלפה
 
   useEffect(() => {
     let ignore = false;
@@ -24,7 +31,6 @@ function MyRequests() {
 
     const fetchRequests = async () => {
       try {
-        // חופשה/מחלה במקביל
         const [vacationRes, sickRes] = await Promise.all([
           axios.get("/employeeRequests/vacationRequestsShow", {
             withCredentials: true,
@@ -35,10 +41,7 @@ function MyRequests() {
               withCredentials: true,
               signal: controller.signal,
             })
-            .catch((e) => {
-              console.warn("שגיאה בשליפת אישורי מחלה:", e);
-              return { data: [] };
-            }),
+            .catch(() => ({ data: [] })),
         ]);
 
         const vacationData = Array.isArray(vacationRes?.data)
@@ -46,18 +49,16 @@ function MyRequests() {
           : [];
         const sickDataRaw = Array.isArray(sickRes?.data) ? sickRes.data : [];
 
-        // מוסיפים request_type לאישורי מחלה אם חסר
         const normalizedSick = sickDataRaw.map((s) => ({
           ...s,
           request_type: s.request_type || "אישור מחלה",
         }));
 
         if (!ignore) {
-          // ללא מיון – משמר את סדר השרת
           setRequests([...vacationData, ...normalizedSick]);
         }
       } catch (error) {
-        if (!ignore) console.error("שגיאה בשליפת בקשות חופשה/מחלה:", error);
+        console.error("שגיאה בשליפת בקשות חופשה/מחלה:", error);
       }
 
       try {
@@ -69,11 +70,10 @@ function MyRequests() {
           }
         );
         if (!ignore) {
-          // ללא מיון – משמר את סדר השרת
           setShiftRequests(Array.isArray(shiftRes?.data) ? shiftRes.data : []);
         }
       } catch (err) {
-        if (!ignore) console.error("שגיאה בשליפת בקשות מסירה/החלפה:", err);
+        console.error("שגיאה בשליפת בקשות מסירה/החלפה:", err);
       }
     };
 
@@ -90,7 +90,7 @@ function MyRequests() {
       <main className="myRequests-body">
         <h2>הבקשות שלי</h2>
 
-        {/* ===== טבלת חופשה/מחלה ===== */}
+        {/* ===== חופשה/מחלה ===== */}
         <section>
           <h3 className="myRequests-body-h3">בקשות חופשה / מחלה</h3>
           {requests.length === 0 ? (
@@ -111,7 +111,7 @@ function MyRequests() {
               </thead>
               <tbody>
                 {requests.map((req, index) => (
-                  <tr key={index}>
+                  <tr key={index} className={getStatusClass(req.status)}>
                     <td>{req.request_type}</td>
                     <td>{formatDateToHebrew(req.request_date)}</td>
                     <td>{formatDateToHebrew(req.from_date)}</td>
@@ -127,7 +127,7 @@ function MyRequests() {
           )}
         </section>
 
-        {/* ===== טבלת מסירה/החלפה ===== */}
+        {/* ===== מסירה/החלפה ===== */}
         <section>
           <h3 className="myRequests-body-h3">בקשות מסירה / החלפה</h3>
           {shiftRequests.length === 0 ? (
@@ -155,7 +155,7 @@ function MyRequests() {
                     .filter(Boolean)
                     .join(" ");
                   return (
-                    <tr key={r.id}>
+                    <tr key={r.id} className={getStatusClass(r.status)}>
                       <td>{r.type}</td>
                       <td>{formatDateToHebrew(r.requestDate)}</td>
                       <td>{formatDateToHebrew(r.date)}</td>

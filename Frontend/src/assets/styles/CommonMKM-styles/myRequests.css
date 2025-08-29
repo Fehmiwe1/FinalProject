@@ -1,4 +1,3 @@
-
 .myRequests-wrapper {
   flex-grow: 1;
   background-image: linear-gradient(to right, #2c3e50, #34495e);
@@ -85,52 +84,35 @@
   min-height: 48px;
 }
 
-.requests-table tbody tr:nth-child(even) {
-  background-color: #2a2a2a;
-}
 
 .requests-table tbody tr:hover {
   background-color: #3b4a59;
   transition: background-color 0.3s ease;
 }
-
-/* ----- H3 section titles (בקשות חופשה/מחלה + מסירה/החלפה) ----- */
-.myRequests-body-h3 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 36px 0 14px;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+/* ----- צבעי רקע לפי סטטוס ----- */
+.status-row.pending {
+  background-color: rgba(255, 193, 7, 0.1);  /* כתום עדין */
+  color: #ffcc80;
 }
 
-/* צבע קו דקורטיבי משמאל לטקסט */
-.myRequests-body-h3::before {
-  content: "";
-  width: 8px;
-  height: 28px;
-  border-radius: 6px;
-
+.status-row.approved {
+  background-color: rgba(76, 175, 80, 0.1); /* ירוק עדין */
+  color: #a5d6a7;
 }
 
-/* קו עדין שנמשך משמאל לכותרת */
-.myRequests-body-h3::after {
-  content: "";
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  opacity: 0.6;
+.status-row.rejected {
+  background-color: rgba(244, 67, 54, 0.1); /* אדום עדין */
+  color: #ef9a9a;
 }
 
-/* רווח גדול יותר בין הסקשנים */
-.myRequests-body section + section .myRequests-body-h3 {
-  margin-top: 44px;
+.status-row.unknown {
+  background-color: rgba(158, 158, 158, 0.1); /* אפור */
+  color: #e0e0e0;
 }
 
-/* התאמה למסכים קטנים */
+
+
+/* התאמה לנייד */
 @media (max-width: 768px) {
   .myRequests-body h3 {
     font-size: 1.9rem;
