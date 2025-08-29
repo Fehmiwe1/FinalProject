@@ -7,6 +7,7 @@ function MainPageManager() {
   const [searchName, setSearchName] = useState("");
   const [msg, setMsg] = useState("");
   const [roles, setRoles] = useState([]);
+  const [filterRole, setFilterRole] = useState("all"); // ✅ בורר תפקיד
 
   useEffect(() => {
     fetchEmployees();
@@ -87,7 +88,9 @@ function MainPageManager() {
   const filteredEmployees = employees.filter((emp) => {
     const fullName =
       `${emp.firstName} ${emp.lastName} ${emp.username}`.toLowerCase();
-    return fullName.includes(searchName.toLowerCase());
+    const matchesName = fullName.includes(searchName.toLowerCase());
+    const matchesRole = filterRole === "all" || emp.role === filterRole;
+    return matchesName && matchesRole;
   });
 
   const permissionFields = [
@@ -171,6 +174,26 @@ function MainPageManager() {
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
           />
+
+          {/* ✅ בורר לפי תפקיד */}
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            className="role-select-filter"
+          >
+            <option className="role-select-filter-option" value="all">
+              הכל
+            </option>
+            <option className="role-select-filter-option" value="guard">
+              מאבטח
+            </option>
+            <option className="role-select-filter-option" value="moked">
+              מוקד
+            </option>
+            <option className="role-select-filter-option" value="kabat">
+              קב"ט
+            </option>
+          </select>
         </div>
 
         {/* טבלת עובדים */}

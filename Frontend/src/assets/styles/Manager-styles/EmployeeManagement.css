@@ -182,3 +182,29 @@ input:checked + .slider:before {
   background-color: #2a3a4b;
   cursor: default; /* או pointer אם תרצה פעולות */
 }
+
+/* בורר לסינון עובדים לפי תפקיד */
+.role-select-filter {
+  padding: 10px;
+  font-size: 1.3rem;
+  border-radius: 6px;
+  border: 1px solid #777;
+  background-color: #34495e;
+  color: #ecf0f1;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.role-select-filter:hover {
+  background-color: #3e556b;
+  border-color: #999;
+}
+
+.role-select-filter-option {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  font-size: 1.2rem;
+}
