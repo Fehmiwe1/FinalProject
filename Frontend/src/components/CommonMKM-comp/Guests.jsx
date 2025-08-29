@@ -10,6 +10,7 @@ function Guests() {
   const [numberError, setNumberError] = useState("");
   const [searchNumber, setSearchNumber] = useState("");
   const [permissions, setPermissions] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all"); // בורר סטטוס
 
   const userRole = Cookies.get("userRole");
 
@@ -29,9 +30,7 @@ function Guests() {
     try {
       const res = await axios.get("/role/getPermissions");
       const roleData = res.data.find((r) => r.Role_Name === userRole);
-      if (roleData) {
-        setPermissions(roleData.permissions);
-      }
+      if (roleData) setPermissions(roleData.permissions);
     } catch (err) {
       console.error("שגיאה בטעינת ההרשאות:", err);
     }
@@ -61,23 +60,30 @@ function Guests() {
     }
   };
 
-  const filteredGuests = guests.filter((g) =>
-    g.GuestNumber?.toLowerCase().includes(searchNumber.toLowerCase())
+  // סינון לפי מספר קבלן
+  let filteredGuests = guests.filter((g) =>
+    g.GuestNumber?.toString().includes(searchNumber)
   );
 
+  // סינון לפי סטטוס
+  if (statusFilter === "active") {
+    filteredGuests = filteredGuests.filter((g) => g.IsActive === 1);
+  } else if (statusFilter === "blocked") {
+    filteredGuests = filteredGuests.filter((g) => g.IsActive === 0);
+  }
+
+  // איחוד לפי מספר קבלן + מיון כך שפעילים למעלה
   const uniqueGuests = Object.values(
     filteredGuests.reduce((acc, guest) => {
       if (!acc[guest.GuestNumber]) acc[guest.GuestNumber] = guest;
       return acc;
     }, {})
-  ).sort((a, b) => b.IsActive - a.IsActive); // מיון לפי סטטוס
+  ).sort((a, b) => b.IsActive - a.IsActive);
 
   const canEdit = permissions?.Update_Guest_List === "able";
   const canCreate = permissions?.Create_Guest_List === "able";
 
-  if (!permissions) {
-    return <div className="loading">טוען הרשאות...</div>;
-  }
+  if (!permissions) return <div className="loading">טוען הרשאות...</div>;
 
   return (
     <div className="guestsPpage">
@@ -108,7 +114,6 @@ function Guests() {
               onChange={(e) => {
                 const value = e.target.value;
                 setSearchNumber(value);
-
                 const num = Number(value);
                 if (!isNaN(num) && num < 0) {
                   setNumberError("⚠️ מספר קבלן לא יכול להיות שלילי.");
@@ -118,6 +123,17 @@ function Guests() {
                 }
               }}
             />
+
+            {/* בורר סטטוס: הכל / פעיל / חסום */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="status-filter"
+            >
+              <option value="all">הכל</option>
+              <option value="active">פעיל</option>
+              <option value="blocked">חסום</option>
+            </select>
           </div>
 
           <table className="guests-table">
@@ -133,7 +149,12 @@ function Guests() {
             <tbody>
               {uniqueGuests.length > 0 ? (
                 uniqueGuests.map((guest) => (
-                  <tr key={guest.id}>
+                  <tr
+                    key={guest.id}
+                    className={
+                      guest.IsActive === 0 ? "blocked-row" : "active-row"
+                    }
+                  >
                     <td>{guest.GuestNumber}</td>
                     <td>
                       {new Date(guest.StartDate).toLocaleDateString("he-IL")}

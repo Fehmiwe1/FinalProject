@@ -10,9 +10,7 @@
   box-sizing: border-box;
 }
 
-.container-guests {
-  width: 100%;
-}
+.container-guests { width: 100%; }
 
 .guestsPageContainer {
   max-width: 75rem;
@@ -49,7 +47,7 @@
   color: #c7c2c2;
 }
 
-/* הודעת שגיאה */
+/* הודעת שגיאה כללית */
 .msg {
   color: #ffdddd;
   background-color: #882222;
@@ -69,7 +67,8 @@
 }
 
 .search-filters input[type="text"],
-.search-filters input[type="date"] {
+.search-filters input[type="date"],
+.search-filters select.status-filter {
   padding: 1rem 1.5rem;
   font-size: 1.5rem;
   border-radius: 0.75rem;
@@ -103,6 +102,17 @@
   font-size: 2rem;
 }
 
+/* צביעת שורות לפי סטטוס – עם עדיפות גבוהה על ה-td הרגיל */
+.guests-table tbody tr.blocked-row td {
+  background-color: rgba(244, 67, 54, 0.15); /* אדום עדין לחסום */
+  color: #f86363;
+}
+
+.guests-table tbody tr.active-row td {
+  background-color: rgba(76, 175, 80, 0.07); /* ירוק עדין לפעיל (אופציונלי) */
+  color: #d7f2d9;
+}
+
 /* כפתורים */
 .view-button,
 .edit-button,
@@ -119,32 +129,13 @@
   text-decoration: none;
 }
 
-.view-button {
-  background-color: #007bff;
-}
+.view-button { background-color: #007bff; }
+.edit-button { background-color: #ffc107; color: #333; }
+.block-btn   { background-color: #c0392b; }
 
-.edit-button {
-  background-color: #ffc107;
-  color: #333;
-}
-
-.block-btn {
-  background-color: #c0392b;
-}
-
-.view-button:hover {
-  background-color: #0069d9;
-}
-
-.edit-button:hover {
-  background-color: #e0a800;
-  color: #fff;
-}
-
-.block-btn:hover {
-  background-color: #e74c3c;
-}
-
+.view-button:hover { background-color: #0069d9; }
+.edit-button:hover { background-color: #e0a800; color: #fff; }
+.block-btn:hover   { background-color: #e74c3c; }
 
 .guestsPpage-number-error-message {
   text-align: center;
@@ -155,32 +146,23 @@
   color: #ff4d4f;
   font-weight: bold;
 }
-/* תגובה למסכים קטנים */
+
+/* מובייל */
 @media (max-width: 768px) {
   .guests-table th,
   .guests-table td {
     font-size: 1rem;
     padding: 0.5rem;
   }
-
-  .guests-page-title {
-    font-size: 3rem;
-  }
-
-  .create-guests .btn {
-    font-size: 1.5rem;
-    padding: 0.625rem 2.5rem;
-  }
-
+  .guests-page-title { font-size: 3rem; }
+  .create-guests .btn { font-size: 1.5rem; padding: 0.625rem 2.5rem; }
   .search-filters input[type="text"],
-  .search-filters input[type="date"] {
+  .search-filters input[type="date"],
+  .search-filters select.status-filter {
     font-size: 1.2rem;
     padding: 0.75rem 1rem;
   }
-
-  .view-button,
-  .edit-button,
-  .block-btn {
+  .view-button, .edit-button, .block-btn {
     font-size: 1.2rem;
     padding: 0.5rem 1rem;
   }
