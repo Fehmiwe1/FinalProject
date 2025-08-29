@@ -1,3 +1,4 @@
+// WorkArrangement.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -16,15 +17,14 @@ function WorkArrangement() {
     lastName: null,
     role: null,
   });
-  const [myAssignments, setMyAssignments] = useState([]); // המשמרות שלי מהשרת
 
-  // Drawer
+  // Drawer + UI
   const [myShiftsOpen, setMyShiftsOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null); // 'give' | 'swap' | null
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [swapCandidatesOpen, setSwapCandidatesOpen] = useState(false);
   const [sending, setSending] = useState(false);
-  const [toast, setToast] = useState({ type: "", text: "" });
+  const [feedback, setFeedback] = useState({ type: "", text: "" }); // ← הודעת טקסט במקום toast
 
   // מועמדים מהשרת (למסירה/החלפה)
   const [candidates, setCandidates] = useState([]);
@@ -40,7 +40,6 @@ function WorkArrangement() {
   const shifts = ["בוקר", "ערב", "לילה"];
   const Guardshifts = ["בוקר", "ערב", "לילה"];
 
-  // positions לפי הבקשה
   const positions = [
     "ראשי",
     "נשר",
@@ -52,7 +51,6 @@ function WorkArrangement() {
     "מוקד",
     "קבט",
   ];
-  // ב‑Grid של מאבטחים נציג רק את עמדות המאבטח
   const guardPositions = positions.filter((p) => p !== "מוקד" && p !== "קבט");
 
   const roleLabel = (r) =>
@@ -120,7 +118,6 @@ function WorkArrangement() {
             lastName: r.data.lastName ?? prev.lastName,
             role: r.data.role ?? prev.role,
           }));
-          setMyAssignments(r.data.assignments || []);
         }
       } catch (e) {
         // לא קריטי
@@ -183,11 +180,8 @@ function WorkArrangement() {
     return 1;
   };
 
-  // <<< תיקון לוגיקת "זה שלי?"
   const isMine = (a) => {
     if (!a) return false;
-
-    // 1) לפי מזהה עובד (חובה לכל התפקידים)
     const myId = me.userId ? String(me.userId).trim() : null;
     const candIds = [
       a.employeeId,
@@ -201,12 +195,9 @@ function WorkArrangement() {
     ]
       .filter((v) => v !== undefined && v !== null)
       .map((v) => String(v).trim());
-
     if (myId && candIds.some((id) => id === myId)) return true;
 
-    // 2) Fallback לפי שם — רק במאבטח, כדי לא ליצור "מוקד/קבט (אני)" בטעות
     if (selectedRole !== "guard") return false;
-
     const norm = (s) =>
       String(s || "")
         .trim()
@@ -232,7 +223,7 @@ function WorkArrangement() {
     [assignments, me.userId, me.firstName, me.lastName, selectedRole]
   );
 
-  // ---------- שליפת מועמדים מהשרת ----------
+  // ---------- Candidates ----------
   const fetchCandidates = async (assignment, role, action) => {
     if (!assignment) {
       setCandidates([]);
@@ -245,7 +236,6 @@ function WorkArrangement() {
         const loc = (assignment.location || assignment.role || "ראשי")
           .replace(/["׳״']/g, "")
           .replace(/\s+/g, "");
-
         const res = await axios.get("/employeeShiftRequests/candidates/guard", {
           params: {
             date: assignment.date,
@@ -288,6 +278,7 @@ function WorkArrangement() {
     setSelectedAssignment(null);
     setSwapCandidatesOpen(false);
     setCandidates([]);
+    setFeedback({ type: "", text: "" });
   };
   const closeMyShifts = () => {
     setMyShiftsOpen(false);
@@ -295,6 +286,7 @@ function WorkArrangement() {
     setSelectedAssignment(null);
     setSwapCandidatesOpen(false);
     setCandidates([]);
+    setFeedback({ type: "", text: "" });
   };
 
   const chooseAction = (assignment, action) => {
@@ -302,10 +294,21 @@ function WorkArrangement() {
     setSelectedAction(action); // 'give' | 'swap'
     setSwapCandidatesOpen(true);
     setCandidates([]);
+    setFeedback({ type: "", text: "" });
     fetchCandidates(assignment, selectedRole, action);
   };
 
-  // כשמשתנה role/assignment/action בזמן שה‑drawer פתוח — רענון מועמדים
+  // פתיחת דף החלפה/מסירה מהמשבצת בטבלה (פותח Drawer בצד)
+  const openSwapGiveFromSlot = (a) => {
+    setMyShiftsOpen(true); // פתח מגירה צדדית
+    setSelectedAssignment(a); // סמן את המשמרת שנבחרה
+    setSelectedAction(null); // ממתין לבחירת פעולה
+    setSwapCandidatesOpen(true); // פתח אזור הפעולות/מועמדים
+    setCandidates([]); // נקה מועמדים
+    setFeedback({ type: "", text: "" }); // נקה הודעות
+  };
+
+  // כשמשתנה role/assignment/action בזמן שה-drawer פתוח — רענון מועמדים
   useEffect(() => {
     if (!myShiftsOpen) return;
     if (!selectedAssignment) return;
@@ -324,7 +327,6 @@ function WorkArrangement() {
           fromEmployeeId: me.userId ?? null,
           fromFirstName: me.firstName ?? null,
           fromLastName: me.lastName ?? null,
-
           toEmployeeId:
             target.employeeId ??
             target.id ??
@@ -333,26 +335,26 @@ function WorkArrangement() {
             null,
           toFirstName: target.firstName ?? null,
           toLastName: target.lastName ?? null,
-
-          role: selectedRole, // 'guard' | 'moked' | 'kabat'
+          role: selectedRole,
           date: selectedAssignment.date,
           shift: selectedAssignment.shift,
           location:
             selectedRole === "guard"
               ? getPositionOf(selectedAssignment) || "ראשי"
-              : roleHeb, // "מוקד"/"קבט"
+              : roleHeb,
           note: "",
         },
         { withCredentials: true }
       );
-      setToast({ type: "success", text: "בקשת מסירה נשלחה." });
+      setFeedback({ type: "success", text: "בקשת מסירה נשלחה." });
+      // איפוס מינימלי אך השארת המגירה פתוחה כדי לראות את ההודעה
       setSelectedAction(null);
       setSelectedAssignment(null);
       setSwapCandidatesOpen(false);
       setCandidates([]);
     } catch (e) {
       console.error(e);
-      setToast({ type: "error", text: "שליחת בקשת מסירה נכשלה." });
+      setFeedback({ type: "error", text: "שליחת בקשת מסירה נכשלה." });
     } finally {
       setSending(false);
     }
@@ -366,7 +368,6 @@ function WorkArrangement() {
         "/employeeShiftRequests/requestSwap",
         {
           fromEmployeeId: me.userId ?? null,
-
           toEmployeeId:
             target.employeeId ??
             target.id ??
@@ -375,7 +376,6 @@ function WorkArrangement() {
             null,
           toFirstName: target.firstName ?? null,
           toLastName: target.lastName ?? null,
-
           role: selectedRole,
           date: selectedAssignment.date,
           shift: selectedAssignment.shift,
@@ -387,14 +387,14 @@ function WorkArrangement() {
         },
         { withCredentials: true }
       );
-      setToast({ type: "success", text: "בקשת החלפה נשלחה." });
+      setFeedback({ type: "success", text: "בקשת החלפה נשלחה." });
       setSelectedAction(null);
       setSelectedAssignment(null);
       setSwapCandidatesOpen(false);
       setCandidates([]);
     } catch (e) {
       console.error(e);
-      setToast({ type: "error", text: "שליחת בקשת החלפה נכשלה." });
+      setFeedback({ type: "error", text: "שליחת בקשת החלפה נכשלה." });
     } finally {
       setSending(false);
     }
@@ -442,13 +442,7 @@ function WorkArrangement() {
                             <div className="slot-actions">
                               <button
                                 className="mini-btn combined"
-                                onClick={() => {
-                                  setMyShiftsOpen(true);
-                                  setSelectedAssignment(a);
-                                  setSelectedAction(null);
-                                  setSwapCandidatesOpen(false);
-                                  setCandidates([]);
-                                }}
+                                onClick={() => openSwapGiveFromSlot(a)}
                               >
                                 החלפה/מסירה
                               </button>
@@ -525,13 +519,7 @@ function WorkArrangement() {
                               <div className="slot-actions">
                                 <button
                                   className="mini-btn combined"
-                                  onClick={() => {
-                                    setMyShiftsOpen(true);
-                                    setSelectedAssignment(a);
-                                    setSelectedAction(null);
-                                    setSwapCandidatesOpen(false);
-                                    setCandidates([]);
-                                  }}
+                                  onClick={() => openSwapGiveFromSlot(a)}
                                 >
                                   החלפה/מסירה
                                 </button>
@@ -552,7 +540,7 @@ function WorkArrangement() {
   );
 
   const canViewRole = (role) => {
-    if (userRole === "moked") return true; // מוקדן רואה הכל
+    if (userRole === "moked") return true;
     if (userRole === "kabat") return role === "kabat" || role === "guard";
     if (userRole === "guard") return role === "guard";
     return false;
@@ -628,6 +616,13 @@ function WorkArrangement() {
               </header>
 
               <div className="drawer-body">
+                {/* הודעת הצלחה/שגיאה כטקסט */}
+                {feedback.text && (
+                  <div className={`feedback-message ${feedback.type}`}>
+                    {feedback.text}
+                  </div>
+                )}
+
                 {myRoleAssignments.length === 0 ? (
                   <p>לא נמצאו משמרות עבורך בטווח הנוכחי.</p>
                 ) : (
@@ -653,12 +648,11 @@ function WorkArrangement() {
                             selectedRole === "guard"
                               ? getPositionOf(a) || "ראשי"
                               : roleHeb;
+                          const selectedRow = selectedAssignment === a;
                           return (
                             <tr
                               key={i}
-                              className={
-                                selectedAssignment === a ? "selected" : ""
-                              }
+                              className={selectedRow ? "selected" : ""}
                             >
                               <td>{formatDateToHebrew(a.date)}</td>
                               <td>{dayNames[d.getDay()]}</td>
@@ -667,8 +661,7 @@ function WorkArrangement() {
                               <td className="row-actions">
                                 <button
                                   className={`row-btn give ${
-                                    selectedAction === "give" &&
-                                    selectedAssignment === a
+                                    selectedAction === "give" && selectedRow
                                       ? "active"
                                       : ""
                                   }`}
@@ -678,8 +671,7 @@ function WorkArrangement() {
                                 </button>
                                 <button
                                   className={`row-btn swap ${
-                                    selectedAction === "swap" &&
-                                    selectedAssignment === a
+                                    selectedAction === "swap" && selectedRow
                                       ? "active"
                                       : ""
                                   }`}
@@ -696,116 +688,103 @@ function WorkArrangement() {
                 )}
 
                 {/* GIVE */}
-                {selectedAction === "give" && selectedAssignment && (
-                  <div className="swap-candidates">
-                    <h4>
-                      עובדים שאפשר למסור אליהם (אותו יום ומשמרת
-                      {selectedRole === "guard"
-                        ? " ובאותה עמדה"
-                        : ` ו${roleHeb}`}{" "}
-                      )
-                    </h4>
-                    {swapCandidatesOpen && (
-                      <>
-                        {loadingCandidates ? (
-                          <p>טוען מועמדים...</p>
-                        ) : candidates.length === 0 ? (
-                          <p>לא נמצאו מועמדים מתאימים.</p>
-                        ) : (
-                          <ul className="candidates-list">
-                            {candidates.map((c, idx) => (
-                              <li key={idx} className="candidate">
-                                <div className="candidate-main">
-                                  <span className="name">
-                                    {c.firstName && c.lastName
-                                      ? `${c.firstName} ${c.lastName}`
-                                      : c.employeeName}
-                                  </span>
-                                  <span className="meta">
-                                    {(selectedRole === "guard"
-                                      ? getPositionOf(c)
-                                      : roleHeb) || "עמדה"}{" "}
-                                    · {formatDateToHebrew(c.date)} · {c.shift}
-                                  </span>
-                                </div>
-                                <div className="candidate-actions">
-                                  <button
-                                    className="primary"
-                                    disabled={sending}
-                                    onClick={() => sendGiveRequest(c)}
-                                  >
-                                    בקשת מסירה
-                                  </button>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
+                {swapCandidatesOpen &&
+                  selectedAssignment &&
+                  selectedAction === "give" && (
+                    <div className="swap-candidates">
+                      <h4>
+                        עובדים שאפשר למסור אליהם (אותו יום ומשמרת
+                        {selectedRole === "guard"
+                          ? " ובאותה עמדה"
+                          : ` ו${roleHeb}`}
+                        )
+                      </h4>
+                      {loadingCandidates ? (
+                        <p>טוען מועמדים...</p>
+                      ) : candidates.length === 0 ? (
+                        <p>לא נמצאו מועמדים מתאימים.</p>
+                      ) : (
+                        <ul className="candidates-list">
+                          {candidates.map((c, idx) => (
+                            <li key={idx} className="candidate">
+                              <div className="candidate-main">
+                                <span className="name">
+                                  {c.firstName && c.lastName
+                                    ? `${c.firstName} ${c.lastName}`
+                                    : c.employeeName}
+                                </span>
+                                <span className="meta">
+                                  {(selectedRole === "guard"
+                                    ? getPositionOf(c)
+                                    : roleHeb) || "עמדה"}{" "}
+                                  · {formatDateToHebrew(c.date)} · {c.shift}
+                                </span>
+                              </div>
+                              <div className="candidate-actions">
+                                <button
+                                  className="primary"
+                                  disabled={sending}
+                                  onClick={() => sendGiveRequest(c)}
+                                >
+                                  בקשת מסירה
+                                </button>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
 
                 {/* SWAP */}
-                {selectedAction === "swap" && selectedAssignment && (
-                  <div className="swap-candidates">
-                    <h4>
-                      מועמדים להחלפה (אותו יום ומשמרת
-                      {selectedRole === "guard"
-                        ? " ובאותה עמדה"
-                        : ` ו${roleHeb}`}{" "}
-                      )
-                    </h4>
-                    {swapCandidatesOpen && (
-                      <>
-                        {loadingCandidates ? (
-                          <p>טוען מועמדים...</p>
-                        ) : candidates.length === 0 ? (
-                          <p>לא נמצאו מועמדים מתאימים.</p>
-                        ) : (
-                          <ul className="candidates-list">
-                            {candidates.map((c, idx) => (
-                              <li key={idx} className="candidate">
-                                <div className="candidate-main">
-                                  <span className="name">
-                                    {c.firstName && c.lastName
-                                      ? `${c.firstName} ${c.lastName}`
-                                      : c.employeeName}
-                                  </span>
-                                  <span className="meta">
-                                    {(selectedRole === "guard"
-                                      ? getPositionOf(c)
-                                      : roleHeb) || "עמדה"}{" "}
-                                    · {formatDateToHebrew(c.date)} · {c.shift}
-                                  </span>
-                                </div>
-                                <div className="candidate-actions">
-                                  <button
-                                    className="primary"
-                                    disabled={sending}
-                                    onClick={() => sendSwapRequest(c)}
-                                  >
-                                    בקש החלפה
-                                  </button>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
+                {swapCandidatesOpen &&
+                  selectedAssignment &&
+                  selectedAction === "swap" && (
+                    <div className="swap-candidates">
+                      <h4>
+                        מועמדים להחלפה (אותו יום ומשמרת
+                        {selectedRole === "guard"
+                          ? " ובאותה עמדה"
+                          : ` ו${roleHeb}`}
+                        )
+                      </h4>
+                      {loadingCandidates ? (
+                        <p>טוען מועמדים...</p>
+                      ) : candidates.length === 0 ? (
+                        <p>לא נמצאו מועמדים מתאימים.</p>
+                      ) : (
+                        <ul className="candidates-list">
+                          {candidates.map((c, idx) => (
+                            <li key={idx} className="candidate">
+                              <div className="candidate-main">
+                                <span className="name">
+                                  {c.firstName && c.lastName
+                                    ? `${c.firstName} ${c.lastName}`
+                                    : c.employeeName}
+                                </span>
+                                <span className="meta">
+                                  {(selectedRole === "guard"
+                                    ? getPositionOf(c)
+                                    : roleHeb) || "עמדה"}{" "}
+                                  · {formatDateToHebrew(c.date)} · {c.shift}
+                                </span>
+                              </div>
+                              <div className="candidate-actions">
+                                <button
+                                  className="primary"
+                                  disabled={sending}
+                                  onClick={() => sendSwapRequest(c)}
+                                >
+                                  בקש החלפה
+                                </button>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
               </div>
-
-              {toast.text && (
-                <div
-                  className={`toast ${toast.type}`}
-                  onAnimationEnd={() => setToast({ type: "", text: "" })}
-                >
-                  {toast.text}
-                </div>
-              )}
             </aside>
           </div>
         )}
