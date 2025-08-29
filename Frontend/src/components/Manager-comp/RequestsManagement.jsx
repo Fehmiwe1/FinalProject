@@ -12,8 +12,7 @@ function RequestsManagement() {
   // מסירה/החלפה
   const [shiftRequests, setShiftRequests] = useState([]);
   const [showShiftHistory, setShowShiftHistory] = useState(false);
-  const [shiftFilter, setShiftFilter] = useState("all"); 
-
+  const [shiftFilter, setShiftFilter] = useState("all");
 
   const dontShow = Cookies.get("eventDescription");
 
