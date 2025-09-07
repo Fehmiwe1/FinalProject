@@ -218,3 +218,17 @@
 .auto-fill-button:hover {
   background-color: #3b4a59;
 }
+
+
+.gap-warning {
+  background: #3a1f1f;
+  border: 1px solid #bb3b3b;
+  color: #ffd2d2;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.gaps-list { margin-top: 8px; padding-inline-start: 18px; }
+.linklike { margin-inline-start: 10px; border: none; background: none; color: #ffd2d2; text-decoration: underline; cursor: pointer; }
+
+

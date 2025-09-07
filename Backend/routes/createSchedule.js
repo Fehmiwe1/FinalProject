@@ -19,7 +19,7 @@ router.get("/scheduleGuard", (req, res) => {
       ec.availability
       FROM users u
       LEFT JOIN employee_constraints ec ON u.id = ec.ID_employee
-      WHERE u.role = 'guard'
+      WHERE u.role = 'guard' AND u.status = 'active'
       ORDER BY u.id, ec.date, ec.shift;
   `;
 
@@ -183,7 +183,7 @@ router.get("/scheduleMoked", (req, res) => {
       ec.availability
       FROM users u
       LEFT JOIN employee_constraints ec ON u.id = ec.ID_employee
-      WHERE u.role = 'moked'
+      WHERE u.role = 'moked' AND u.status = 'active'
       ORDER BY u.id, ec.date, ec.shift;
   `;
 
@@ -372,7 +372,7 @@ router.get("/scheduleKabet", (req, res) => {
       ec.availability
     FROM users u
     LEFT JOIN employee_constraints ec ON u.id = ec.ID_employee
-    WHERE u.role = 'kabat'
+    WHERE u.role = 'kabat' AND u.status = 'active'
     ORDER BY u.id, ec.date, ec.shift;
   `;
 

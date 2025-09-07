@@ -70,7 +70,7 @@ const useWeeks = () =>
     return [w1, w2];
   }, []);
 
-/* הצג את הבחירה גם אם לא ב-topN */
+/* שמירה על בחירה קיימת בראש הרשימה אם איננה ברשימת המועמדים */
 const ensureSelectedFirst = (list, selectedId, lookupById) => {
   if (!selectedId) return list;
   const exists = list.some((u) => u.id.toString() === selectedId.toString());
@@ -80,7 +80,6 @@ const ensureSelectedFirst = (list, selectedId, lookupById) => {
   return [sel, ...list];
 };
 
-/* Hash לשובר שוויון */
 const hashInt = (s) => {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
@@ -90,7 +89,6 @@ const hashInt = (s) => {
   return Math.abs(h);
 };
 
-/* נרמול להסרת כפילויות קיימות */
 const normalizeAssignments = (role, raw) => {
   const next = { ...raw };
 
@@ -145,6 +143,10 @@ function ManagerSchedule() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [guardWeekView, setGuardWeekView] = useState(0);
+
+  // התראה על חוסרים
+  const [gaps, setGaps] = useState([]);
+  const [showGaps, setShowGaps] = useState(false);
 
   const weeks = useWeeks();
 
@@ -233,7 +235,7 @@ function ManagerSchedule() {
     return m;
   }, [kabatConstraints]);
 
-  /* ===== Unique users + lookup maps ===== */
+  /* ===== Unique users + lookup maps (מגיעים מה־API אחרי סינון status=active) ===== */
   const uniqueGuards = useMemo(() => {
     const seen = new Set();
     const arr = [];
@@ -268,7 +270,7 @@ function ManagerSchedule() {
     return m;
   }, [uniqueKabatUsers]);
 
-  /* ===== Duplicate protection per date|shift (for rendering & autofill) ===== */
+  /* ===== Duplicate protection per date|shift ===== */
   const assignedByDateShift = useMemo(() => {
     const m = new Map();
     for (const [key, uid] of Object.entries(assignments)) {
@@ -284,7 +286,7 @@ function ManagerSchedule() {
     return m;
   }, [assignments]);
 
-  /* ===== Per-user per-day assignments (for block rules when rendering) ===== */
+  /* ===== Per-user per-day assignments (for block rules) ===== */
   const userAssignmentsByDate = useMemo(() => {
     const m = new Map();
     for (const [key, uid] of Object.entries(assignments)) {
@@ -298,7 +300,6 @@ function ManagerSchedule() {
     return m;
   }, [assignments]);
 
-  /* === Block rules (עבור רינדור/בחירה ידנית) === */
   const isBlocked = useCallback(
     (userId, date, shift) => {
       const sameDay = userAssignmentsByDate.get(userId)?.get(date);
@@ -355,7 +356,6 @@ function ManagerSchedule() {
     });
   }, []);
 
-  /* ===== Handlers ===== */
   const handleChangeCustom = useCallback(
     (key, userId) => setUniqueAssignment(key, userId),
     [setUniqueAssignment]
@@ -374,8 +374,11 @@ function ManagerSchedule() {
     }, 2200);
   }, []);
 
-  /* ===== Save ===== */
+  /* ===== שמירה ===== */
   const handleSaveSchedule = useCallback(async () => {
+    if (gaps.length > 0) {
+      flashMessage(`שימו לב: יש ${gaps.length} חוסרים בסידור.`, "error");
+    }
     const seen = new Set(),
       toSend = [];
     for (const [key, userId] of Object.entries(assignments)) {
@@ -405,9 +408,15 @@ function ManagerSchedule() {
     } catch {
       flashMessage("אירעה שגיאה בשמירת הסידור", "error");
     }
-  }, [assignments, selectedRole, flashMessage]);
+  }, [assignments, selectedRole, flashMessage, gaps.length]);
 
   const handleSaveScheduleForGuard = useCallback(async () => {
+    if (gaps.length > 0) {
+      flashMessage(
+        `שימו לב: יש ${gaps.length} חוסרים בסידור המאבטחים.`,
+        "error"
+      );
+    }
     const mapRole = {
       ראשי: "מאבטח",
       נשר: "מאבטח",
@@ -436,9 +445,9 @@ function ManagerSchedule() {
     } catch {
       flashMessage("אירעה שגיאה בשמירת סידור המאבטחים", "error");
     }
-  }, [assignments, flashMessage]);
+  }, [assignments, flashMessage, gaps.length]);
 
-  /* ===== Usage & Auto-fill (מוקד/קבט) – ללא שינוי ===== */
+  /* ===== Usage count ===== */
   const usageCountFromAssignments = useMemo(() => {
     const m = new Map();
     for (const uid of Object.values(assignments))
@@ -446,6 +455,7 @@ function ManagerSchedule() {
     return m;
   }, [assignments]);
 
+  /* ===== Auto-fill (מוקד/קבט) ===== */
   const handleAutoAssignWeekTable = useCallback(() => {
     if (selectedRole !== "מוקד" && selectedRole !== "קבט") {
       flashMessage('שיבוץ אוטומטי אפשרי רק למוקדנים ולקב"טים', "error");
@@ -461,8 +471,9 @@ function ManagerSchedule() {
       return assignedDS.get(k);
     };
 
+    const activeUsers = uniqueKabatUsers; // כבר פעילים מהשרת
     const totalSlots = weeks.flat().length * SHIFTS.length;
-    const N = Math.max(1, uniqueKabatUsers.length);
+    const N = Math.max(1, activeUsers.length);
     const quota = Math.ceil(totalSlots / N);
 
     weeks.flat().forEach((date) => {
@@ -475,7 +486,7 @@ function ManagerSchedule() {
           return;
         }
         const pick = (enforce) => {
-          const cand = uniqueKabatUsers
+          const cand = activeUsers
             .map((u) => ({
               ...u,
               availability: getAvailability(u.id, date, shift),
@@ -525,15 +536,12 @@ function ManagerSchedule() {
     assignedByDateShift,
   ]);
 
-  /* ===== Auto-fill (מאבטחים) – תוקן: משתמש ב־usedByDate שמתעדכן בזמן אמת ===== */
+  /* ===== Auto-fill (מאבטחים) ===== */
   const handleAutoAssignFullGuardScheduleTable = useCallback(() => {
     const priority = { יכול: 0, "יכול חלקית": 1 };
     const temp = { ...assignments };
 
-    // נעקוב אחרי שימוש לכל עובד
     const used = new Map(usageCountFromAssignments);
-
-    // מי שכבר שובץ בתאריך+משמרת (מונע כפילות בעמדות שונות)
     const assignedDS = new Map(assignedByDateShift);
     const ds = (date, shift) => {
       const k = `${date}|${shift}`;
@@ -541,17 +549,15 @@ function ManagerSchedule() {
       return assignedDS.get(k);
     };
 
-    // *** חדש: מפה דינמית של שיבוצי עובד לפי יום במהלך המילוי ***
-    // uid -> Map(date -> Set(shifts))
+    // uid -> Map(date -> Set(shifts))  (Runtime)
     const usedByDate = new Map();
-    // אתחול מהשיבוצים הקיימים לפני המילוי
     for (const [key, uid] of Object.entries(assignments)) {
       if (!uid) continue;
       const p = key.split("|");
       if (p.length !== 4) continue; // רק מאבטחים
       const date = p[0],
-        shift = p[2];
-      const u = uid.toString();
+        shift = p[2],
+        u = uid.toString();
       if (!usedByDate.has(u)) usedByDate.set(u, new Map());
       if (!usedByDate.get(u).has(date)) usedByDate.get(u).set(date, new Set());
       usedByDate.get(u).get(date).add(shift);
@@ -561,13 +567,11 @@ function ManagerSchedule() {
       const u = uid.toString();
       const byDate = usedByDate.get(u);
 
-      // אותו יום: אם כבר יש משמרת אחרת באותו יום — חסום
       if (byDate && byDate.get(date)) {
         const set = byDate.get(date);
-        if (set.size > 0 && !set.has(shift)) return true; // יש כבר משמרת אחרת באותו יום
+        if (set.size > 0 && !set.has(shift)) return true;
       }
 
-      // לילה של אתמול -> בוקר של היום
       const d = new Date(date);
       d.setDate(d.getDate() - 1);
       const prev = d.toISOString().split("T")[0];
@@ -589,7 +593,6 @@ function ManagerSchedule() {
       usedByDate.get(u).get(date).add(shift);
     };
 
-    // חישוב מכסת שימוש הוגנת (לא חובה אך שומר על איזון)
     const totalSlots = weeks.flat().reduce((acc, date, dayIdx) => {
       return (
         acc +
@@ -607,7 +610,6 @@ function ManagerSchedule() {
     const N = Math.max(1, uniqueGuards.length);
     const quota = Math.ceil(totalSlots / N);
 
-    // נרוץ כרונולוגית — כך "לילה אתמול" כבר יופיע ב-usedByDate לפני "בוקר היום"
     weeks.flat().forEach((date, dayIdx) => {
       POSITIONS.forEach((position) => {
         GUARD_SHIFTS.forEach((shiftType) => {
@@ -618,7 +620,7 @@ function ManagerSchedule() {
               const uid = temp[key].toString();
               used.set(uid, (used.get(uid) ?? 0) + 1);
               ds(date, shiftType).add(uid);
-              markRuntime(uid, date, shiftType); // גם שיבוצים קיימים נרשמים
+              markRuntime(uid, date, shiftType);
               continue;
             }
 
@@ -631,8 +633,8 @@ function ManagerSchedule() {
                 .filter((u) => {
                   const uid = u.id.toString();
                   if (u.availability === "לא יכול") return false;
-                  if (ds(date, shiftType).has(uid)) return false; // כבר שובץ באותה משמרת באותו תאריך בעמדה אחרת
-                  if (hasBlockRuntime(uid, date, shiftType)) return false; // חסימות זמן אמת (אותו יום / לילה->בוקר)
+                  if (ds(date, shiftType).has(uid)) return false;
+                  if (hasBlockRuntime(uid, date, shiftType)) return false;
                   if (enforceQuota && (used.get(uid) ?? 0) >= quota)
                     return false;
                   return true;
@@ -660,7 +662,7 @@ function ManagerSchedule() {
               temp[key] = uid;
               used.set(uid, (used.get(uid) ?? 0) + 1);
               ds(date, shiftType).add(uid);
-              markRuntime(uid, date, shiftType); // <<< עדכון מצב ריצה למניעת בוקר אחרי לילה
+              markRuntime(uid, date, shiftType);
             }
           }
         });
@@ -681,20 +683,52 @@ function ManagerSchedule() {
     usageCountFromAssignments,
   ]);
 
+  /* ======= חישוב חוסרים לסידור והצגת התראה ======= */
+  const computeGaps = useCallback(() => {
+    const allDates = weeks.flat();
+    const out = [];
+
+    if (selectedRole === "מוקד" || selectedRole === "קבט") {
+      // תא אחד לכל תאריך×משמרת
+      allDates.forEach((date) => {
+        SHIFTS.forEach((shift) => {
+          const key = `${date}|${shift}`;
+          if (!assignments[key]) {
+            out.push({ type: "single", date, shift });
+          }
+        });
+      });
+    } else if (selectedRole === "מאבטח") {
+      allDates.forEach((date, dayIdx) => {
+        POSITIONS.forEach((pos) => {
+          SHIFTS.forEach((shift) => {
+            const need = getGuardCount(shift, pos, dayIdx % 7);
+            if (need === 0) return;
+            let have = 0;
+            for (let i = 0; i < need; i++) {
+              const k = `${date}|${pos}|${shift}|${i}`;
+              if (assignments[k]) have++;
+            }
+            const missing = need - have;
+            if (missing > 0)
+              out.push({ type: "multi", date, position: pos, shift, missing });
+          });
+        });
+      });
+    }
+    return out;
+  }, [assignments, selectedRole, weeks]);
+
+  useEffect(() => {
+    const gs = computeGaps();
+    setGaps(gs);
+  }, [assignments, selectedRole, weeks, computeGaps]);
+
   /* ===== Render: Kabat/Moked ===== */
   const renderWeekTable = useCallback(
     (week, title) => {
-      const users = [...uniqueKabatUsers];
+      const users = [...uniqueKabatUsers]; // פעילים בלבד
       const userMap = {};
-      Object.values(assignments).forEach((id) => {
-        if (!id) return;
-        if (!users.find((u) => u.id.toString() === id.toString()))
-          users.push({
-            id: parseInt(id, 10),
-            firstName: "עובד",
-            lastName: id.toString(),
-          });
-      });
       users.forEach(
         (u) => (userMap[u.id.toString()] = `${u.firstName} ${u.lastName}`)
       );
@@ -764,8 +798,19 @@ function ManagerSchedule() {
                       lookupById
                     );
 
+                    const selectedIsInactive =
+                      selectedId &&
+                      !users.find(
+                        (u) => u.id.toString() === selectedId.toString()
+                      );
+
+                    const missingCell = !selectedId; // עבור התראה ו־highlight אפשרי
+
                     return (
-                      <td key={colIdx}>
+                      <td
+                        key={colIdx}
+                        className={missingCell ? "missing-cell" : ""}
+                      >
                         <select
                           className="guard-select"
                           value={selectedId}
@@ -792,6 +837,14 @@ function ManagerSchedule() {
                               </option>
                             );
                           })}
+                          {selectedIsInactive && (
+                            <option
+                              value={selectedId}
+                              className="inactive-option"
+                            >
+                              עובד {selectedId} (לא פעיל)
+                            </option>
+                          )}
                         </select>
                       </td>
                     );
@@ -849,11 +902,22 @@ function ManagerSchedule() {
                       {position} - {shiftType}
                     </td>
                     {week.map((date, i) => {
-                      const count = getGuardCount(shiftType, position, i);
-                      if (!count) return <td key={i}>—</td>;
+                      const need = getGuardCount(shiftType, position, i);
+                      if (!need) return <td key={i}>—</td>;
+                      // כמה חסרים למשבצת לצורך highlight
+                      let have = 0;
+                      for (let idx = 0; idx < need; idx++) {
+                        const k = `${date}|${position}|${shiftType}|${idx}`;
+                        if (assignments[k]) have++;
+                      }
+                      const missing = need - have;
+
                       return (
-                        <td key={i}>
-                          {Array.from({ length: count }).map((_, idx) => {
+                        <td
+                          key={i}
+                          className={missing > 0 ? "missing-cell" : ""}
+                        >
+                          {Array.from({ length: need }).map((_, idx) => {
                             const key = `${date}|${position}|${shiftType}|${idx}`;
                             const selectedId = assignments[key] || "";
                             let candidates = uniqueGuards
@@ -899,6 +963,12 @@ function ManagerSchedule() {
                               lookupById
                             );
 
+                            const selectedIsInactive =
+                              selectedId &&
+                              !uniqueGuards.find(
+                                (u) => u.id.toString() === selectedId.toString()
+                              );
+
                             return (
                               <select
                                 key={idx}
@@ -926,6 +996,14 @@ function ManagerSchedule() {
                                     </option>
                                   );
                                 })}
+                                {selectedIsInactive && (
+                                  <option
+                                    value={selectedId}
+                                    className="inactive-option"
+                                  >
+                                    עובד {selectedId} (לא פעיל)
+                                  </option>
+                                )}
                               </select>
                             );
                           })}
@@ -952,6 +1030,9 @@ function ManagerSchedule() {
     ]
   );
 
+  /* ===== UI ===== */
+  const gapsCount = gaps.length;
+
   return (
     <div className="managerSchedulePage">
       <aside className="role-selector">
@@ -968,6 +1049,34 @@ function ManagerSchedule() {
 
       <main className="schedule-display">
         <h1 className="titleH1">סידור עבודה</h1>
+
+        {/* התראת חוסרים */}
+        {gapsCount > 0 && (
+          <div className="gap-warning">
+            <strong>התראה:</strong> הסידור אינו מלא — נמצאו {gapsCount} חוסרים.
+            <button className="linklike" onClick={() => setShowGaps((s) => !s)}>
+              {showGaps ? "הסתר פירוט" : "הצג פירוט"}
+            </button>
+            {showGaps && (
+              <ul className="gaps-list">
+                {gaps.slice(0, 12).map((g, idx) =>
+                  g.type === "single" ? (
+                    <li key={idx}>
+                      {formatDateToHebrew(g.date)} — משמרת {g.shift}: חסר עובד
+                    </li>
+                  ) : (
+                    <li key={idx}>
+                      {formatDateToHebrew(g.date)} — {g.position}, {g.shift}:
+                      חסרים {g.missing}
+                    </li>
+                  )
+                )}
+                {gaps.length > 12 && <li>…ועוד {gaps.length - 12} חוסרים</li>}
+              </ul>
+            )}
+          </div>
+        )}
+
         {message && <div className={`message ${messageType}`}>{message}</div>}
 
         {(selectedRole === "קבט" || selectedRole === "מוקד") && (
