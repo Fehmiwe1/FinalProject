@@ -45,20 +45,38 @@ function MainPageManager() {
   // ---------- עוזרים לתאריכים (לוקאליים, ללא UTC) ----------
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  // מפתח תאריך לוגי 'YYYY-MM-DD' מתוך אובייקט Date לוקאלי
+  // הופך אובייקט Date ל־'YYYY-MM-DD' (מקומי)
   const toKey = (d) =>
     `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
-  // המרה מ'YYYY-MM-DD' ל-DD/MM/YYYY
-  const formatDateToHebrew = (dateKey) => {
-    const [y, m, d] = dateKey.split("-").map(Number);
-    return `${pad2(d)}/${pad2(m)}/${y}`;
+  // מנרמל ערך תאריך מכל סוג ל־'YYYY-MM-DD'
+  const normalizeKey = (val) => {
+    if (!val) return "";
+    // אם קיבלנו מחרוזת שמתחילה ב־YYYY-MM-DD—נחתוך ל-10 תווים כדי להיפטר מ־'T...'
+    if (typeof val === "string") {
+      if (/^\d{4}-\d{2}-\d{2}/.test(val)) return val.slice(0, 10);
+      // ניסיון פרסינג כללי כמפלט
+      const d = new Date(val);
+      if (!isNaN(d)) return toKey(d);
+      return "";
+    }
+    // אם זה Date
+    if (val instanceof Date && !isNaN(val)) return toKey(val);
+    return "";
+  };
+
+  // המרה ל־DD/MM/YYYY מתוך כל ערך (Date או string)
+  const formatDateToHebrew = (dateLike) => {
+    const key = normalizeKey(dateLike);
+    if (!key) return "";
+    const [y, m, d] = key.split("-");
+    return `${pad2(Number(d))}/${pad2(Number(m))}/${y}`;
   };
 
   // יצירת אובייקט Date לוקאלי מתוך 'YYYY-MM-DD'
   const keyToLocalDate = (dateKey) => {
-    const [y, m, d] = dateKey.split("-").map(Number);
-    return new Date(y, m - 1, d); // לוקאלי
+    const [y, m, d] = normalizeKey(dateKey).split("-").map(Number);
+    return new Date(y, (m ?? 1) - 1, d ?? 1); // לוקאלי
   };
 
   // שם יום (א,ב,ג,ד,ה,ו,ש) מתוך מפתח תאריך
