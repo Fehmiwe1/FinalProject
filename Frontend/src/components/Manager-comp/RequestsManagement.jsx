@@ -14,6 +14,9 @@ function RequestsManagement() {
   const [showShiftHistory, setShowShiftHistory] = useState(false);
   const [shiftFilter, setShiftFilter] = useState("all");
 
+  // הדגשת שורות ע"י שם עובד שנלחץ (from/to)
+  const [highlightedEmployee, setHighlightedEmployee] = useState(null);
+
   const dontShow = Cookies.get("eventDescription");
 
   useEffect(() => {
@@ -50,7 +53,7 @@ function RequestsManagement() {
     }
   };
 
-  const handleApprove = (id, date) => {
+  const handleApprove = (id) => {
     axios
       .put("/employeeNotifications/updateStatus", {
         ID_employee: id,
@@ -60,7 +63,7 @@ function RequestsManagement() {
       .catch((error) => console.error("שגיאה באישור:", error));
   };
 
-  const handleReject = (id, date) => {
+  const handleReject = (id) => {
     axios
       .put("/employeeNotifications/updateStatus", {
         ID_employee: id,
@@ -86,7 +89,6 @@ function RequestsManagement() {
     axios
       .put("/employeeRequests/updateShiftStatus", { id, status })
       .then(() => {
-        // עדכון לוקלי: מעביר מרשימת הממתינים להיסטוריה ע"י שינוי הסטטוס
         setShiftRequests((prev) =>
           prev.map((r) => (r.id === id ? { ...r, status } : r))
         );
@@ -130,12 +132,10 @@ function RequestsManagement() {
   const sickRequests = requests
     .filter((req) => {
       if (req.requestType !== "מחלה") return false;
-
       const requestDate = new Date(req.requestDate);
       const today = new Date();
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(today.getMonth() - 1);
-
       return requestDate >= oneMonthAgo && requestDate <= today;
     })
     .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
@@ -152,6 +152,48 @@ function RequestsManagement() {
     .sort(
       (a, b) => new Date(b.requestDate || 0) - new Date(a.requestDate || 0)
     );
+
+  // ====== היסטוריית מסירה/החלפה עם הדגשת שורות לפי שם ======
+  const renderHistoryRow = (req) => {
+    const fromFull = `${req.fromFirstName || ""} ${
+      req.fromLastName || ""
+    }`.trim();
+    const toFull = `${req.toFirstName || ""} ${req.toLastName || ""}`.trim();
+
+    const isHighlighted =
+      highlightedEmployee &&
+      (fromFull === highlightedEmployee || toFull === highlightedEmployee);
+
+    return (
+      <tr
+        key={`shift-history-${req.id}`}
+        className={`${
+          req.requestType === "מסירה" ? "shift-row-give" : "shift-row-exchange"
+        } ${isHighlighted ? "highlighted-row" : ""}`}
+      >
+        <td
+          className="clickable-name"
+          onClick={() =>
+            setHighlightedEmployee((prev) =>
+              prev === fromFull ? null : fromFull
+            )
+          }
+          title="הדגשת כל השורות של עובד זה"
+        >
+          {fromFull}
+        </td>
+        <td>{formatDateToHebrew(req.requestDate)}</td>
+        <td>{req.requestType}</td>
+        <td>
+          {req.shiftDate ? formatDateToHebrew(req.shiftDate) : "-"}
+          {req.shiftType ? `  ${req.shiftType}` : ""}
+          {req.location ? `  ${req.location}` : ""}
+        </td>
+        <td>{toFull || "-"}</td>
+        <td>{req.status || "ממתין"}</td>
+      </tr>
+    );
+  };
 
   return (
     <div className="requestsManagement">
@@ -429,56 +471,26 @@ function RequestsManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {historyShiftRequests.filter(
-                    (req) =>
-                      shiftFilter === "all" || req.requestType === shiftFilter
-                  ).length > 0 ? (
-                    historyShiftRequests
-                      .filter(
-                        (req) =>
-                          shiftFilter === "all" ||
-                          req.requestType === shiftFilter
-                      )
-                      .map((req) => (
-                        <tr
-                          key={`shift-history-${req.id}`}
-                          className={
-                            req.requestType === "מסירה"
-                              ? "shift-row-give"
-                              : "shift-row-exchange"
-                          }
-                        >
-                          <td>
-                            {req.fromFirstName} {req.fromLastName}
-                          </td>
-                          <td>{formatDateToHebrew(req.requestDate)}</td>
-                          <td>{req.requestType}</td>
-                          <td>
-                            {req.shiftDate
-                              ? formatDateToHebrew(req.shiftDate)
-                              : "-"}
-                            {req.shiftType ? `  ${req.shiftType}` : ""}
-                            {req.location ? `  ${req.location}` : ""}
-                          </td>
-                          <td>
-                            {req.toFirstName || req.toLastName
-                              ? `${req.toFirstName || ""} ${
-                                  req.toLastName || ""
-                                }`.trim()
-                              : "-"}
-                          </td>
-                          <td>{req.status || "ממתין"}</td>
-                        </tr>
-                      ))
-                  ) : (
-                    <tr>
-                      <td colSpan="6">
-                        אין היסטוריה לתצוגה לפי הסינון הנוכחי.
-                      </td>
-                    </tr>
-                  )}
+                  {historyShiftRequests
+                    .filter(
+                      (req) =>
+                        shiftFilter === "all" || req.requestType === shiftFilter
+                    )
+                    .map((req) => renderHistoryRow(req))}
                 </tbody>
               </table>
+
+              {highlightedEmployee && (
+                <div className="filter-indicator">
+                  צבועות כל השורות של: <strong>{highlightedEmployee}</strong>{" "}
+                  <button
+                    className="clear-filter-btn"
+                    onClick={() => setHighlightedEmployee(null)}
+                  >
+                    נקה צביעה
+                  </button>
+                </div>
+              )}
             </>
           )}
 
@@ -504,17 +516,13 @@ function RequestsManagement() {
                     <td>{formatDateToHebrew(emp.event_date)}</td>
                     <td>
                       <button
-                        onClick={() =>
-                          handleApprove(emp.ID_employee, emp.event_date)
-                        }
+                        onClick={() => handleApprove(emp.ID_employee)}
                         className="approve-btn"
                       >
                         אישור
                       </button>
                       <button
-                        onClick={() =>
-                          handleReject(emp.ID_employee, emp.event_date)
-                        }
+                        onClick={() => handleReject(emp.ID_employee)}
                         className="reject-btn"
                       >
                         דחייה
