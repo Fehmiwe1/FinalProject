@@ -109,8 +109,8 @@ function MainPageMoked() {
     <div className="mainPageMoked-wrapper">
       <main className="mainPageMoked-body">
         <section className="mainPageMoked-alerts-section">
-          <h3>התראות/בקשות</h3>
-          <table>
+          <h3 className="notifications-requests-table-h3">התראות/בקשות</h3>
+          <table className="notifications-requests-table">
             <thead>
               <tr>
                 <th>סוג בקשה</th>
@@ -129,8 +129,8 @@ function MainPageMoked() {
             </tbody>
           </table>
 
-          <h3>משימות</h3>
-          <table>
+          <h3 className="tasks-table-h3">משימות</h3>
+          <table className="tasks-table">
             <thead>
               <tr>
                 <th>תיאור משימה</th>

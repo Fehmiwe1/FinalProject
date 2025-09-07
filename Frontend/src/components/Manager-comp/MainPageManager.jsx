@@ -368,7 +368,7 @@ function MainPageManager() {
       <div className="mainPageManager-container">
         <div className="notifications-container">
           <form className="notifications-form">
-            <h1>התראות</h1>
+            <h1 className="notifications-table-h1">התראות</h1>
           </form>
 
           {msg && <div className="error-message">{msg}</div>}
@@ -389,8 +389,8 @@ function MainPageManager() {
 
           {tasks.length > 0 && (
             <>
-              <h2>משימות עובדים</h2>
-              <table className="notifications-table">
+              <h1 className="employee-tasks-table-h1">משימות עובדים</h1>
+              <table className="employee-tasks-table">
                 <thead>
                   <tr>
                     <th>שם עובד</th>
@@ -415,8 +415,10 @@ function MainPageManager() {
 
           {alerts.length > 0 && (
             <>
-              <h2>בקשות חופשה/מחלה ממתינות</h2>
-              <table className="notifications-table">
+              <h1 className="vacation-sickness-requests-table-h1">
+                בקשות חופשה/מחלה
+              </h1>
+              <table className="vacation-sickness-requests-table">
                 <thead>
                   <tr>
                     <th>שם עובד</th>

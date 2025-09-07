@@ -109,8 +109,8 @@ function MainPageGuard() {
     <div className="mainPageGuard-wrapper">
       <main className="mainPageGuard-body">
         <section className="mainPageGuard-alerts-section">
-          <h3>התראות/בקשות</h3>
-          <table>
+          <h3 className="notifications-requests-table-h3">התראות/בקשות</h3>
+          <table className="notifications-requests-table">
             <thead>
               <tr>
                 <th>סוג בקשה</th>
@@ -129,8 +129,8 @@ function MainPageGuard() {
             </tbody>
           </table>
 
-          <h3 style={{ marginTop: "30px" }}>משימות</h3>
-          <table>
+          <h3 className="tasks-table-h3">משימות</h3>
+          <table className="tasks-table">
             <thead>
               <tr>
                 <th>תיאור משימה</th>

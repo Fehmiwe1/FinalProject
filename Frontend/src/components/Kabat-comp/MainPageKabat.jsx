@@ -43,8 +43,8 @@ function MainPageKabat() {
     <div className="mainPageKabat-wrapper">
       <main className="mainPageKabat-body">
         <section className="mainPageKabat-alerts-section">
-          <h3>התראות/בקשות</h3>
-          <table>
+          <h3 className="notifications-requests-table-h3">התראות/בקשות</h3>
+          <table className="notifications-requests-table">
             <thead>
               <tr>
                 <th>סוג בקשה</th>
@@ -63,8 +63,8 @@ function MainPageKabat() {
             </tbody>
           </table>
 
-          <h3>משימות</h3>
-          <table>
+          <h3 className="tasks-table-h3">משימות</h3>
+          <table className="tasks-table">
             <thead>
               <tr>
                 <th>תיאור משימה</th>
